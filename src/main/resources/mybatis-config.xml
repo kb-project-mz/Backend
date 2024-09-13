@@ -9,8 +9,8 @@
     </settings>
 
     <typeAliases>
-        <package name="fingertips.backend.security.account.domain" />
-        <package name="fingertips.backend.challenge.domain" />
+        <package name="fingertips.backend.security.account.dto" />
+        <package name="fingertips.backend.challenge.dto" />
     </typeAliases>
 
 </configuration>
