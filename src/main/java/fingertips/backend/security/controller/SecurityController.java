@@ -2,6 +2,7 @@ package fingertips.backend.security.controller;
 
 import fingertips.backend.security.account.dto.UserDTO;
 import lombok.extern.log4j.Log4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,11 +23,15 @@ public class SecurityController {
     }
 
     @GetMapping("/admin")
-    public ResponseEntity<UserDTO> doAdmin(@AuthenticationPrincipal UserDTO userDTO) {
-        userDTO.setUsername(userDTO.getUsername());
-        userDTO.setUserId(userDTO.getUserId());
-        log.info("UserDTO = " + userDTO);
-        return ResponseEntity.ok(userDTO);
+    public ResponseEntity<String> doAdmin(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"))) {
+            log.info("Admin access granted to " + userDetails.getUsername());
+            return ResponseEntity.ok("Admin resource accessed");
+        } else {
+            log.info("Access denied for " + userDetails.getUsername());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
+        }
     }
 
     @GetMapping("/login")

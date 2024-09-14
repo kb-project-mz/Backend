@@ -26,11 +26,9 @@ tasks.withType(JavaCompile) {
 
 dependencies {
   // 스프링
-  // @Bean 쓸 수 있게 해주는 제일 기본으로 해줘야 하는 것
   implementation("org.springframework:spring-context:${springVersion}") { exclude group: 'commons-logging', module: 'commons-logging' }
 
 
-  // 상수 버전 쓸 때는 항상 ""쓰기
   implementation "org.springframework:spring-webmvc:${springVersion}"
   implementation 'javax.inject:javax.inject:1'
 
@@ -53,7 +51,6 @@ dependencies {
   implementation 'log4j:log4j:1.2.17'
 
   // log4jdbc-log4j2
-  // PreparedStatement로 SQL 처리시 ?에 실제 치환값을 출력해 준다
   implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4:1.16'
   implementation 'org.apache.logging.log4j:log4j-api:2.0.1'
   implementation 'org.apache.logging.log4j:log4j-core:2.0.1'
@@ -101,6 +98,9 @@ dependencies {
   implementation("io.jsonwebtoken:jjwt-api:0.11.5")
   runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
   implementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
+
+  // javax.annotation
+  implementation 'javax.annotation:javax.annotation-api:1.3.2'
 
 }
 

@@ -14,6 +14,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 @Log4j
 @Component
@@ -25,8 +26,10 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
     private AuthDTO makeAuth(UserDTO user) {
         String username = user.getUsername();
         String userID = user.getUserId();
-        String token = jwtProcessor.generateToken(username);
-        return new AuthDTO(token, userID);
+        List<String> roles = user.getRoles();
+        String accessToken = jwtProcessor.generateAccessToken(username, roles);
+        String refreshToken = jwtProcessor.generateRefreshToken(username);
+        return new AuthDTO(accessToken, userID, refreshToken);
     }
 
     @Override
@@ -37,3 +40,4 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         JsonResponse.send(response, result);
     }
 }
+

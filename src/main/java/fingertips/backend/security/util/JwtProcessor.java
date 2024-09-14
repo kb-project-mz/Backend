@@ -1,29 +1,51 @@
 package fingertips.backend.security.util;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
 
 @Component
 public class JwtProcessor {
 
-    static private final long TOKEN_VALID_MILISECOND = 1000L * 60 * 1; // 1 분
+    private static final long ACCESS_TOKEN_VALID_MILLISECONDS = 1000L * 60 * 1; // 1 분
+    private static final long REFRESH_TOKEN_VALID_MILLISECONDS = 1000L * 60 * 60 * 24 * 30; // 30 일
 
-    private String secretKey = "akldfaebyb13413bewjreb1324krrbwek1b4246kbk";
+    @Value("${jwt.secretKey}")
+    private String secretKey;
 
-    private Key key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+    private Key key;
 
-    public String generateToken(String subject) {
+    @PostConstruct
+    private void init() {
+        if (secretKey == null || secretKey.isEmpty()) {
+            throw new IllegalStateException("Secret key must not be null or empty");
+        }
+        this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public String generateAccessToken(String subject, List<String> roles) {
+        return Jwts.builder()
+                .setSubject(subject)
+                .claim("roles", roles) // Correctly set roles as List<String>
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(new Date().getTime() + ACCESS_TOKEN_VALID_MILLISECONDS))
+                .signWith(key)
+                .compact();
+    }
+
+    public String generateRefreshToken(String subject) {
         return Jwts.builder()
                 .setSubject(subject)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(new Date().getTime() + TOKEN_VALID_MILISECOND))
+                .setExpiration(new Date(new Date().getTime() + REFRESH_TOKEN_VALID_MILLISECONDS))
                 .signWith(key)
                 .compact();
     }
@@ -37,11 +59,24 @@ public class JwtProcessor {
                 .getSubject();
     }
 
-    public boolean validateToken(String token) {
-        Jws<Claims> claims = Jwts.parserBuilder()
+    public List<String> getUserRoles(String token) {
+        Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
-                .parseClaimsJws(token);
-        return true;
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("roles", List.class);
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }
