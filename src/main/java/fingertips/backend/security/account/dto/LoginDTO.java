@@ -15,6 +15,8 @@ import javax.servlet.http.HttpServletRequest;
 public class LoginDTO {
     private String username;
     private String password;
+    private String accessToken;
+    private String refreshToken;
 
     public static LoginDTO of(HttpServletRequest request) throws AuthenticationException {
         ObjectMapper om = new ObjectMapper();

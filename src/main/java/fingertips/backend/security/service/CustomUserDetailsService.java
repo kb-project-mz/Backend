@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 @Log4j
 @Service
 @RequiredArgsConstructor
+
+// Spring Security에서 사용자의 인증 정보를 로드하는 데 사용
 public class CustomUserDetailsService implements UserDetailsService {
     private final UserDetailsMapper mapper;
 
@@ -26,7 +28,6 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException(username + "은 없는 id입니다.");
         }
 
-        // UserDetails 객체를 생성하여 권한과 함께 반환
         return new User(
                 dto.getUsername(),
                 dto.getPassword(),
