@@ -3,7 +3,6 @@
         PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
-
     <settings>
         <setting name="mapUnderscoreToCamelCase" value="true" />
     </settings>
@@ -11,6 +10,10 @@
     <typeAliases>
         <package name="fingertips.backend.security.account.dto" />
         <package name="fingertips.backend.challenge.dto" />
+        <package name="fingertips.backend.consumption.dto" />
     </typeAliases>
 
+    <mappers>
+        <mapper resource="mapper/ConsumptionMapper.xml" />
+    </mappers>
 </configuration>

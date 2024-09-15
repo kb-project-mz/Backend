@@ -83,7 +83,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        http.addFilterBefore(encodingFilter(), CsrfFilter.class)
+        http
+                .cors()
+                .and()
+                .addFilterBefore(encodingFilter(), CsrfFilter.class)
                 .addFilterBefore(authenticationErrorFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtUsernamePasswordAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

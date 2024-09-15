@@ -22,10 +22,9 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @PropertySource({"classpath:/application.properties"})
-//@MapperScan(basePackages = {""})
-//@ComponentScan(basePackages = {""})
+@MapperScan(basePackages = {"fingertips.backend.consumption.mapper"})
+@ComponentScan(basePackages = {"fingertips.backend.consumption.service"})
 @Slf4j
-
 @EnableTransactionManagement
 public class RootConfig {
 
@@ -55,12 +54,9 @@ public class RootConfig {
     public SqlSessionFactory sqlSessionFactory() throws Exception {
 
         SqlSessionFactoryBean sqlSessionFactory = new SqlSessionFactoryBean();
-
         sqlSessionFactory.setConfigLocation(
                 applicationContext.getResource("classpath:/mybatis-config.xml"));
-
         sqlSessionFactory.setDataSource(dataSource());
-
         return (SqlSessionFactory) sqlSessionFactory.getObject();
     }
 
