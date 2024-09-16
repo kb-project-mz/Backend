@@ -19,11 +19,12 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.client.RestTemplate;
 
 @Configuration
-@PropertySource({"classpath:/application.properties"})
+@PropertySource({"classpath:/application.properties", "classpath:/env.properties"})
 @MapperScan(basePackages = {"fingertips.backend.consumption.mapper"})
-@ComponentScan(basePackages = {"fingertips.backend.consumption.service"})
+@ComponentScan(basePackages = {"fingertips.backend"})
 @Slf4j
 @EnableTransactionManagement
 public class RootConfig {
