@@ -1,6 +1,7 @@
 package fingertips.backend.consumption.controller;
 
 import fingertips.backend.consumption.dto.CardConsumptionDTO;
+import fingertips.backend.consumption.dto.PeriodDTO;
 import fingertips.backend.consumption.service.ConsumptionService;
 import fingertips.backend.openai.service.OpenAiService;
 import lombok.RequiredArgsConstructor;
@@ -29,9 +30,17 @@ public class ConsumptionController {
 
     @PostMapping("/ask")
     public ResponseEntity<String> askOpenAi(@RequestBody Map<String, String> request) {
+
         String prompt = request.get("prompt");
         String response = openAiService.askOpenAi(prompt);
 
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/test")
+    public ResponseEntity<String> dd(@RequestBody PeriodDTO period) {
+
+        String response = consumptionService.getMostUsedHistory(period);
         return ResponseEntity.ok(response);
     }
 }
