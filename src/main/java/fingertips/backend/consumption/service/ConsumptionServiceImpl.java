@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,24 +31,42 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         return consumptionMapper.getCardHistoryListByPeriod(period);
     }
 
+    // TODO : 프롬프트 수정
     @Override
-    public String getMostUsedHistory(PeriodDTO period) {
+    public Map<String, String> getMostAndMaximumUsed(PeriodDTO period) {
+
+        Map<String, String> response = new HashMap<>();
 
         List<CardConsumptionDTO> cardHistoryListByPeriod = getCardHistoryListByPeriod(period);
-
         String data = formatConsumptionListAsTable(cardHistoryListByPeriod);
-        String prompt = data.concat("이 테이블의 content 컬럼에서 가장 많이 나온 단어를 기준으로 " +
-                "해당 단어와 횟수를 [단어:횟수, 단어:횟수, 단어:횟수] 형식으로 다른 말 붙이지 말고 리스트만으로 대답해. " +
-                "단어가 아닌, 공백을 포함한 복합 명사를 추출해줘. " +
-                "횟수 내림차순으로 3개만 대답하고 지점명이나 지역 이름은 빼고 계산해.");
 
-        log.info(prompt);
-        return openAiService.askOpenAi(prompt);
-    }
+        String promptMostUsed = data.concat("이 테이블의 content 테이블은 돈을 쓴 사용처야. " +
+                "동일한 브랜드에 속하는 상호명을 인식하여 하나의 브랜드로 통일해줘. " +
+                "예를 들어, '스타벅스 대화역점'과 '스타벅스 어린이대공원'은 '스타벅스'로 인식하고 통일해. " +
+                "공백, 특수문자, 지점명(예: 'OO점', '역', '어린이대공원', '_34') 같은 불필요한 부분은 제거하고, 핵심 브랜드명만 추출해줘. " +
+                "예를 들어, '충칭 마라탕'과 '충칭마라탕'은 동일한 브랜드로 인식해. " +
+                "단, '마라탕', '치킨', '커피'와 같은 공통 단어를 기준으로 통합하지 말고, 브랜드명에서 일관된 부분만 통일해줘." +
+                "동일한 브랜드로 방문한 사용처를 테이블에서 찾아 정확히 카운트해서 방문 횟수 기준으로 내림차순으로 3개를 추출해주고," +
+                "결과를 확실하게 검토한 후 각 브랜드의 방문 횟수를 적어줘. " +
+                "대답할 때 다른 말 붙이지 말고 [지점명:방문 횟수, 지점명:방문 횟수, 지점명:방문 횟수] 이렇게 방문 횟수 내림차순으로 대답해.");
 
-    @Override
-    public List<Map<String, Integer>> getMaximumAmountHistory(PeriodDTO period) {
-        return null;
+        String promptMaximumAmount = data.concat("이 테이블의 content 테이블은 돈을 쓴 사용처야. " +
+                "동일한 브랜드에 속하는 상호명을 인식하여 하나의 브랜드로 통일해줘. " +
+                "예를 들어, '스타벅스 대화역점'과 '스타벅스 어린이대공원'은 '스타벅스'로 인식하고 통일해. " +
+                "공백, 특수문자, 지점명(예: 'OO점', '역', '어린이대공원', '_34') 같은 불필요한 부분은 제거하고, 핵심 브랜드명만 추출해줘. " +
+                "예를 들어, '충칭 마라탕'과 '충칭마라탕'은 동일한 브랜드로 인식해. " +
+                "단, '마라탕', '치킨', '커피'와 같은 공통 단어를 기준으로 통합하지 말고, 브랜드명에서 일관된 부분만 통일해줘. " +
+                "브랜드가 동일한 상호명을 그룹화하고, 각 브랜드별로 총 금액을 테이블에서 찾아 정확히 계산해서 총 금액 내림차순으로 3개를 추출해주고," +
+                "결과를 확실하게 검토한 후 각 브랜드에서 사용한 총액을 적어줘. " +
+                "대답할 때 다른 말 붙이지 말고 [지점명:총 금액, 지점명:총 금액, 지점명:총 금액] 이렇게 총 금액 내림차순으로 대답해.");
+
+        String mostUsed = openAiService.askOpenAi(promptMostUsed);
+        String maximumAmount = openAiService.askOpenAi(promptMaximumAmount);
+
+        response.put("mostUsed", mostUsed);
+        response.put("maximumAmount", maximumAmount);
+
+        return response;
     }
 
     public String formatConsumptionListAsTable(List<CardConsumptionDTO> cardConsumption) {

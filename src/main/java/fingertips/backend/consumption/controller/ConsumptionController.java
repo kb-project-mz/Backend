@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,9 +39,9 @@ public class ConsumptionController {
     }
 
     @GetMapping("/test")
-    public ResponseEntity<String> dd(@RequestBody PeriodDTO period) {
+    public ResponseEntity<Map<String, String>> mostAndMaximumUsed(@RequestBody PeriodDTO period) {
 
-        String response = consumptionService.getMostUsedHistory(period);
+        Map<String, String> response = consumptionService.getMostAndMaximumUsed(period);
         return ResponseEntity.ok(response);
     }
 }

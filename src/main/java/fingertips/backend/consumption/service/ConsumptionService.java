@@ -10,6 +10,5 @@ public interface ConsumptionService {
 
     List<CardConsumptionDTO> getCardHistoryList(int memberId);
     List<CardConsumptionDTO> getCardHistoryListByPeriod(PeriodDTO period);
-    String getMostUsedHistory(PeriodDTO period);
-    List<Map<String, Integer>> getMaximumAmountHistory(PeriodDTO period);
+    Map<String, String> getMostAndMaximumUsed(PeriodDTO period);
 }
