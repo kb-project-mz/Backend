@@ -39,7 +39,17 @@ public class ConsumptionController {
     }
 
     @GetMapping("/test")
-    public ResponseEntity<Map<String, String>> mostAndMaximumUsed(@RequestBody PeriodDTO period) {
+    public ResponseEntity<Map<String, String>> mostAndMaximumUsed(@RequestParam Map<String, String> params) {
+
+        PeriodDTO period = PeriodDTO.builder()
+                .memberId(Integer.parseInt(params.get("memberId")))
+                .startYear(Integer.parseInt(params.get("startYear")))
+                .startMonth(Integer.parseInt(params.get("startMonth")))
+                .startDay(Integer.parseInt(params.get("startDay")))
+                .endYear(Integer.parseInt(params.get("endYear")))
+                .endMonth(Integer.parseInt(params.get("endMonth")))
+                .endDay(Integer.parseInt(params.get("endDay")))
+                .build();
 
         Map<String, String> response = consumptionService.getMostAndMaximumUsed(period);
         return ResponseEntity.ok(response);
