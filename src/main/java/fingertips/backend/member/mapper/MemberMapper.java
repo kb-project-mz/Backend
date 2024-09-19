@@ -1,4 +1,11 @@
 package fingertips.backend.member.mapper;
 
-public class MemberMapper {
+import fingertips.backend.member.dto.MemberDTO;
+import org.apache.ibatis.annotations.Mapper;
+
+@Mapper
+public interface MemberMapper {
+
+    MemberDTO getMember(String username);
+    void insertMember(MemberDTO memberDTO);
 }

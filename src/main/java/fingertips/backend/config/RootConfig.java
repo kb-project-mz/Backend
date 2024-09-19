@@ -1,6 +1,5 @@
 package fingertips.backend.config;
 
-
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +22,13 @@ import org.springframework.web.client.RestTemplate;
 
 @Configuration
 @PropertySource({"classpath:/application.properties", "classpath:/env.properties"})
-@MapperScan(basePackages = {"fingertips.backend.consumption.mapper"})
+@MapperScan(basePackages = {
+        "fingertips.backend.admin.mapper",
+        "fingertips.backend.asset.mapper",
+        "fingertips.backend.challenge.mapper",
+        "fingertips.backend.consumption.mapper",
+        "fingertips.backend.member.mapper"
+})
 @ComponentScan(basePackages = {"fingertips.backend"})
 @Slf4j
 @EnableTransactionManagement

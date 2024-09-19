@@ -22,6 +22,5 @@
         WHERE c.member_id = #{memberId}
             AND ch.consumption_date BETWEEN CONCAT(#{startYear}, '-', #{startMonth}, '-', #{startDay})
             AND CONCAT(#{endYear}, '-', #{endMonth}, '-', #{endDay});
-
     </select>
 </mapper>

@@ -4,6 +4,7 @@ import fingertips.backend.consumption.dto.CardConsumptionDTO;
 import fingertips.backend.consumption.dto.PeriodDTO;
 import fingertips.backend.consumption.service.ConsumptionService;
 import fingertips.backend.openai.service.OpenAiService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
