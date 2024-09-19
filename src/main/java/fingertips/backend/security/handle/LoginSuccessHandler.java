@@ -31,7 +31,12 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         String accessToken = jwtProcessor.generateAccessToken(memberId, role);
         String refreshToken = jwtProcessor.generateRefreshToken(memberId);
 
-        return new AuthDTO(accessToken, id, refreshToken);
+        return AuthDTO.builder()
+                .username(memberId)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .role(role)
+                .build();
     }
 
     @Override

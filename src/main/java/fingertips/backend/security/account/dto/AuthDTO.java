@@ -12,7 +12,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class AuthDTO {
 
-    private String memberId;
+    private String username;
     private String accessToken;
     private String refreshToken;
+    private String role;
 }
