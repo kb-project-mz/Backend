@@ -1,4 +1,13 @@
 package fingertips.backend.asset.mapper;
 
-public class AssetMapper {
+import fingertips.backend.asset.dto.AssetDto;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+@Mapper
+public interface AssetMapper {
+
+    List<AssetDto> getAssets(@Param("memberId") int memberId);
 }

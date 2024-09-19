@@ -11,9 +11,11 @@
         <package name="fingertips.backend.security.account.dto" />
         <package name="fingertips.backend.challenge.dto" />
         <package name="fingertips.backend.consumption.dto" />
+        <package name="fingertips.backend.asset.dto" />
     </typeAliases>
 
     <mappers>
         <mapper resource="mapper/ConsumptionMapper.xml" />
+        <mapper resource="mapper/AssetMapper.xml"/>
     </mappers>
 </configuration>

@@ -23,7 +23,10 @@ import org.springframework.web.client.RestTemplate;
 
 @Configuration
 @PropertySource({"classpath:/application.properties", "classpath:/env.properties"})
-@MapperScan(basePackages = {"fingertips.backend.consumption.mapper"})
+@MapperScan(basePackages = {
+        "fingertips.backend.asset.mapper",
+        "fingertips.backend.consumption.mapper"
+        })
 @ComponentScan(basePackages = {"fingertips.backend"})
 @Slf4j
 @EnableTransactionManagement
