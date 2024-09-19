@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 @AllArgsConstructor
 @Data
 public class LoginDTO {
+
     private String username;
     private String password;
     private String accessToken;
@@ -22,8 +23,7 @@ public class LoginDTO {
         ObjectMapper om = new ObjectMapper();
         try {
             return om.readValue(request.getInputStream(), LoginDTO.class);
-        }catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception e) {
             throw new BadCredentialsException("username 또는 password가 없습니다.");
         }
     }

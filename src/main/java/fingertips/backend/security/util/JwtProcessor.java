@@ -31,10 +31,10 @@ public class JwtProcessor {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateAccessToken(String subject, List<String> roles) {
+    public String generateAccessToken(String subject, String role) {
         return Jwts.builder()
                 .setSubject(subject)
-                .claim("roles", roles) // Correctly set roles as List<String>
+                .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(new Date().getTime() + ACCESS_TOKEN_VALID_MILLISECONDS))
                 .signWith(key)
@@ -59,13 +59,13 @@ public class JwtProcessor {
                 .getSubject();
     }
 
-    public List<String> getUserRoles(String token) {
+    public String getUserRole(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-        return claims.get("roles", List.class);
+        return claims.get("role", String.class);
     }
 
     public boolean validateToken(String token) {
