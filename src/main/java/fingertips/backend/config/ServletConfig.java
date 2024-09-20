@@ -6,17 +6,16 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-// Spring MVC의 설정을 활성화
 @EnableWebMvc
+// 반드시 이 패키지에 컨트롤러를 적어줘야 컨트롤러를 찾음
 @ComponentScan(basePackages = {
-        "fingertips.backend.controller",
-        "fingertips.backend.exception",
-        "fingertips.backend.challenge.controller",
-        "fingertips.backend.member.controller",
-        "fingertips.backend.consumption.controller",
-        "fingertips.backend.asset.controller",
         "fingertips.backend.admin.controller",
-}) //컨트롤러만 찾는다. 반드시 이 패키지에 컨트롤러 적어줘야한다.
+        "fingertips.backend.asset.controller",
+        "fingertips.backend.challenge.controller",
+        "fingertips.backend.consumption.controller",
+        "fingertips.backend.member.controller",
+        "fingertips.backend.exception",
+})
 public class ServletConfig implements WebMvcConfigurer {
 
     @Override
@@ -32,4 +31,3 @@ public class ServletConfig implements WebMvcConfigurer {
                 .addResourceLocations("/resources/assets/");
     }
 }
-
