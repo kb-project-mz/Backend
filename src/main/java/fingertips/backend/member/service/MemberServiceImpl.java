@@ -34,16 +34,9 @@ public class MemberServiceImpl implements MemberService {
         mapper.insertMember(memberDTO);
     }
 
-    public LoginDTO getMemberByUsername(String username) {
-        MemberDTO memberDTO = mapper.getMember(username);
-        if (memberDTO != null) {
-            return LoginDTO.builder()
-                    .memberId(memberDTO.getMemberId())
-                    .password(memberDTO.getPassword())
-                    .accessToken(jwtProcessor.generateAccessToken(memberDTO.getMemberId(), memberDTO.getRole()))
-                    .build();
-        }
-        return null;
+    public MemberDTO getMemberByUsername(String username) {
+
+        return mapper.getMember(username);
     }
 
     public void deleteMember(String username) {
@@ -51,12 +44,18 @@ public class MemberServiceImpl implements MemberService {
     }
 
     public boolean validateMember(String username, String password) {
-        LoginDTO loginDTO = getMemberByUsername(username);
+        MemberDTO memberDTO = getMemberByUsername(username);
 
-        if (loginDTO != null) {
-            return passwordEncoder.matches(password, loginDTO.getPassword());
+        if (memberDTO != null) {
+            return passwordEncoder.matches(password, memberDTO.getPassword());
         }
 
         return false;
+    }
+
+    @Override
+    public void setRefreshToken(MemberDTO memberDTO) {
+
+        mapper.setRefreshToken(memberDTO);
     }
 }

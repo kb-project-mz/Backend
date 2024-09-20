@@ -9,4 +9,5 @@ public interface MemberMapper {
     MemberDTO getMember(String username);
     void insertMember(MemberDTO memberDTO);
     void deleteMember(String username);
+    void setRefreshToken(MemberDTO memberDTO);
 }
