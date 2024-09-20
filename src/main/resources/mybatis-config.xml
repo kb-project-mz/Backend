@@ -3,14 +3,23 @@
         PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
-
     <settings>
         <setting name="mapUnderscoreToCamelCase" value="true" />
     </settings>
 
     <typeAliases>
-        <package name="fingertips.backend.security.account.dto" />
+        <package name="fingertips.backend.admin.dto" />
+        <package name="fingertips.backend.asset.dto" />
         <package name="fingertips.backend.challenge.dto" />
+        <package name="fingertips.backend.consumption.dto" />
+        <package name="fingertips.backend.member.dto" />
     </typeAliases>
 
+    <mappers>
+        <mapper resource="mapper/AdminMapper.xml" />
+        <mapper resource="mapper/AssetMapper.xml" />
+        <mapper resource="mapper/ChallengeMapper.xml" />
+        <mapper resource="mapper/ConsumptionMapper.xml" />
+        <mapper resource="mapper/MemberMapper.xml" />
+    </mappers>
 </configuration>

@@ -1,6 +1,5 @@
 package fingertips.backend.config;
 
-
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
@@ -19,13 +18,19 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.client.RestTemplate;
 
 @Configuration
-@PropertySource({"classpath:/application.properties"})
-//@MapperScan(basePackages = {""})
-//@ComponentScan(basePackages = {""})
+@PropertySource({"classpath:/application.properties", "classpath:/env.properties"})
+@MapperScan(basePackages = {
+        "fingertips.backend.admin.mapper",
+        "fingertips.backend.asset.mapper",
+        "fingertips.backend.challenge.mapper",
+        "fingertips.backend.consumption.mapper",
+        "fingertips.backend.member.mapper"
+})
+@ComponentScan(basePackages = {"fingertips.backend"})
 @Slf4j
-
 @EnableTransactionManagement
 public class RootConfig {
 
@@ -55,12 +60,9 @@ public class RootConfig {
     public SqlSessionFactory sqlSessionFactory() throws Exception {
 
         SqlSessionFactoryBean sqlSessionFactory = new SqlSessionFactoryBean();
-
         sqlSessionFactory.setConfigLocation(
                 applicationContext.getResource("classpath:/mybatis-config.xml"));
-
         sqlSessionFactory.setDataSource(dataSource());
-
         return (SqlSessionFactory) sqlSessionFactory.getObject();
     }
 

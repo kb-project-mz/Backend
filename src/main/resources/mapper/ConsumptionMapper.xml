@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="fingertips.backend.consumption.mapper.ConsumptionMapper">
+    <select id="getCardHistoryList" parameterType="int" resultType="CardConsumptionDTO">
+        SELECT c.bank_name, c.card_name, c.card_image, ch.consumption_date, ch.consumption_time,
+               cat.category_name AS category, ch.content, ch.amount
+        FROM card_history ch
+                 JOIN card c ON ch.card_id = c.id
+                 JOIN category cat ON ch.category = cat.id
+        WHERE c.member_id = #{memberId}
+        ORDER BY consumption_date DESC
+    </select>
+</mapper>

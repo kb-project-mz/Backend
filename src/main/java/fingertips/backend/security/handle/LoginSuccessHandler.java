@@ -1,7 +1,7 @@
 package fingertips.backend.security.handle;
 
+import fingertips.backend.member.dto.MemberDTO;
 import fingertips.backend.security.account.dto.AuthDTO;
-import fingertips.backend.security.account.dto.UserDTO;
 import fingertips.backend.security.util.JsonResponse;
 import fingertips.backend.security.util.JwtProcessor;
 import lombok.RequiredArgsConstructor;
@@ -22,18 +22,29 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtProcessor jwtProcessor;
 
-    private AuthDTO makeAuth(UserDTO user) {
-        String username = user.getUsername();
-        String userID = user.getUserId();
-        String token = jwtProcessor.generateToken(username);
-        return new AuthDTO(token, userID);
+    private AuthDTO makeAuth(MemberDTO user) {
+
+        String memberId = user.getMemberId();
+        String role = user.getRole();
+
+        String accessToken = jwtProcessor.generateAccessToken(memberId, role);
+        String refreshToken = jwtProcessor.generateRefreshToken(memberId);
+
+        return AuthDTO.builder()
+                .memberId(memberId)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .role(role)
+                .build();
     }
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
-        UserDTO user = (UserDTO) authentication.getPrincipal();
+
+        MemberDTO user = (MemberDTO) authentication.getPrincipal();
         AuthDTO result = makeAuth(user);
         JsonResponse.send(response, result);
     }
 }
+
