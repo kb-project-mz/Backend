@@ -1,4 +1,14 @@
 package fingertips.backend.challenge.mapper;
 
-public class ChallengeMapper {
+import fingertips.backend.challenge.dto.ChallengeDto;
+import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
+
+@Mapper
+public interface ChallengeMapper
+{
+    List<ChallengeDto> challenge_getList(ChallengeDto dto);
+    void challenge_insert(ChallengeDto dto);
+    void challenge_delete(ChallengeDto dto);
 }
