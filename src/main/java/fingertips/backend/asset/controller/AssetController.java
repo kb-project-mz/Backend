@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/connection")
 @RequiredArgsConstructor
 @Slf4j
 @CrossOrigin(origins = "*", methods = RequestMethod.GET)
@@ -22,7 +22,7 @@ public class AssetController {
 
     @GetMapping("/asset/{memberId}")
     public ResponseEntity<List<AssetDto>> getAssets(@PathVariable("memberId") int memberId) {
-        List<AssetDto> assetList = assetService.getAssets(memberId);
+        List<AssetDto> assetList = assetService.getAllAssets(memberId);
         return ResponseEntity.ok(assetList);
     }
 

@@ -7,5 +7,5 @@ import java.util.List;
 public interface AssetService {
 
     // 카드 + 계좌 = 자산
-    List<AssetDto> getAssets(int memberId);
+    List<AssetDto> getAllAssets(int memberId);
 }

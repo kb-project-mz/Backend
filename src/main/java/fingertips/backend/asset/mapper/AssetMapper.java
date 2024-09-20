@@ -9,5 +9,5 @@ import java.util.List;
 @Mapper
 public interface AssetMapper {
 
-    List<AssetDto> getAssets(@Param("memberId") int memberId);
+    List<AssetDto> getAllAssets(@Param("memberId") int memberId);
 }

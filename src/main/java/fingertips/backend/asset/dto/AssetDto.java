@@ -13,4 +13,5 @@ public class AssetDto {
     private String prdtName;
     private String image;
     private int totalAmount;
+    private boolean connStatus;
 }

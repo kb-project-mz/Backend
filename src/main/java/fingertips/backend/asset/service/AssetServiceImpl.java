@@ -16,8 +16,8 @@ public class AssetServiceImpl implements AssetService {
     private final AssetMapper assetMapper;
 
     @Override
-    public List<AssetDto> getAssets(int memberId) {
-        List<AssetDto> assetList = assetMapper.getAssets(memberId);
+    public List<AssetDto> getAllAssets(int memberId) {
+        List<AssetDto> assetList = assetMapper.getAllAssets(memberId);
         return assetList;
     }
 }
