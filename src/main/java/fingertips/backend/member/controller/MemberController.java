@@ -74,18 +74,41 @@ public class MemberController {
     }
 
     @PostMapping("/join")
-    public ResponseEntity<String> join(@RequestBody MemberDTO memberDTO) {
+    public ResponseEntity<?> join(@RequestBody MemberDTO memberDTO) {
         try {
-            if (memberService.getMemberByMemberId(memberDTO.getMemberId()) != null) {  // 변경된 부분
+            if (memberService.getMemberByMemberId(memberDTO.getMemberId()) != null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 사용 중인 아이디입니다.");
             }
 
+            if (memberService.isEmailTaken(memberDTO.getEmail())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 사용 중인 이메일입니다.");
+            }
+
             memberService.joinMember(memberDTO);
-            return ResponseEntity.ok("회원가입이 완료되었습니다.");
+
+            String accessToken = memberService.authenticate(memberDTO.getMemberId(), memberDTO.getPassword());
+            String refreshToken = jwtProcessor.generateRefreshToken(memberDTO.getMemberId());
+
+            memberDTO.setRefreshToken(refreshToken);
+            memberService.setRefreshToken(memberDTO);
+
+            return ResponseEntity.ok(AuthDTO.builder()
+                    .memberId(memberDTO.getMemberId())
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken)
+                    .build());
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("회원가입 중 오류가 발생했습니다.");
         }
     }
+
+    @PostMapping("/check-email")
+    public ResponseEntity<Boolean> checkEmail(@RequestBody String email) {
+        boolean exists = memberService.isEmailTaken(email);
+        return ResponseEntity.ok(exists);
+    }
+
 
     @GetMapping("/check-memberId/{memberId}")
     public ResponseEntity<Boolean> checkMemberId(@PathVariable String memberId) {
@@ -126,7 +149,7 @@ public class MemberController {
                 }
 
             } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid memberId or password");
             }
         } catch (Exception e) {
             log.error("Login failed", e);

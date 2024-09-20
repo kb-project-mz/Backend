@@ -27,7 +27,7 @@ public class LoginDTO {
         try {
             return om.readValue(request.getInputStream(), LoginDTO.class);
         } catch (Exception e) {
-            throw new BadCredentialsException("username 또는 password가 없습니다.");
+            throw new BadCredentialsException("memberId 또는 password가 없습니다.");
         }
     }
 }
