@@ -7,7 +7,8 @@ public interface MemberService {
 
     String authenticate(String username, String password);
     void joinMember(MemberDTO memberDTO);
-    LoginDTO getMemberByUsername(String username);
+    MemberDTO getMemberByUsername(String username);
     void deleteMember(String username);
     boolean validateMember(String username, String password);
+    void setRefreshToken(MemberDTO memberDTO);
 }
