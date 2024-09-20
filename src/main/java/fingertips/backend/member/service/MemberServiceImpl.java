@@ -24,12 +24,12 @@ public class MemberServiceImpl implements MemberService {
     private final JwtProcessor jwtProcessor;
     private List<String> allowedDomains = Arrays.asList("gmail.com", "naver.com", "daum.net");
 
-    public String authenticate(String username, String password) {
-        MemberDTO memberDTO = mapper.getMember(username);
+    public String authenticate(String memberId, String password) {
+        MemberDTO memberDTO = mapper.getMember(memberId);
         if (memberDTO != null && passwordEncoder.matches(password, memberDTO.getPassword())) {
-            return jwtProcessor.generateAccessToken(username, memberDTO.getRole());
+            return jwtProcessor.generateAccessToken(memberId, memberDTO.getRole());
         }
-        throw new RuntimeException("Invalid username or password");
+        throw new RuntimeException("Invalid memberId or password");
     }
 
     public void joinMember(MemberDTO memberDTO) {
@@ -38,27 +38,25 @@ public class MemberServiceImpl implements MemberService {
         mapper.insertMember(memberDTO);
     }
 
-    public MemberDTO getMemberByMemberId(String username) {
-
-        return mapper.getMember(username);
+    public MemberDTO getMemberByMemberId(String memberId) {
+        return mapper.getMember(memberId);
     }
 
     public void updateMember(MemberDTO memberDTO) {
         mapper.updateMember(memberDTO);
     }
 
-    public void deleteMember(String username) {
-        mapper.deleteMember(username);
+    public void deleteMember(String memberId) {
+        mapper.deleteMember(memberId);
     }
 
-    public boolean validateMember(String username, String password) {
-        MemberDTO memberDTO = getMemberByUsername(username);
+    public boolean validateMember(String memberId, String password) {
+        MemberDTO memberDTO = getMemberByMemberId(memberId);
         if (memberDTO != null) {
             return passwordEncoder.matches(password, memberDTO.getPassword());
         }
         return false;
     }
-
 
     public ResponseEntity<String> findMemberId(LoginDTO loginDTO) {
         try {
@@ -98,10 +96,10 @@ public class MemberServiceImpl implements MemberService {
         if (!isValidEmail(email)) {
             throw new IllegalArgumentException("유효하지 않은 이메일 형식입니다.");
         }
+    }
 
     @Override
     public void setRefreshToken(MemberDTO memberDTO) {
-
         mapper.setRefreshToken(memberDTO);
     }
 }

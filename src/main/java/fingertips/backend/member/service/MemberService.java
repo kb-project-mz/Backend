@@ -6,11 +6,11 @@ import org.springframework.http.ResponseEntity;
 
 public interface MemberService {
 
-    String authenticate(String username, String password);
+    String authenticate(String memberId, String password);
     void joinMember(MemberDTO memberDTO);
-    MemberDTO getMemberByUsername(String username);
-    void deleteMember(String username);
-    boolean validateMember(String username, String password);
+    MemberDTO getMemberByMemberId(String memberId);
+    void deleteMember(String memberId);
+    boolean validateMember(String memberId, String password);
     void setRefreshToken(MemberDTO memberDTO);
     ResponseEntity<String> findMemberId(LoginDTO loginDTO);
 }

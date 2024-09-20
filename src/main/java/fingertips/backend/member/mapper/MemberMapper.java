@@ -5,11 +5,11 @@ import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface MemberMapper {
-
-    MemberDTO getMember(String username);
+    MemberDTO getMember(String memberId);
     void insertMember(MemberDTO memberDTO);
     void updateMember(MemberDTO memberDTO);
-    void deleteMember(String username);
+    void deleteMember(String memberId);
     void setRefreshToken(MemberDTO memberDTO);
     MemberDTO findByIdAndEmail(String memberId, String email);
+
 }
