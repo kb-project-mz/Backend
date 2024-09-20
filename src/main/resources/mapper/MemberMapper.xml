@@ -9,7 +9,11 @@
     </select>
 
     <insert id="insertMember" parameterType="MemberDTO">
-        INSERT INTO member (member_id, password, birthday, gender, email, role)
-        VALUES (#{memberId}, #{password}, #{birthday}, #{gender}, #{email}, #{role})
+        INSERT INTO member (member_id, password, birthday, gender, email)
+        VALUES (#{memberId}, #{password}, #{birthday}, #{gender}, #{email})
     </insert>
+
+    <update id="setRefreshToken" parameterType="MemberDTO">
+        UPDATE member SET refresh_token = #{refreshToken} WHERE id = #{id}
+    </update>
 </mapper>
