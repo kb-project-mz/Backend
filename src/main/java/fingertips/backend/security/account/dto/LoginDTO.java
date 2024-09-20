@@ -21,7 +21,6 @@ public class LoginDTO {
     private String email;
     private String accessToken;
     private String refreshToken;
-    private String role;
 
     public static LoginDTO of(HttpServletRequest request) throws AuthenticationException {
         ObjectMapper om = new ObjectMapper();

@@ -53,6 +53,14 @@ public class MemberController {
             String role = jwtProcessor.getUserRole(refreshToken);
             String newAccessToken = jwtProcessor.generateAccessToken(memberId, role);
             String newRefreshToken = jwtProcessor.generateRefreshToken(memberId);
+
+            MemberDTO memberDTO = MemberDTO.builder()
+                    .id(memberId)
+                    .refreshToken(newRefreshToken)
+                    .build();
+
+            memberService.setRefreshToken(memberDTO);
+
             return ResponseEntity.ok(
                     AuthDTO.builder()
                             .memberId(memberId)
@@ -89,16 +97,34 @@ public class MemberController {
     public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO) {
         try {
             if (memberService.validateMember(loginDTO.getMemberId(), loginDTO.getPassword())) {
+
+                MemberDTO memberDTO = memberService.getMemberByUsername(loginDTO.getMemberId());
                 String token = memberService.authenticate(loginDTO.getMemberId(), loginDTO.getPassword());
                 String refreshToken = jwtProcessor.generateRefreshToken(loginDTO.getMemberId());
-                return ResponseEntity.ok(
-                        AuthDTO.builder()
-                                .memberId(loginDTO.getMemberId())
-                                .accessToken(token)
-                                .refreshToken(refreshToken)
-                                .role(loginDTO.getRole())
-                                .build()
-                );
+
+                memberDTO.setRefreshToken(refreshToken);
+                memberService.setRefreshToken(memberDTO);
+
+                if (loginDTO.getMemberId().startsWith("admin")) {
+                    return ResponseEntity.ok(
+                            AuthDTO.builder()
+                                    .memberId(loginDTO.getMemberId())
+                                    .accessToken(token)
+                                    .refreshToken(refreshToken)
+                                    .role("ROLE_ADMIN")
+                                    .build()
+                    );
+                } else {
+                    return ResponseEntity.ok(
+                            AuthDTO.builder()
+                                    .memberId(loginDTO.getMemberId())
+                                    .accessToken(token)
+                                    .refreshToken(refreshToken)
+                                    .role("ROLE_USER")
+                                    .build()
+                    );
+                }
+
             } else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
             }
