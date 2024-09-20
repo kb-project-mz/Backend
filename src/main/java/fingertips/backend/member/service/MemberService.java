@@ -2,6 +2,7 @@ package fingertips.backend.member.service;
 
 import fingertips.backend.member.dto.MemberDTO;
 import fingertips.backend.security.account.dto.LoginDTO;
+import org.springframework.http.ResponseEntity;
 
 public interface MemberService {
 
@@ -11,4 +12,5 @@ public interface MemberService {
     void deleteMember(String username);
     boolean validateMember(String username, String password);
     void setRefreshToken(MemberDTO memberDTO);
+    ResponseEntity<String> findMemberId(LoginDTO loginDTO);
 }

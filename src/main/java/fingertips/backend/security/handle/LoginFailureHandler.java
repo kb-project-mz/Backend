@@ -1,5 +1,8 @@
 package fingertips.backend.security.handle;
 
+import fingertips.backend.member.dto.MemberDTO;
+import fingertips.backend.member.mapper.MemberMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import fingertips.backend.security.util.JsonResponse;
 import org.springframework.http.HttpStatus;
@@ -16,7 +19,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class LoginFailureHandler implements AuthenticationFailureHandler {
+    private final MemberMapper mapper;
 
     private static final int MAX_ATTEMPTS = 5;
     private static final long LOCK_TIME_DURATION = 3 * 60 * 1000;
@@ -26,31 +31,41 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
                                         AuthenticationException exception) throws IOException, ServletException {
-        String username = request.getParameter("username");
+        String memberId = request.getParameter("memberId");
         long currentTime = System.currentTimeMillis();
 
-        if (lockTimeCache.containsKey(username)) {
-            long lockTime = lockTimeCache.get(username);
-            if (currentTime < lockTime + LOCK_TIME_DURATION) {
+        MemberDTO memberDTO = mapper.getMember(memberId);
+
+        if (memberDTO != null && memberDTO.isLoginLocked()) {
+            if (currentTime < memberDTO.getLoginLockTime() + LOCK_TIME_DURATION) {
                 JsonResponse.sendError(response, HttpStatus.UNAUTHORIZED, "로그인 시도가 초과되었습니다. 잠시 후 다시 시도하세요.");
                 return;
             } else {
-                lockTimeCache.remove(username);
-                attemptsCache.remove(username);
+                memberDTO.setLoginLocked(false);
+                memberDTO.setLoginLockTime(0);
+                mapper.updateMember(memberDTO); // DB 업데이트
             }
         }
 
-        int attempts = attemptsCache.getOrDefault(username, 0) + 1;
-        attemptsCache.put(username, attempts);
+        int attempts = attemptsCache.getOrDefault(memberId, 0) + 1;
+        attemptsCache.put(memberId, attempts);
 
         if (attempts > MAX_ATTEMPTS) {
-            log.warn("로그인 시도 초과: 사용자명={}, 시도 횟수={}", username, attempts);
-            lockTimeCache.put(username, currentTime);
+            log.warn("로그인 시도 초과: 사용자명={}, 시도 횟수={}", memberId, attempts);
+            if (memberDTO != null) {
+                memberDTO.setLoginLocked(true);
+                memberDTO.setLoginLockTime(currentTime);
+                mapper.updateMember(memberDTO); // DB 업데이트
+            }
             JsonResponse.sendError(response, HttpStatus.UNAUTHORIZED, "로그인 시도가 초과되었습니다. 잠시 후 다시 시도하세요.");
         } else {
+            if (memberDTO != null) {
+                memberDTO.setLoginLocked(false); // 잠금 해제
+                memberDTO.setLoginLockTime(0);
+                mapper.updateMember(memberDTO); // DB 업데이트
+            }
             JsonResponse.sendError(response, HttpStatus.UNAUTHORIZED, "사용자 ID 또는 비밀번호가 일치하지 않습니다.");
         }
-
-        log.error("로그인 실패: 사용자명={}, 예외={}", username, exception.getMessage());
+        log.error("로그인 실패: 사용자명={}, 예외={}", memberId, exception.getMessage());
     }
 }
