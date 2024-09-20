@@ -134,7 +134,7 @@ public class MemberController {
         }
     }
 
-    @PostMapping("/findUserId")
+    @PostMapping("/findMemberId")
     public ResponseEntity<String> findMemberId(@RequestBody LoginDTO loginDTO) {
         try {
             return memberService.findMemberId(loginDTO);
