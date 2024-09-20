@@ -22,10 +22,9 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtProcessor jwtProcessor;
 
-    private AuthDTO makeAuth(MemberDTO user) {
-
-        String memberId = user.getMemberId();
-        String role = user.getRole();
+    private AuthDTO makeAuth(MemberDTO member) {
+        String memberId = member.getMemberId();
+        String role = member.getRole();
 
         String accessToken = jwtProcessor.generateAccessToken(memberId, role);
         String refreshToken = jwtProcessor.generateRefreshToken(memberId);
@@ -42,12 +41,11 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
 
-        MemberDTO user = (MemberDTO) authentication.getPrincipal();
-        AuthDTO result = makeAuth(user);
+        MemberDTO member = (MemberDTO) authentication.getPrincipal();
+        AuthDTO result = makeAuth(member);
 
         log.info("로그인 성공: 사용자명={}");
 
         JsonResponse.send(response, result);
     }
 }
-

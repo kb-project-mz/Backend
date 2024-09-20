@@ -52,7 +52,7 @@ public class JwtProcessor {
                 .compact();
     }
 
-    public String getUsername(String token) {
+    public String getMemberId(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
@@ -61,7 +61,7 @@ public class JwtProcessor {
                 .getSubject();
     }
 
-    public String getUserRole(String token) {
+    public String getMemberRole(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()

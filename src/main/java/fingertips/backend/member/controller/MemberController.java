@@ -49,8 +49,8 @@ public class MemberController {
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshAccessToken(@RequestBody String refreshToken) {
         if (jwtProcessor.validateToken(refreshToken)) {
-            String memberId = jwtProcessor.getUsername(refreshToken);
-            String role = jwtProcessor.getUserRole(refreshToken);
+            String memberId = jwtProcessor.getMemberId(refreshToken);
+            String role = jwtProcessor.getMemberRole(refreshToken);
             String newAccessToken = jwtProcessor.generateAccessToken(memberId, role);
             String newRefreshToken = jwtProcessor.generateRefreshToken(memberId);
 
@@ -76,7 +76,7 @@ public class MemberController {
     @PostMapping("/join")
     public ResponseEntity<String> join(@RequestBody MemberDTO memberDTO) {
         try {
-            if (memberService.getMemberByUsername(memberDTO.getMemberId()) != null) {
+            if (memberService.getMemberByMemberId(memberDTO.getMemberId()) != null) {  // 변경된 부분
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 사용 중인 아이디입니다.");
             }
 
@@ -87,9 +87,9 @@ public class MemberController {
         }
     }
 
-    @GetMapping("/check-username/{username}")
-    public ResponseEntity<Boolean> checkUsername(@PathVariable String username) {
-        boolean exists = memberService.getMemberByUsername(username) != null;
+    @GetMapping("/check-memberId/{memberId}")
+    public ResponseEntity<Boolean> checkMemberId(@PathVariable String memberId) {
+        boolean exists = memberService.getMemberByMemberId(memberId) != null;
         return ResponseEntity.ok(exists);
     }
 
@@ -98,7 +98,7 @@ public class MemberController {
         try {
             if (memberService.validateMember(loginDTO.getMemberId(), loginDTO.getPassword())) {
 
-                MemberDTO memberDTO = memberService.getMemberByUsername(loginDTO.getMemberId());
+                MemberDTO memberDTO = memberService.getMemberByMemberId(loginDTO.getMemberId());
                 String token = memberService.authenticate(loginDTO.getMemberId(), loginDTO.getPassword());
                 String refreshToken = jwtProcessor.generateRefreshToken(loginDTO.getMemberId());
 
@@ -147,6 +147,7 @@ public class MemberController {
 
     @GetMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request) {
+
         return ResponseEntity.ok().build();
     }
 }
