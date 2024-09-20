@@ -16,10 +16,11 @@ import javax.servlet.http.HttpServletRequest;
 @Builder
 public class LoginDTO {
 
-    private String username;
+    private String memberId;
     private String password;
     private String accessToken;
     private String refreshToken;
+    private String role;
 
     public static LoginDTO of(HttpServletRequest request) throws AuthenticationException {
         ObjectMapper om = new ObjectMapper();

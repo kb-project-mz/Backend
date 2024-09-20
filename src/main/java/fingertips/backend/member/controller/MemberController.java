@@ -49,13 +49,13 @@ public class MemberController {
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshAccessToken(@RequestBody String refreshToken) {
         if (jwtProcessor.validateToken(refreshToken)) {
-            String username = jwtProcessor.getUsername(refreshToken);
-            String role = jwtProcessor.getUserRole(refreshToken); // 수정된 부분
-            String newAccessToken = jwtProcessor.generateAccessToken(username, role); // 수정된 부분
-            String newRefreshToken = jwtProcessor.generateRefreshToken(username);
+            String memberId = jwtProcessor.getUsername(refreshToken);
+            String role = jwtProcessor.getUserRole(refreshToken);
+            String newAccessToken = jwtProcessor.generateAccessToken(memberId, role);
+            String newRefreshToken = jwtProcessor.generateRefreshToken(memberId);
             return ResponseEntity.ok(
                     AuthDTO.builder()
-                            .username(username)
+                            .memberId(memberId)
                             .accessToken(newAccessToken)
                             .refreshToken(newRefreshToken)
                             .build()
@@ -88,14 +88,15 @@ public class MemberController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO) {
         try {
-            if (memberService.validateMember(loginDTO.getUsername(), loginDTO.getPassword())) {
-                String token = memberService.authenticate(loginDTO.getUsername(), loginDTO.getPassword());
-                String refreshToken = jwtProcessor.generateRefreshToken(loginDTO.getUsername());
+            if (memberService.validateMember(loginDTO.getMemberId(), loginDTO.getPassword())) {
+                String token = memberService.authenticate(loginDTO.getMemberId(), loginDTO.getPassword());
+                String refreshToken = jwtProcessor.generateRefreshToken(loginDTO.getMemberId());
                 return ResponseEntity.ok(
                         AuthDTO.builder()
-                                .username(loginDTO.getUsername())
+                                .memberId(loginDTO.getMemberId())
                                 .accessToken(token)
                                 .refreshToken(refreshToken)
+                                .role(loginDTO.getRole())
                                 .build()
                 );
             } else {

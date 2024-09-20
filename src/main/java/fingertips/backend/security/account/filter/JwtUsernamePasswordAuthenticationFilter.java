@@ -33,7 +33,7 @@ public class JwtUsernamePasswordAuthenticationFilter extends UsernamePasswordAut
             throws AuthenticationException {
         LoginDTO login = LoginDTO.of(request);
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(login.getUsername(), login.getPassword());
+                new UsernamePasswordAuthenticationToken(login.getMemberId(), login.getPassword());
         return getAuthenticationManager().authenticate(authenticationToken);
     }
 }

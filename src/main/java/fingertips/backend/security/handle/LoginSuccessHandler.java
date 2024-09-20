@@ -24,7 +24,6 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private AuthDTO makeAuth(MemberDTO user) {
 
-        String id = user.getId();
         String memberId = user.getMemberId();
         String role = user.getRole();
 
@@ -32,7 +31,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         String refreshToken = jwtProcessor.generateRefreshToken(memberId);
 
         return AuthDTO.builder()
-                .username(memberId)
+                .memberId(memberId)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .role(role)

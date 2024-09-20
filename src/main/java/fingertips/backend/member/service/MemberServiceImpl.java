@@ -38,11 +38,12 @@ public class MemberServiceImpl implements MemberService {
         MemberDTO memberDTO = mapper.getMember(username);
         if (memberDTO != null) {
             return LoginDTO.builder()
-                    .username(memberDTO.getMemberId())
+                    .memberId(memberDTO.getMemberId())
+                    .password(memberDTO.getPassword())
                     .accessToken(jwtProcessor.generateAccessToken(memberDTO.getMemberId(), memberDTO.getRole()))
                     .build();
         }
-        return null; // 혹은 예외를 던질 수 있음
+        return null;
     }
 
     public void deleteMember(String username) {

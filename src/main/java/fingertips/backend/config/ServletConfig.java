@@ -7,6 +7,7 @@ import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @EnableWebMvc
+// 반드시 이 패키지에 컨트롤러를 적어줘야 컨트롤러를 찾음
 @ComponentScan(basePackages = {
         "fingertips.backend.admin.controller",
         "fingertips.backend.asset.controller",
@@ -14,7 +15,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
         "fingertips.backend.consumption.controller",
         "fingertips.backend.member.controller",
         "fingertips.backend.exception",
-}) //컨트롤러만 찾는다. 반드시 이 패키지에 컨트롤러 적어줘야한다.
+})
 public class ServletConfig implements WebMvcConfigurer {
 
     @Override
