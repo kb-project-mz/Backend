@@ -8,5 +8,7 @@ public interface MemberMapper {
 
     MemberDTO getMember(String username);
     void insertMember(MemberDTO memberDTO);
+    void updateMember(MemberDTO memberDTO);
     void deleteMember(String username);
+    MemberDTO findByIdAndEmail(String memberId, String email);
 }

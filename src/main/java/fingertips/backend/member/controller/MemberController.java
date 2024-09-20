@@ -108,6 +108,17 @@ public class MemberController {
         }
     }
 
+    @PostMapping("/findUserId")
+    public ResponseEntity<String> findMemberId(@RequestBody LoginDTO loginDTO) {
+        try {
+            return memberService.findMemberId(loginDTO);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자 아이디를 찾을 수 없습니다.");
+        }
+    }
+
     @GetMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request) {
         return ResponseEntity.ok().build();

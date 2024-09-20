@@ -44,6 +44,9 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         MemberDTO user = (MemberDTO) authentication.getPrincipal();
         AuthDTO result = makeAuth(user);
+
+        log.info("로그인 성공: 사용자명={}");
+
         JsonResponse.send(response, result);
     }
 }
