@@ -48,7 +48,6 @@ public class MemberServiceImpl implements MemberService {
     public boolean validateMember(String memberId, String password) {
         MemberDTO memberDTO = getMemberByMemberId(memberId);
 
-        log.info("?????????????");
         if (memberDTO != null) {
             return passwordEncoder.matches(password, memberDTO.getPassword());
         }
