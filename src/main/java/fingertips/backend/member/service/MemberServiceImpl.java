@@ -35,6 +35,7 @@ public class MemberServiceImpl implements MemberService {
     public void joinMember(MemberDTO memberDTO) {
         String encodedPassword = passwordEncoder.encode(memberDTO.getPassword());
         memberDTO.setPassword(encodedPassword);
+        memberDTO.setRole("ROLE_USER");
         mapper.insertMember(memberDTO);
     }
 
@@ -85,6 +86,11 @@ public class MemberServiceImpl implements MemberService {
             log.error("아이디 찾기 실패: {}");
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @Override
+    public boolean isEmailTaken(String email) {
+        return mapper.findByEmail(email) != null;
     }
 
     private boolean isValidEmail(String email) {

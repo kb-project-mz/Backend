@@ -13,4 +13,7 @@ public interface MemberService {
     boolean validateMember(String memberId, String password);
     void setRefreshToken(MemberDTO memberDTO);
     ResponseEntity<String> findMemberId(LoginDTO loginDTO);
+    boolean isEmailTaken(String email);
+
+
 }

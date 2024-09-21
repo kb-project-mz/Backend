@@ -11,5 +11,6 @@ public interface MemberMapper {
     void deleteMember(String memberId);
     void setRefreshToken(MemberDTO memberDTO);
     MemberDTO findByIdAndEmail(String memberId, String email);
+    MemberDTO findByEmail(String email);
 
 }
