@@ -12,5 +12,7 @@ public interface MemberMapper {
     void setRefreshToken(MemberDTO memberDTO);
     MemberDTO findByIdAndEmail(String memberId, String email);
     MemberDTO findByEmail(String email);
+    int isEmailTaken(String email);
+
 
 }

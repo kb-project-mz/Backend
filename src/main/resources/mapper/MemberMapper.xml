@@ -9,11 +9,15 @@
     </select>
 
     <insert id="insertMember" parameterType="MemberDTO">
-        INSERT INTO member (member_id, password, birthday, gender, email)
-        VALUES (#{memberId}, #{password}, #{birthday}, #{gender}, #{email})
+        INSERT INTO member (member_id, password, member_name, social_type, social_id, birthday, gender, email, image_url, region, job, test_status, active_status, refresh_token, withdraw_date, role, join_date)
+        VALUES (#{memberId}, #{password}, #{memberName}, #{socialType}, #{socialId}, #{birthday}, #{gender}, #{email}, #{imageUrl}, #{region}, #{job}, #{testStatus}, #{activeStatus}, #{refreshToken}, #{withdrawDate}, #{role}, NOW())
     </insert>
 
     <update id="setRefreshToken" parameterType="MemberDTO">
         UPDATE member SET refresh_token = #{refreshToken} WHERE id = #{id}
     </update>
+
+    <select id="isEmailTaken" parameterType="String" resultType="int">
+        SELECT COUNT(*) FROM member WHERE email = #{email}
+    </select>
 </mapper>

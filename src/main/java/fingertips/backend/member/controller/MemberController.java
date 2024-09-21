@@ -6,7 +6,6 @@ import fingertips.backend.security.account.dto.AuthDTO;
 import fingertips.backend.member.service.MemberService;
 import fingertips.backend.security.util.JwtProcessor;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
-@Log4j
 @RequestMapping("/api/v1/member")
 @RestController
 @RequiredArgsConstructor
@@ -26,6 +24,7 @@ public class MemberController {
     private final JwtProcessor jwtProcessor;
 
     @GetMapping("/all")
+    @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<String> doAll() {
         return ResponseEntity.ok("All can access everybody");
     }
@@ -41,12 +40,14 @@ public class MemberController {
     }
 
     @GetMapping("/member")
+    @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<String> doMember(Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         return ResponseEntity.ok(userDetails.getUsername());
     }
 
     @PostMapping("/refresh")
+    @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<?> refreshAccessToken(@RequestBody String refreshToken) {
         if (jwtProcessor.validateToken(refreshToken)) {
             String memberId = jwtProcessor.getMemberId(refreshToken);
@@ -55,7 +56,7 @@ public class MemberController {
             String newRefreshToken = jwtProcessor.generateRefreshToken(memberId);
 
             MemberDTO memberDTO = MemberDTO.builder()
-                    .id(memberId)
+                    .id(Integer.parseInt(memberId))
                     .refreshToken(newRefreshToken)
                     .build();
 
@@ -74,12 +75,29 @@ public class MemberController {
     }
 
     @PostMapping("/join")
+    @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<?> join(@RequestBody MemberDTO memberDTO) {
         try {
+            if (memberDTO.getMemberId() == null || memberDTO.getMemberId().isEmpty()) {
+                return ResponseEntity.badRequest().body("회원 ID는 필수입니다.");
+            }
+            if (memberDTO.getPassword() == null || memberDTO.getPassword().isEmpty()) {
+                return ResponseEntity.badRequest().body("비밀번호는 필수입니다.");
+            }
+            if (memberDTO.getEmail() == null || memberDTO.getEmail().isEmpty()) {
+                return ResponseEntity.badRequest().body("이메일은 필수입니다.");
+            }
+            if (memberDTO.getMemberName() == null || memberDTO.getMemberName().isEmpty()) {
+                return ResponseEntity.badRequest().body("이름은 필수입니다.");
+            }
+
+            if (!isValidEmail(memberDTO.getEmail())) {
+                return ResponseEntity.badRequest().body("유효한 이메일 형식이 아닙니다.");
+            }
+
             if (memberService.getMemberByMemberId(memberDTO.getMemberId()) != null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 사용 중인 아이디입니다.");
             }
-
             if (memberService.isEmailTaken(memberDTO.getEmail())) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 사용 중인 이메일입니다.");
             }
@@ -103,20 +121,27 @@ public class MemberController {
         }
     }
 
-    @PostMapping("/check-email")
-    public ResponseEntity<Boolean> checkEmail(@RequestBody String email) {
+    private boolean isValidEmail(String email) {
+        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
+        return email.matches(emailRegex);
+    }
+
+    @GetMapping("/check-email")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<Boolean> checkEmail(@RequestParam String email) {
         boolean exists = memberService.isEmailTaken(email);
         return ResponseEntity.ok(exists);
     }
 
-
     @GetMapping("/check-memberId/{memberId}")
+    @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<Boolean> checkMemberId(@PathVariable String memberId) {
         boolean exists = memberService.getMemberByMemberId(memberId) != null;
         return ResponseEntity.ok(exists);
     }
 
     @PostMapping("/login")
+    @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO) {
         try {
             if (memberService.validateMember(loginDTO.getMemberId(), loginDTO.getPassword())) {
@@ -152,12 +177,12 @@ public class MemberController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid memberId or password");
             }
         } catch (Exception e) {
-            log.error("Login failed", e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login failed");
         }
     }
 
     @PostMapping("/findMemberId")
+    @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<String> findMemberId(@RequestBody LoginDTO loginDTO) {
         try {
             return memberService.findMemberId(loginDTO);
@@ -169,8 +194,8 @@ public class MemberController {
     }
 
     @GetMapping("/logout")
+    @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<Void> logout(HttpServletRequest request) {
-
         return ResponseEntity.ok().build();
     }
 }
