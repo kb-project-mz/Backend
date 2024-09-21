@@ -5,11 +5,15 @@
 
 <mapper namespace="fingertips.backend.member.mapper.MemberMapper">
     <select id="getMember" parameterType="String" resultType="MemberDTO">
-        SELECT * FROM member WHERE member_id = #{username}
+        SELECT * FROM member WHERE member_id = #{memberId}
     </select>
 
     <insert id="insertMember" parameterType="MemberDTO">
-        INSERT INTO member (member_id, password, birthday, gender, email, role)
-        VALUES (#{memberId}, #{password}, #{birthday}, #{gender}, #{email}, #{role})
+        INSERT INTO member (member_id, password, birthday, gender, email)
+        VALUES (#{memberId}, #{password}, #{birthday}, #{gender}, #{email})
     </insert>
+
+    <update id="setRefreshToken" parameterType="MemberDTO">
+        UPDATE member SET refresh_token = #{refreshToken} WHERE id = #{id}
+    </update>
 </mapper>

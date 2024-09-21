@@ -24,14 +24,18 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private AuthDTO makeAuth(MemberDTO user) {
 
-        String id = user.getId();
         String memberId = user.getMemberId();
         String role = user.getRole();
 
         String accessToken = jwtProcessor.generateAccessToken(memberId, role);
         String refreshToken = jwtProcessor.generateRefreshToken(memberId);
 
-        return new AuthDTO(accessToken, id, refreshToken);
+        return AuthDTO.builder()
+                .memberId(memberId)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .role(role)
+                .build();
     }
 
     @Override
@@ -43,4 +47,3 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         JsonResponse.send(response, result);
     }
 }
-
