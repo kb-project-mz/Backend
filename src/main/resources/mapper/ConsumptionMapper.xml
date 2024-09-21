@@ -11,6 +11,7 @@
             JOIN card c ON ch.card_id = c.id
             JOIN category cat ON ch.category = cat.id
         WHERE c.member_id = #{memberId}
+            AND c.conn_status = 1
         ORDER BY consumption_date DESC
     </select>
 
@@ -20,6 +21,7 @@
             JOIN card c ON ch.card_id = c.id
             JOIN category cat ON ch.category = cat.id
         WHERE c.member_id = #{memberId}
+            AND c.conn_status = 1
             AND ch.consumption_date BETWEEN CONCAT(#{startYear}, '-', #{startMonth}, '-', #{startDay})
             AND CONCAT(#{endYear}, '-', #{endMonth}, '-', #{endDay});
     </select>
