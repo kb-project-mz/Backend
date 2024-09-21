@@ -31,7 +31,7 @@ import org.springframework.web.filter.CorsFilter;
 @Configuration
 @EnableWebSecurity
 @Log4j
-@MapperScan(basePackages = {"fingertips.backend.security.account.mapper"})
+@MapperScan(basePackages = {"fingertips.backend.member.mapper"})
 @ComponentScan(basePackages = {"fingertips.backend.security"})
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -98,14 +98,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .accessDeniedHandler(accessDeniedHandler);
 
         http
+                .cors()
+                .and()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS).permitAll()
-                .antMatchers(HttpMethod.POST, "/api/member").authenticated()
-                .antMatchers(HttpMethod.PUT, "/api/member", "/api/member/*/changepassword").authenticated()
-                .antMatchers(HttpMethod.POST, "/api/board/**").authenticated()
-                .antMatchers(HttpMethod.PUT, "/api/board/**").authenticated()
-                .antMatchers(HttpMethod.DELETE, "/api/board/**").authenticated()
-                .antMatchers("/api/security/admin/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.POST, "/api/v1/member/join").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/v1/member/login").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/v1/member/id/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/v1/member/password/**").permitAll()
+
+                .antMatchers(HttpMethod.POST, "/api/v1/member/logout").authenticated()
+                .antMatchers(HttpMethod.POST, "/api/v1/member/refresh").authenticated()
+
+                .antMatchers("/api/v1/asset/**").authenticated()
+                .antMatchers("/api/v1/challenge/**").authenticated()
+                .antMatchers("/api/v1/member/**").authenticated()
+                .antMatchers("/api/v1/consumption/**").authenticated()
+                .antMatchers("/api/v1/member/**").authenticated()
+                .antMatchers("/api/v1/sbti/**").authenticated()
+
                 .anyRequest().permitAll();
 
         http.httpBasic().disable()

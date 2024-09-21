@@ -1,11 +1,13 @@
 package fingertips.backend.member.service;
 
 import fingertips.backend.member.dto.MemberDTO;
+import fingertips.backend.member.dto.MemberIdFindDTO;
 import fingertips.backend.member.mapper.MemberMapper;
 import fingertips.backend.security.account.dto.LoginDTO;
 import fingertips.backend.security.util.JwtProcessor;
 import lombok.extern.log4j.Log4j;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -34,17 +36,17 @@ public class MemberServiceImpl implements MemberService {
         mapper.insertMember(memberDTO);
     }
 
-    public MemberDTO getMemberByUsername(String username) {
+    public MemberDTO getMemberByMemberId(String memberId) {
 
-        return mapper.getMember(username);
+        return mapper.getMember(memberId);
     }
 
     public void deleteMember(String username) {
         mapper.deleteMember(username);
     }
 
-    public boolean validateMember(String username, String password) {
-        MemberDTO memberDTO = getMemberByUsername(username);
+    public boolean validateMember(String memberId, String password) {
+        MemberDTO memberDTO = getMemberByMemberId(memberId);
 
         if (memberDTO != null) {
             return passwordEncoder.matches(password, memberDTO.getPassword());
@@ -53,9 +55,27 @@ public class MemberServiceImpl implements MemberService {
         return false;
     }
 
+    public String findByNameAndEmail(MemberIdFindDTO memberIdFindDTO) {
+
+        String memberId = mapper.findByNameAndEmail(memberIdFindDTO);
+
+        if (memberId == null) {
+            return "사용자 아이디를 찾을 수 없습니다.";
+        }
+
+        return memberId;
+    }
+
     @Override
     public void setRefreshToken(MemberDTO memberDTO) {
 
         mapper.setRefreshToken(memberDTO);
+    }
+
+    @Override
+    public boolean isEmailTaken(String email) {
+
+        int isTaken = mapper.isEmailTaken(email);
+        return isTaken != 0;
     }
 }
