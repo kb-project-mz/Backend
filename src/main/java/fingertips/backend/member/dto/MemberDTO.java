@@ -5,32 +5,30 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class MemberDTO {
-    private Integer id;
+
+    private String id;
     private String memberId;
     private String password;
     private String memberName;
     private String socialType;
     private String socialId;
-    private LocalDateTime birthday;
+    private String birthday;
     private String gender;
     private String email;
     private String imageUrl;
-    private LocalDateTime joinDate;
+    private String joinDate;
     private String region;
     private String job;
-    private Integer testStatus;
-    private Integer activeStatus;
+    private String testStatus;
+    private String activeStatus;
     private String refreshToken;
-    private LocalDateTime withdrawDate;
+    private String withdrawDate;
     private String role;
-    private boolean loginLocked;
+    private int loginLocked;
     private long loginLockTime;
-    private boolean terms;
 }

@@ -79,7 +79,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers("/assets/**", "/*", "/api/v1/member/**");
+        web.ignoring().antMatchers("/assets/**", "/*", "/api/member/**");
     }
 
     @Override
@@ -101,13 +101,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.OPTIONS).permitAll()
                 .antMatchers(HttpMethod.POST, "/api/v1/member/join").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/v1/member/login").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/v1/member/id/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/v1/member/password/**").permitAll()
+
                 .antMatchers(HttpMethod.POST, "/api/v1/member/logout").authenticated()
                 .antMatchers(HttpMethod.POST, "/api/v1/member/refresh").authenticated()
-                .antMatchers("/api/v1/member").authenticated()
-                .antMatchers("/api/v1/mbti_question_db/**").authenticated()
-                .antMatchers("/api/v1/consumption/card/history/**").authenticated()
+
+                .antMatchers("/api/v1/asset/**").authenticated()
                 .antMatchers("/api/v1/challenge/**").authenticated()
-                .antMatchers("/api/v1/account_mock_db/**").authenticated()
+                .antMatchers("/api/v1/member/**").authenticated()
+                .antMatchers("/api/v1/consumption/**").authenticated()
+                .antMatchers("/api/v1/member/**").authenticated()
+                .antMatchers("/api/v1/sbti/**").authenticated()
+
                 .anyRequest().permitAll();
 
         http.httpBasic().disable()
