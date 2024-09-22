@@ -3,19 +3,17 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-
-
 <mapper namespace="fingertips.backend.asset.mapper.AssetMapper">
     <!-- 카드정보(1), 계좌정보(2) UNION ALL해서 AssetDto에 담기
              financeKind라는 컬럼을 추가로 넣어서 카드와 계좌를 구분함 -->
-    <!-- 연동 안된 모든 자산의 리스트를 가져옴 -->
-    <select id="getAllAssets" resultType="AssetDto">
+    <!-- 사용자의 모든 계좌,카드 정보를 가져옴 -->
+    <select id="getAllAssets" resultType="AssetDTO">
         SELECT
             "1" financeKind,
             c.bank_name AS financeName,
             c.card_name AS prdtName,
             c.card_image AS image,
-            SUM(c_h.amount) AS totalAmount,
+            SUM(c_h.amount) AS totalAmount
         FROM
             card_history c_h
                 JOIN card c ON c.id = c_h.card_id
@@ -41,8 +39,8 @@
             a_b.id, financeName, a_b.account_name, a_b.account_book_image;
     </select>
 
-    <!-- 연동 된 모든 자산의 리스트를 가져옴 -->
-    <select id="getConnAssets" resultType="AssetDto">
+    <!-- 사용자의 연동 된 모든 계좌,카드를 가져옴 -->
+    <select id="getConnAssets" resultType="AssetDTO">
         SELECT
             "1" financeKind,
             c.bank_name AS financeName,
@@ -52,7 +50,7 @@
         FROM
             card_history c_h
                 JOIN card c ON c.id = c_h.card_id
-        WHERE c.member_id = 1
+        WHERE c.member_id = #{memberId}
           AND c.conn_status = 1
         GROUP BY
             c.id, financeName, c.card_name, c.card_image
@@ -68,17 +66,24 @@
         FROM
             account_history a_h
                 JOIN account_book a_b ON a_b.id = a_h.account_id
-        WHERE a_b.member_id = 1
+        WHERE a_b.member_id = #{memberId}
           AND a_b.conn_status = 1
         GROUP BY
             a_b.id, financeName, a_b.account_name, a_b.account_book_image;
     </select>
 
-    <!-- 존재하는 카드와 계좌정보에서 연동된 상태로 update -->
-    <update id="updateConnStatus" parameterType="int">
+    <!-- 선택된 카드를 연동 -->
+    <update id="connCard" parameterType="int">
         UPDATE card
         SET conn_status = 1
-        WHERE id = #{cardId}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 선택된 계좌를 연동 -->
+    <update id="connAccount" parameterType="int">
+        UPDATE account_book
+        SET conn_status = 1
+        WHERE id = #{id}
     </update>
 
 
