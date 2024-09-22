@@ -13,7 +13,23 @@
         VALUES (#{memberId}, #{password}, #{birthday}, #{gender}, #{email})
     </insert>
 
+    <update id="updateMember" parameterType="MemberDTO">
+        UPDATE member
+        SET login_locked = #{loginLocked}, login_lock_time = #{loginLockTime}
+        WHERE member_id = #{memberId}
+    </update>
+
     <update id="setRefreshToken" parameterType="MemberDTO">
         UPDATE member SET refresh_token = #{refreshToken} WHERE id = #{id}
     </update>
+
+    <select id="findByNameAndEmail" parameterType="MemberIdFindDTO" resultType="String">
+        SELECT member_id
+        FROM member
+        WHERE email = #{email} AND member_name = #{memberName}
+    </select>
+
+    <select id="isEmailTaken" parameterType="String" resultType="int">
+        SELECT COUNT(*) FROM member WHERE email = #{email}
+    </select>
 </mapper>

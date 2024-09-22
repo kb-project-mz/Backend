@@ -1,6 +1,8 @@
 package fingertips.backend.member.controller;
 
+import fingertips.backend.exception.dto.JsonResponse;
 import fingertips.backend.member.dto.MemberDTO;
+import fingertips.backend.member.dto.MemberIdFindDTO;
 import fingertips.backend.security.account.dto.LoginDTO;
 import fingertips.backend.security.account.dto.AuthDTO;
 import fingertips.backend.member.service.MemberService;
@@ -25,32 +27,50 @@ public class MemberController {
     private final MemberService memberService;
     private final JwtProcessor jwtProcessor;
 
-    @GetMapping("/all")
-    public ResponseEntity<String> doAll() {
-        return ResponseEntity.ok("All can access everybody");
+    @PostMapping("/join")
+    public ResponseEntity<JsonResponse<AuthDTO>> join(@RequestBody MemberDTO memberDTO) {
+
+        String memberId = memberDTO.getMemberId();
+        String password = memberDTO.getPassword();
+        memberService.joinMember(memberDTO);
+
+        String accessToken = memberService.authenticate(memberId, password);
+        String refreshToken = jwtProcessor.generateRefreshToken(memberId);
+
+        memberDTO.setRefreshToken(refreshToken);
+        memberService.setRefreshToken(memberDTO);
+
+        AuthDTO authDTO = AuthDTO.builder()
+                        .memberId(memberId)
+                        .accessToken(accessToken)
+                        .refreshToken(refreshToken)
+                        .build();
+
+        return ResponseEntity.ok().body(JsonResponse.success(authDTO));
     }
 
-    @GetMapping("/admin")
-    public ResponseEntity<String> doAdmin(@AuthenticationPrincipal UserDetails userDetails) {
-        if (userDetails.getAuthorities().stream()
-                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"))) {
-            return ResponseEntity.ok("Admin resource accessed");
-        } else {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
-        }
+    @GetMapping("/id/{memberName}/{email}")
+    public ResponseEntity<JsonResponse<String>> findMemberId(@PathVariable String memberName, @PathVariable String email) {
+
+        MemberIdFindDTO memberIdFindDTO = MemberIdFindDTO.builder()
+                .memberName(memberName)
+                .email(email)
+                .build();
+
+        String memberId = memberService.findByNameAndEmail(memberIdFindDTO);
+        return ResponseEntity.ok(JsonResponse.success(memberId));
     }
 
-    @GetMapping("/member")
-    public ResponseEntity<String> doMember(Authentication authentication) {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return ResponseEntity.ok(userDetails.getUsername());
+    @GetMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshAccessToken(@RequestBody String refreshToken) {
         if (jwtProcessor.validateToken(refreshToken)) {
             String memberId = jwtProcessor.getMemberId(refreshToken);
-            String role = jwtProcessor.getMemberRole(refreshToken);
+            String role = jwtProcessor.getUserRole(refreshToken);
             String newAccessToken = jwtProcessor.generateAccessToken(memberId, role);
             String newRefreshToken = jwtProcessor.generateRefreshToken(memberId);
 
@@ -73,104 +93,26 @@ public class MemberController {
         }
     }
 
-    @PostMapping("/join")
-    public ResponseEntity<?> join(@RequestBody MemberDTO memberDTO) {
-        try {
-            if (memberService.getMemberByMemberId(memberDTO.getMemberId()) != null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 사용 중인 아이디입니다.");
-            }
+    /*
+    @GetMapping("/all")
+    public ResponseEntity<String> doAll() {
+        return ResponseEntity.ok("All can access everybody");
+    }
 
-            if (memberService.isEmailTaken(memberDTO.getEmail())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 사용 중인 이메일입니다.");
-            }
-
-            memberService.joinMember(memberDTO);
-
-            String accessToken = memberService.authenticate(memberDTO.getMemberId(), memberDTO.getPassword());
-            String refreshToken = jwtProcessor.generateRefreshToken(memberDTO.getMemberId());
-
-            memberDTO.setRefreshToken(refreshToken);
-            memberService.setRefreshToken(memberDTO);
-
-            return ResponseEntity.ok(AuthDTO.builder()
-                    .memberId(memberDTO.getMemberId())
-                    .accessToken(accessToken)
-                    .refreshToken(refreshToken)
-                    .build());
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("회원가입 중 오류가 발생했습니다.");
+    @GetMapping("/admin")
+    public ResponseEntity<String> doAdmin(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"))) {
+            return ResponseEntity.ok("Admin resource accessed");
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
         }
     }
 
-    @PostMapping("/check-email")
-    public ResponseEntity<Boolean> checkEmail(@RequestBody String email) {
-        boolean exists = memberService.isEmailTaken(email);
-        return ResponseEntity.ok(exists);
+    @GetMapping("/member")
+    public ResponseEntity<String> doMember(Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        return ResponseEntity.ok(userDetails.getUsername());
     }
-
-
-    @GetMapping("/check-memberId/{memberId}")
-    public ResponseEntity<Boolean> checkMemberId(@PathVariable String memberId) {
-        boolean exists = memberService.getMemberByMemberId(memberId) != null;
-        return ResponseEntity.ok(exists);
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO) {
-        try {
-            if (memberService.validateMember(loginDTO.getMemberId(), loginDTO.getPassword())) {
-
-                MemberDTO memberDTO = memberService.getMemberByMemberId(loginDTO.getMemberId());
-                String token = memberService.authenticate(loginDTO.getMemberId(), loginDTO.getPassword());
-                String refreshToken = jwtProcessor.generateRefreshToken(loginDTO.getMemberId());
-
-                memberDTO.setRefreshToken(refreshToken);
-                memberService.setRefreshToken(memberDTO);
-
-                if (loginDTO.getMemberId().startsWith("admin")) {
-                    return ResponseEntity.ok(
-                            AuthDTO.builder()
-                                    .memberId(loginDTO.getMemberId())
-                                    .accessToken(token)
-                                    .refreshToken(refreshToken)
-                                    .role("ROLE_ADMIN")
-                                    .build()
-                    );
-                } else {
-                    return ResponseEntity.ok(
-                            AuthDTO.builder()
-                                    .memberId(loginDTO.getMemberId())
-                                    .accessToken(token)
-                                    .refreshToken(refreshToken)
-                                    .role("ROLE_USER")
-                                    .build()
-                    );
-                }
-
-            } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid memberId or password");
-            }
-        } catch (Exception e) {
-            log.error("Login failed", e);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login failed");
-        }
-    }
-
-    @PostMapping("/findMemberId")
-    public ResponseEntity<String> findMemberId(@RequestBody LoginDTO loginDTO) {
-        try {
-            return memberService.findMemberId(loginDTO);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자 아이디를 찾을 수 없습니다.");
-        }
-    }
-
-    @GetMapping("/logout")
-    public ResponseEntity<Void> logout(HttpServletRequest request) {
-
-        return ResponseEntity.ok().build();
-    }
+    */
 }

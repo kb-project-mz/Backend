@@ -9,4 +9,6 @@ import java.util.Map;
 public interface ConsumptionService {
 
     List<CardConsumptionDTO> getCardHistoryList(int memberId);
+    List<CardConsumptionDTO> getCardHistoryListByPeriod(PeriodDTO period);
+    String getMostAndMaximumUsed(PeriodDTO period);
 }

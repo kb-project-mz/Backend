@@ -18,7 +18,6 @@ public class LoginDTO {
 
     private String memberId;
     private String password;
-    private String email;
     private String accessToken;
     private String refreshToken;
 
