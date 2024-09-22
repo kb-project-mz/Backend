@@ -10,7 +10,6 @@ public interface MemberService {
     void joinMember(MemberDTO memberDTO);
     MemberDTO getMemberByMemberId(String memberId);
     void deleteMember(String username);
-    boolean validateMember(String username, String password);
     void setRefreshToken(MemberDTO memberDTO);
     String findByNameAndEmail(MemberIdFindDTO memberIdFindDTO);
     boolean isEmailTaken(String email);

@@ -1,6 +1,8 @@
 package fingertips.backend.security.handle;
 
-import fingertips.backend.security.util.JsonResponse;
+import fingertips.backend.exception.dto.ErrorResponse;
+import fingertips.backend.exception.dto.JsonResponse;
+import fingertips.backend.exception.error.ApplicationError;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
@@ -18,8 +20,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
             throws IOException, ServletException {
-        log.error("========== 인증 에러 ============");
 
-        JsonResponse.sendError(response, HttpStatus.UNAUTHORIZED, authException.getMessage());
+        JsonResponse.sendError(response, ApplicationError.AUTHORIZATION_DENIED);
     }
 }
