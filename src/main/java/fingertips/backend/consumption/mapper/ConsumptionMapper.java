@@ -10,4 +10,5 @@ import java.util.List;
 public interface ConsumptionMapper {
 
     List<CardConsumptionDTO> getCardHistoryList(int memberId);
+    List<CardConsumptionDTO> getCardHistoryListByPeriod(PeriodDTO period);
 }
