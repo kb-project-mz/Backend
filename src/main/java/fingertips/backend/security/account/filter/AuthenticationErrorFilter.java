@@ -1,6 +1,7 @@
 package fingertips.backend.security.account.filter;
 
-import fingertips.backend.security.util.JsonResponse;
+import fingertips.backend.exception.dto.JsonResponse;
+import fingertips.backend.exception.error.ApplicationError;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -20,16 +21,14 @@ public class AuthenticationErrorFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+            throws IOException {
 
         try {
             super.doFilter(request, response, filterChain);
         } catch (ExpiredJwtException e) {
-            JsonResponse.sendError(response, HttpStatus.UNAUTHORIZED, "토큰의 유효시간이 지났습니다.");
-        } catch (UnsupportedJwtException | MalformedJwtException | SignatureException e) {
-            JsonResponse.sendError(response, HttpStatus.UNAUTHORIZED, e.getMessage());
+            JsonResponse.sendError(response, ApplicationError.INVALID_JWT_TOKEN);
         } catch (ServletException e) {
-            JsonResponse.sendError(response, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+            JsonResponse.sendError(response, ApplicationError.INTERNAL_SERVER_ERROR);
         }
     }
 }

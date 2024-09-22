@@ -15,8 +15,8 @@
 
     <update id="updateMember" parameterType="MemberDTO">
         UPDATE member
-        SET login_locked = #{loginLocked}, login_lock_time = #{loginLocktime}
-        WHERE id = #{id}
+        SET login_locked = #{loginLocked}, login_lock_time = #{loginLockTime}
+        WHERE member_id = #{memberId}
     </update>
 
     <update id="setRefreshToken" parameterType="MemberDTO">
