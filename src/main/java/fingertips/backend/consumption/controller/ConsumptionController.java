@@ -3,6 +3,7 @@ package fingertips.backend.consumption.controller;
 import fingertips.backend.consumption.dto.CardConsumptionDTO;
 import fingertips.backend.consumption.dto.PeriodDTO;
 import fingertips.backend.consumption.service.ConsumptionService;
+import fingertips.backend.exception.dto.JsonResponse;
 import fingertips.backend.openai.service.OpenAiService;
 
 import lombok.RequiredArgsConstructor;
@@ -23,10 +24,10 @@ public class ConsumptionController {
     private final OpenAiService openAiService;
 
     @GetMapping("/card/history/{memberId}")
-    public ResponseEntity<List<CardConsumptionDTO>> getCardHistoryListPerMonth(@PathVariable int memberId) {
+    public ResponseEntity<JsonResponse<List<CardConsumptionDTO>>> getCardHistoryListPerMonth(@PathVariable int memberId) {
 
         List<CardConsumptionDTO> cardHistoryList = consumptionService.getCardHistoryList(memberId);
-        return ResponseEntity.ok(cardHistoryList);
+        return ResponseEntity.ok().body(JsonResponse.success(cardHistoryList));
     }
 
     @PostMapping("/ask")
@@ -39,7 +40,7 @@ public class ConsumptionController {
     }
 
     @GetMapping("/most")
-    public ResponseEntity<Map<String, String>> mostAndMaximumUsed(@RequestParam Map<String, String> params) {
+    public ResponseEntity<JsonResponse<String>> mostAndMaximumUsed(@RequestParam Map<String, String> params) {
 
         PeriodDTO period = PeriodDTO.builder()
                 .memberId(Integer.parseInt(params.get("memberId")))
@@ -51,7 +52,7 @@ public class ConsumptionController {
                 .endDay(Integer.parseInt(params.get("endDay")))
                 .build();
 
-        Map<String, String> response = consumptionService.getMostAndMaximumUsed(period);
-        return ResponseEntity.ok(response);
+        String response = consumptionService.getMostAndMaximumUsed(period);
+        return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 }

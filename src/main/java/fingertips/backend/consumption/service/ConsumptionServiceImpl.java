@@ -33,9 +33,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
 
     // TODO : 프롬프트 수정
     @Override
-    public Map<String, String> getMostAndMaximumUsed(PeriodDTO period) {
-
-        Map<String, String> response = new HashMap<>();
+    public String getMostAndMaximumUsed(PeriodDTO period) {
 
         List<CardConsumptionDTO> cardHistoryListByPeriod = getCardHistoryListByPeriod(period);
         String data = formatConsumptionListAsTable(cardHistoryListByPeriod);
@@ -54,10 +52,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
                 "대답할 때 다른 말 붙이지 말고 [지점명:방문 횟수, 지점명:방문 횟수, 지점명:방문 횟수], [지점명:총 금액, 지점명:총 금액, 지점명:총 금액]" +
                 "이렇게 리스트로만 대답하는데 이때 방문 횟수 내림차순으로, 총 금액 내림차순으로 정렬해서 대답해.");
 
-        String result = openAiService.askOpenAi(prompt);
-
-        response.put("data", result);
-        return response;
+        return openAiService.askOpenAi(prompt);
     }
 
     public String formatConsumptionListAsTable(List<CardConsumptionDTO> cardConsumption) {
