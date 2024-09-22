@@ -20,14 +20,13 @@ public class LoginDTO {
     private String password;
     private String accessToken;
     private String refreshToken;
-    private String role;
 
     public static LoginDTO of(HttpServletRequest request) throws AuthenticationException {
         ObjectMapper om = new ObjectMapper();
         try {
             return om.readValue(request.getInputStream(), LoginDTO.class);
         } catch (Exception e) {
-            throw new BadCredentialsException("username 또는 password가 없습니다.");
+            throw new BadCredentialsException("memberId 또는 password가 없습니다.");
         }
     }
 }

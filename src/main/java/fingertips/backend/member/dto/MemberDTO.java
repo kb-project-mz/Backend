@@ -29,4 +29,6 @@ public class MemberDTO {
     private String refreshToken;
     private String withdrawDate;
     private String role;
+    private int loginLocked;
+    private long loginLockTime;
 }

@@ -41,7 +41,6 @@ public class JwtProcessor {
                 .compact();
     }
 
-
     public String generateRefreshToken(String subject) {
         return Jwts.builder()
                 .setSubject(subject)
@@ -51,7 +50,7 @@ public class JwtProcessor {
                 .compact();
     }
 
-    public String getUsername(String token) {
+    public String getMemberId(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()

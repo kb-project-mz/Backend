@@ -31,3 +31,4 @@ public class ServletConfig implements WebMvcConfigurer {
                 .addResourceLocations("/resources/assets/");
     }
 }
+
