@@ -44,6 +44,7 @@ public class MemberController {
                         .memberId(memberId)
                         .accessToken(accessToken)
                         .refreshToken(refreshToken)
+                        .role("ROLE_USER")
                         .build();
 
         return ResponseEntity.ok().body(JsonResponse.success(authDTO));
@@ -107,12 +108,6 @@ public class MemberController {
         } else {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
         }
-    }
-
-    @GetMapping("/member")
-    public ResponseEntity<String> doMember(Authentication authentication) {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return ResponseEntity.ok(userDetails.getUsername());
     }
     */
 }

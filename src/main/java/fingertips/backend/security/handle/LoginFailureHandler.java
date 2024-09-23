@@ -66,7 +66,7 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
             } else {
                 memberDTO.setLoginLocked(0);
                 memberDTO.setLoginLockTime(0);
-                memberMapper.updateMember(memberDTO);
+                memberMapper.updateLockStatus(memberDTO);
                 attemptsCache.put(memberId, 0);
             }
         }
@@ -76,10 +76,10 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
         log.info("attempts: " + attempts);
 
         if (attempts >= MAX_ATTEMPTS) {
-            memberDTO.setLoginLocked(1); // 계정 잠금
+            memberDTO.setLoginLocked(1);
             memberDTO.setLoginLockTime(currentTime);
             log.info("currentTime: " + currentTime);
-            memberMapper.updateMember(memberDTO);
+            memberMapper.updateLockStatus(memberDTO);
             JsonResponse.sendError(response, ApplicationError.LOGIN_ATTEMPTS);
         } else {
             JsonResponse.sendError(response, ApplicationError.PASSWORD_INVALID);
