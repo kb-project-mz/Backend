@@ -21,14 +21,14 @@ public class AssetController {
     private final AssetService assetService;
 
     // 사용자가 소유하는 계좌와 카드 정보 가져오기
-    @GetMapping("/asset/allAssets/{memberId}")
+    @GetMapping("/asset/{memberId}")
     public ResponseEntity<JsonResponse<List<AssetDTO>>> getAllAssets(@PathVariable("memberId") int memberId) {
         List<AssetDTO> assetList = assetService.getAllAssets(memberId);
         return ResponseEntity.ok(JsonResponse.success(assetList));
     }
 
     // 사용자가 연동시킨 계좌와 카드 정보 가져오기
-    @GetMapping("/asset/connAssets/{memberId}")
+    @GetMapping("/asset/connected/{memberId}")
     public ResponseEntity<JsonResponse<List<AssetDTO>>> getConnAssets(@PathVariable("memberId") int memberId) {
         List<AssetDTO> assetList = assetService.getConnAssets(memberId);
         return ResponseEntity.ok(JsonResponse.success(assetList));
