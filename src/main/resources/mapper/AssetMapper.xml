@@ -4,6 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="fingertips.backend.asset.mapper.AssetMapper">
+
     <!-- 카드정보(1), 계좌정보(2) UNION ALL해서 AssetDto에 담기
              financeKind라는 컬럼을 추가로 넣어서 카드와 계좌를 구분함 -->
     <!-- 사용자의 모든 계좌,카드 정보를 가져옴 -->
