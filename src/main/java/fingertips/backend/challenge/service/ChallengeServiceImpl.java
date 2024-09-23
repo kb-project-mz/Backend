@@ -1,6 +1,7 @@
 package fingertips.backend.challenge.service;
 
 
+import fingertips.backend.challenge.dto.CardHIstoryDto;
 import fingertips.backend.challenge.dto.ChallengeDto;
 import fingertips.backend.challenge.mapper.ChallengeMapper;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,12 @@ public class ChallengeServiceImpl implements ChallengeService
     public void delete(ChallengeDto challengeDto)
     {
         challengeMapper.challenge_delete(challengeDto);
+    }
+
+    @Override
+    public List<CardHIstoryDto> getList_card(CardHIstoryDto cardDto)
+    {
+        return challengeMapper.cardHistory_getList(cardDto);
     }
 
 

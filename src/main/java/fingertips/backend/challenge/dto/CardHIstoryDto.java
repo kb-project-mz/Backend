@@ -1,5 +1,8 @@
 package fingertips.backend.challenge.dto;
 
+import lombok.Data;
+
+@Data
 public class CardHIstoryDto
 {
     Integer id;

@@ -17,4 +17,13 @@
     <delete id="challenge_delete" parameterType="ChallengeDto">
         delete from challenge where id=#{id}
     </delete>
+
+
+    <!--   card_history 가져오기 왜? open ai로 질문하기 위해서~ -->
+    <select id="cardHistory_getList" parameterType="CardHIstoryDto" resultType="CardHIstoryDto">
+        select content from card_history where category=#{category}
+    </select>
+
+
 </mapper>
+
