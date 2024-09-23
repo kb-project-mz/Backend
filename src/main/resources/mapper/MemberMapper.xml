@@ -9,11 +9,11 @@
     </select>
 
     <insert id="insertMember" parameterType="MemberDTO">
-        INSERT INTO member (member_id, password, birthday, gender, email)
-        VALUES (#{memberId}, #{password}, #{birthday}, #{gender}, #{email})
+        INSERT INTO member (member_id, password, member_name, birthday, gender, email)
+        VALUES (#{memberId}, #{password}, #{memberName}, #{birthday}, #{gender}, #{email})
     </insert>
 
-    <update id="updateMember" parameterType="MemberDTO">
+    <update id="updateLockStatus" parameterType="MemberDTO">
         UPDATE member
         SET login_locked = #{loginLocked}, login_lock_time = #{loginLockTime}
         WHERE member_id = #{memberId}

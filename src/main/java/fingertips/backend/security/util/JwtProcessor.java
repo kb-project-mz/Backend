@@ -15,7 +15,7 @@ import java.util.List;
 @Component
 public class JwtProcessor {
 
-    private static final long ACCESS_TOKEN_VALID_MILLISECONDS = 1000L * 60 * 1; // 1 분
+    private static final long ACCESS_TOKEN_VALID_MILLISECONDS = 1000L * 60 * 60 * 24 * 4; // 24시간
     private static final long REFRESH_TOKEN_VALID_MILLISECONDS = 1000L * 60 * 60 * 24 * 30; // 30 일
 
     @Value("${jwt.secretKey}")
