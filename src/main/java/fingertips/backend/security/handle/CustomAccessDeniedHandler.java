@@ -1,6 +1,7 @@
 package fingertips.backend.security.handle;
 
-import fingertips.backend.security.util.JsonResponse;
+import fingertips.backend.exception.dto.JsonResponse;
+import fingertips.backend.exception.error.ApplicationError;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -18,8 +19,8 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException, ServletException {
-        log.error("========== 인가 에러 ============");
 
-        JsonResponse.sendError(response, HttpStatus.FORBIDDEN, "권한이 부족합니다.");
+        log.error("========== 인가 에러 ============");
+        JsonResponse.sendError(response, ApplicationError.AUTHORIZATION_DENIED);
     }
 }

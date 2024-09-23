@@ -23,7 +23,5 @@
     <select id="cardHistory_getList" parameterType="CardHIstoryDto" resultType="CardHIstoryDto">
         select content from card_history where category=#{category}
     </select>
-
-
 </mapper>
 
