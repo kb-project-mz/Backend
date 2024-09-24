@@ -3,7 +3,7 @@ package fingertips.backend.challenge.dto;
 import lombok.Data;
 
 @Data
-public class CardHIstoryDto
+public class CardHIstoryDTO
 {
     Integer id;
     Integer card_id;

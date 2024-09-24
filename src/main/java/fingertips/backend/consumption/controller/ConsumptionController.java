@@ -40,7 +40,8 @@ public class ConsumptionController {
     }
 
     @GetMapping("/most")
-    public ResponseEntity<JsonResponse<String>> mostAndMaximumUsed(@RequestParam Map<String, String> params) {
+    public ResponseEntity<JsonResponse<String>> mostAndMaximumUsed(@RequestParam Map<String, String> params)
+    {
 
         PeriodDTO period = PeriodDTO.builder()
                 .memberId(Integer.parseInt(params.get("memberId")))
