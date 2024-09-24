@@ -1,5 +1,6 @@
 package fingertips.backend.consumption.controller;
 
+import fingertips.backend.consumption.dto.AccountConsumptionDTO;
 import fingertips.backend.consumption.dto.CardConsumptionDTO;
 import fingertips.backend.consumption.dto.PeriodDTO;
 import fingertips.backend.consumption.service.ConsumptionService;
@@ -17,29 +18,26 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/consumption")
+@RequestMapping("/api/v1/history")
 public class ConsumptionController {
 
     private final ConsumptionService consumptionService;
-    private final OpenAiService openAiService;
 
-    @GetMapping("/card/history/{memberId}")
+    @GetMapping("/card/{memberId}")
     public ResponseEntity<JsonResponse<List<CardConsumptionDTO>>> getCardHistoryListPerMonth(@PathVariable int memberId) {
 
         List<CardConsumptionDTO> cardHistoryList = consumptionService.getCardHistoryList(memberId);
         return ResponseEntity.ok().body(JsonResponse.success(cardHistoryList));
     }
 
-    @PostMapping("/ask")
-    public ResponseEntity<String> askOpenAi(@RequestBody Map<String, String> request) {
+    @GetMapping("/account/{memberId}")
+    public ResponseEntity<JsonResponse<List<AccountConsumptionDTO>>> getAccountHistoryListPerMonth(@PathVariable int memberId) {
 
-        String prompt = request.get("prompt");
-        String response = openAiService.askOpenAi(prompt);
-
-        return ResponseEntity.ok(response);
+        List<AccountConsumptionDTO> accountHistoryList = consumptionService.getAccountHistoryList(memberId);
+        return ResponseEntity.ok().body(JsonResponse.success(accountHistoryList));
     }
 
-    @GetMapping("/most")
+    @GetMapping("/top-usage")
     public ResponseEntity<JsonResponse<String>> mostAndMaximumUsed(@RequestParam Map<String, String> params) {
 
         PeriodDTO period = PeriodDTO.builder()
