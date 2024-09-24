@@ -32,4 +32,8 @@
     <select id="isEmailTaken" parameterType="String" resultType="int">
         SELECT COUNT(*) FROM member WHERE email = #{email}
     </select>
+
+    <select id="existsMemberId" parameterType="String" resultType="int">
+        SELECT COUNT(*) FROM member WHERE member_id = #{memberId}
+    </select>
 </mapper>

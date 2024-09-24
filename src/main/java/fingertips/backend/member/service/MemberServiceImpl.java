@@ -80,4 +80,9 @@ public class MemberServiceImpl implements MemberService {
         int isTaken = mapper.isEmailTaken(email);
         return isTaken != 0;
     }
+
+    @Override
+    public boolean existsMemberId(String memberId) {
+        return mapper.existsMemberId(memberId) != 0;
+    }
 }
