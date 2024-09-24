@@ -49,8 +49,11 @@ public class MemberServiceImpl implements MemberService {
     }
 
     public MemberDTO getMemberByMemberId(String memberId) {
-
-        return mapper.getMember(memberId);
+        MemberDTO member = mapper.getMember(memberId);
+        if (member == null) {
+            throw new ApplicationException(ApplicationError.MEMBER_NOT_FOUND);
+        }
+        return member;
     }
 
     public void deleteMember(String username) {

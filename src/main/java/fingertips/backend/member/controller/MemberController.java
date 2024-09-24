@@ -1,5 +1,6 @@
 package fingertips.backend.member.controller;
 
+import fingertips.backend.exception.dto.ErrorResponse;
 import fingertips.backend.exception.dto.JsonResponse;
 import fingertips.backend.member.dto.MemberDTO;
 import fingertips.backend.member.dto.MemberIdFindDTO;
@@ -24,26 +25,10 @@ public class MemberController {
     private final JwtProcessor jwtProcessor;
 
     @PostMapping("/join")
-    public ResponseEntity<JsonResponse<AuthDTO>> join(@RequestBody MemberDTO memberDTO) {
+    public ResponseEntity<JsonResponse<String>> join(@RequestBody MemberDTO memberDTO) {
 
-        String memberId = memberDTO.getMemberId();
-        String password = memberDTO.getPassword();
         memberService.joinMember(memberDTO);
-
-        String accessToken = memberService.authenticate(memberId, password);
-        String refreshToken = jwtProcessor.generateRefreshToken(memberId);
-
-        memberDTO.setRefreshToken(refreshToken);
-        memberService.setRefreshToken(memberDTO);
-
-        AuthDTO authDTO = AuthDTO.builder()
-                        .memberId(memberId)
-                        .accessToken(accessToken)
-                        .refreshToken(refreshToken)
-                        .role("ROLE_USER")
-                        .build();
-
-        return ResponseEntity.ok().body(JsonResponse.success(authDTO));
+        return ResponseEntity.ok().body(JsonResponse.success("Join Success"));
     }
 
     @GetMapping("/id/{memberName}/{email}")
@@ -95,6 +80,13 @@ public class MemberController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
         }
     }
+
+    @GetMapping("/{memberId}")
+    public ResponseEntity<JsonResponse<?>> getMember(@PathVariable String memberId) {
+        MemberDTO member = memberService.getMemberByMemberId(memberId);
+        return ResponseEntity.ok(JsonResponse.success(member));
+    }
+
 
     /*
     @GetMapping("/all")
