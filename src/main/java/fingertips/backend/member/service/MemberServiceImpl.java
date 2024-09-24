@@ -31,24 +31,15 @@ public class MemberServiceImpl implements MemberService {
     }
 
     public void joinMember(MemberDTO memberDTO) {
-        String memberId = memberDTO.getMemberId();
-        String email = memberDTO.getEmail();
 
         String encodedPassword = passwordEncoder.encode(memberDTO.getPassword());
         memberDTO.setPassword(encodedPassword);
-
-        if (getMemberByMemberId(memberId) != null) {
-            throw new ApplicationException(ApplicationError.MEMBER_ID_DUPLICATED);
-        }
-
-        if (isEmailTaken(email)) {
-            throw new ApplicationException(ApplicationError.EMAIL_DUPLICATED);
-        }
 
         mapper.insertMember(memberDTO);
     }
 
     public MemberDTO getMemberByMemberId(String memberId) {
+
         MemberDTO member = mapper.getMember(memberId);
         if (member == null) {
             throw new ApplicationException(ApplicationError.MEMBER_NOT_FOUND);

@@ -30,14 +30,18 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private AuthDTO makeAuth(MemberDTO user) {
 
+        int id = user.getId();
         String memberId = user.getMemberId();
+        String memberName = user.getMemberName();
         String role = user.getRole();
 
         String accessToken = jwtProcessor.generateAccessToken(memberId, role);
         String refreshToken = jwtProcessor.generateRefreshToken(memberId);
 
         return AuthDTO.builder()
+                .id(id)
                 .memberId(memberId)
+                .memberName(memberName)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .role(role)

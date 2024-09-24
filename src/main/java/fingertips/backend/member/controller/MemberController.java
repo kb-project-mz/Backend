@@ -45,6 +45,7 @@ public class MemberController {
 
     @GetMapping("/check-memberId/{memberId}")
     public ResponseEntity<JsonResponse<Boolean>> checkMemberId(@PathVariable String memberId) {
+
         boolean exists = memberService.existsMemberId(memberId);
         return ResponseEntity.ok(JsonResponse.success(exists));
     }
@@ -54,39 +55,12 @@ public class MemberController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/refresh")
-    public ResponseEntity<?> refreshAccessToken(@RequestBody String refreshToken) {
-        if (jwtProcessor.validateToken(refreshToken)) {
-            String memberId = jwtProcessor.getMemberId(refreshToken);
-            String role = jwtProcessor.getUserRole(refreshToken);
-            String newAccessToken = jwtProcessor.generateAccessToken(memberId, role);
-            String newRefreshToken = jwtProcessor.generateRefreshToken(memberId);
-
-            MemberDTO memberDTO = MemberDTO.builder()
-                    .id(memberId)
-                    .refreshToken(newRefreshToken)
-                    .build();
-
-            memberService.setRefreshToken(memberDTO);
-
-            return ResponseEntity.ok(
-                    AuthDTO.builder()
-                            .memberId(memberId)
-                            .accessToken(newAccessToken)
-                            .refreshToken(newRefreshToken)
-                            .build()
-            );
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
-        }
-    }
-
     @GetMapping("/{memberId}")
-    public ResponseEntity<JsonResponse<?>> getMember(@PathVariable String memberId) {
+    public ResponseEntity<JsonResponse<MemberDTO>> getMember(@PathVariable String memberId) {
+
         MemberDTO member = memberService.getMemberByMemberId(memberId);
         return ResponseEntity.ok(JsonResponse.success(member));
     }
-
 
     /*
     @GetMapping("/all")
@@ -101,6 +75,33 @@ public class MemberController {
             return ResponseEntity.ok("Admin resource accessed");
         } else {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
+        }
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshAccessToken(@RequestBody String refreshToken) {
+        if (jwtProcessor.validateToken(refreshToken)) {
+            String memberId = jwtProcessor.getMemberId(refreshToken);
+            String role = jwtProcessor.getUserRole(refreshToken);
+            String newAccessToken = jwtProcessor.generateAccessToken(memberId, role);
+            String newRefreshToken = jwtProcessor.generateRefreshToken(memberId);
+
+            MemberDTO memberDTO = MemberDTO.builder()
+                    .memberId(memberId)
+                    .refreshToken(newRefreshToken)
+                    .build();
+
+            memberService.setRefreshToken(memberDTO);
+
+            return ResponseEntity.ok(
+                    AuthDTO.builder()
+                            .memberId(memberId)
+                            .accessToken(newAccessToken)
+                            .refreshToken(newRefreshToken)
+                            .build()
+            );
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
         }
     }
     */
