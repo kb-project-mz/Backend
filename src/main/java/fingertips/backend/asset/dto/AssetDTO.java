@@ -7,8 +7,10 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AssetDTO {
+
     // 카드면 1, 계좌면 2
     private int financeKind;
+    private int prdtId;
     // 은행 이름
     private String financeName;
     // 상품명

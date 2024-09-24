@@ -11,6 +11,7 @@
     <select id="getAllAssets" resultType="AssetDTO">
         SELECT
             "1" financeKind,
+            c.id AS prdtId,
             c.bank_name AS financeName,
             c.card_name AS prdtName,
             c.card_image AS image,
@@ -27,6 +28,7 @@
 
         SELECT
             "2" as financeKind,
+            a_b.id AS prdtId,
             a_b.bank_name AS financeName,
             a_b.account_name AS prdtName,
             a_b.account_book_image AS image,
@@ -44,6 +46,7 @@
     <select id="getConnAssets" resultType="AssetDTO">
         SELECT
             "1" financeKind,
+            c.id AS prdtId,
             c.bank_name AS financeName,
             c.card_name AS prdtName,
             c.card_image AS image,
@@ -60,6 +63,7 @@
 
         SELECT
             "2" as financeKind,
+            a_b.id AS prdtId,
             a_b.bank_name AS financeName,
             a_b.account_name AS prdtName,
             a_b.account_book_image AS image,
