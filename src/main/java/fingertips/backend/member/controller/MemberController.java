@@ -3,7 +3,6 @@ package fingertips.backend.member.controller;
 import fingertips.backend.exception.dto.JsonResponse;
 import fingertips.backend.member.dto.MemberDTO;
 import fingertips.backend.member.dto.MemberIdFindDTO;
-import fingertips.backend.security.account.dto.LoginDTO;
 import fingertips.backend.security.account.dto.AuthDTO;
 import fingertips.backend.member.service.MemberService;
 import fingertips.backend.security.util.JwtProcessor;
@@ -11,9 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -60,6 +56,12 @@ public class MemberController {
 
         String memberId = memberService.findByNameAndEmail(memberIdFindDTO);
         return ResponseEntity.ok(JsonResponse.success(memberId));
+    }
+
+    @GetMapping("/check-memberId/{memberId}")
+    public ResponseEntity<JsonResponse<Boolean>> checkMemberId(@PathVariable String memberId) {
+        boolean exists = memberService.existsMemberId(memberId);
+        return ResponseEntity.ok(JsonResponse.success(exists));
     }
 
     @GetMapping("/logout")

@@ -14,4 +14,5 @@ public interface MemberMapper {
     void setRefreshToken(MemberDTO memberDTO);
     int isEmailTaken(String email);
     String findByNameAndEmail(MemberIdFindDTO memberIdFindDTO);
+    int existsMemberId(String memberId);
 }
