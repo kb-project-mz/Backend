@@ -60,5 +60,9 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         AuthDTO result = makeAuth(memberDTO);
         JsonResponse.sendToken(response, result);
         loginFailureHandler.getAttemptsCache().put(memberId, 0);
+
+        memberDTO.setLoginLocked(0);
+        memberDTO.setLoginLockTime(0);
+        memberMapper.updateLockStatus(memberDTO);
     }
 }
