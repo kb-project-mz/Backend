@@ -20,6 +20,8 @@ public class MemberDTO {
     private String birthday;
     private String gender;
     private String email;
+    private String newEmail;
+    private String inputCode;
     private String imageUrl;
     private String joinDate;
     private String region;
