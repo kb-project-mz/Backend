@@ -3,7 +3,7 @@ package fingertips.backend.challenge.dto;
 import lombok.Data;
 
 @Data
-public class ChallengeDto
+public class ChallengeDTO
 {
     private Integer id;
     private Integer category;
