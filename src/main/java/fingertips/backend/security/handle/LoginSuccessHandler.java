@@ -33,6 +33,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         int id = user.getId();
         String memberId = user.getMemberId();
         String memberName = user.getMemberName();
+        String imageUrl = user.getImageUrl();
         String role = user.getRole();
 
         String accessToken = jwtProcessor.generateAccessToken(memberId, role);
@@ -42,6 +43,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
                 .id(id)
                 .memberId(memberId)
                 .memberName(memberName)
+                .imageUrl(imageUrl)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .role(role)

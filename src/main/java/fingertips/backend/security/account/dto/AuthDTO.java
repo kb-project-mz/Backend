@@ -15,6 +15,7 @@ public class AuthDTO {
     private int id;
     private String memberId;
     private String memberName;
+    private String imageUrl;
     private String accessToken;
     private String refreshToken;
     private String role;
