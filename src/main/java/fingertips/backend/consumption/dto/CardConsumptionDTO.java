@@ -19,4 +19,5 @@ public class CardConsumptionDTO {
     private String category;
     private String content;
     private int amount;
+    private int cardId;
 }
