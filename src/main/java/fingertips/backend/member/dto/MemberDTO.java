@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class MemberDTO {
 
-    private String id;
+    private int id;
     private String memberId;
     private String password;
     private String memberName;
@@ -26,8 +26,8 @@ public class MemberDTO {
     private String joinDate;
     private String region;
     private String job;
-    private String testStatus;
-    private String activeStatus;
+    private int testStatus;
+    private int activeStatus;
     private String refreshToken;
     private String withdrawDate;
     private String role;
