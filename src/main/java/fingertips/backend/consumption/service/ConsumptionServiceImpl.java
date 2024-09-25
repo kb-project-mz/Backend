@@ -1,5 +1,6 @@
 package fingertips.backend.consumption.service;
 
+import fingertips.backend.consumption.dto.AccountConsumptionDTO;
 import fingertips.backend.consumption.dto.CardConsumptionDTO;
 import fingertips.backend.consumption.dto.PeriodDTO;
 import fingertips.backend.consumption.mapper.ConsumptionMapper;
@@ -53,6 +54,11 @@ public class ConsumptionServiceImpl implements ConsumptionService {
                 "이렇게 리스트로만 대답하는데 이때 방문 횟수 내림차순으로, 총 금액 내림차순으로 정렬해서 대답해.");
 
         return openAiService.askOpenAi(prompt);
+    }
+
+    @Override
+    public List<AccountConsumptionDTO> getAccountHistoryList(int memberId) {
+        return consumptionMapper.getAccountHistoryList(memberId);
     }
 
     public String formatConsumptionListAsTable(List<CardConsumptionDTO> cardConsumption) {

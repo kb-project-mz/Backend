@@ -9,9 +9,10 @@ public interface MemberMapper {
 
     MemberDTO getMember(String memberId);
     void insertMember(MemberDTO memberDTO);
-    void updateMember(MemberDTO memberDTO);
+    void updateLockStatus(MemberDTO memberDTO);
     void deleteMember(String username);
     void setRefreshToken(MemberDTO memberDTO);
     int isEmailTaken(String email);
     String findByNameAndEmail(MemberIdFindDTO memberIdFindDTO);
+    int existsMemberId(String memberId);
 }

@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
-@PropertySource({"classpath:/application.properties", "classpath:/env.properties"})
+@PropertySource({"classpath:/env.properties"})
 @MapperScan(basePackages = {
         "fingertips.backend.admin.mapper",
         "fingertips.backend.asset.mapper",

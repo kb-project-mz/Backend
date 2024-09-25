@@ -13,7 +13,7 @@
         VALUES (#{memberId}, #{password}, #{memberName}, #{birthday}, #{gender}, #{email})
     </insert>
 
-    <update id="updateMember" parameterType="MemberDTO">
+    <update id="updateLockStatus" parameterType="MemberDTO">
         UPDATE member
         SET login_locked = #{loginLocked}, login_lock_time = #{loginLockTime}
         WHERE member_id = #{memberId}
@@ -31,5 +31,9 @@
 
     <select id="isEmailTaken" parameterType="String" resultType="int">
         SELECT COUNT(*) FROM member WHERE email = #{email}
+    </select>
+
+    <select id="existsMemberId" parameterType="String" resultType="int">
+        SELECT COUNT(*) FROM member WHERE member_id = #{memberId}
     </select>
 </mapper>
