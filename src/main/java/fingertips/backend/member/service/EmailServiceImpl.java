@@ -29,7 +29,7 @@ public class EmailServiceImpl implements EmailService {
 
     private void loadEmailProperties() {
         try {
-            Resource resource = new ClassPathResource("email.properties");
+            Resource resource = new ClassPathResource("env.properties");
             Properties props = new Properties();
             InputStream input = resource.getInputStream();
             props.load(input);
