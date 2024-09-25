@@ -1,0 +1,21 @@
+<mapper namespace="fingertips.backend.member.sociallogin.mapper.SocialLoginMapper">
+
+    <select id="checkMemberExists" resultType="int">
+        SELECT COUNT(*) FROM members WHERE email = #{email}
+    </select>
+
+    <insert id="insertMember">
+        INSERT INTO members (member_id, member_name, password, email, birthday, gender, social_type, google_id, google_access_token, google_refresh_token)
+        VALUES (#{memberId}, #{memberName}, #{password}, #{email}, #{birthday}, #{gender}, #{socialType}, #{googleId}, #{googleAccessToken}, #{googleRefreshToken})
+    </insert>
+
+    <update id="updateMemberTokens">
+        UPDATE members
+        SET google_access_token = #{googleAccessToken},
+        google_id_token = #{googleIdToken},
+        google_refresh_token = #{googleRefreshToken},
+        expires_in = #{expiresIn}
+        WHERE email = #{email}
+    </update>
+
+</mapper>

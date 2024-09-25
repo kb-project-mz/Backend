@@ -1,0 +1,18 @@
+package fingertips.backend.member.sociallogin.mapper;
+
+import fingertips.backend.member.sociallogin.dto.SocialLoginDTO;
+import org.apache.ibatis.annotations.Mapper;
+
+@Mapper
+public interface SocialLoginMapper {
+
+    int checkMemberExists(String email);
+    void insertMember(SocialLoginDTO socialLoginDTO);
+    void updateMemberTokens(
+            String email,
+            String googleAccessToken,
+            String googleIdToken,
+            String googleRefreshToken,
+            String expiresIn
+    );
+}
