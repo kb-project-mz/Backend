@@ -7,10 +7,10 @@ import org.springframework.http.ResponseEntity;
 import java.util.Map;
 
 public interface SocialLoginService {
+
     String getGoogleClientId();
-//    ResponseEntity<JsonResponse<SocialLoginDTO>> googleLogin(Map<String, String> request);
     ResponseEntity<JsonResponse<SocialLoginDTO>> googleLogin(Map<String, String> request);
+    ResponseEntity<JsonResponse<SocialLoginDTO>> googleCallback(String code);
     boolean googleMemberExists(String email);
     void googleMemberJoin(SocialLoginDTO socialLoginDTO);
-    ResponseEntity<JsonResponse<SocialLoginDTO>> googleCallback(String code);
 }
