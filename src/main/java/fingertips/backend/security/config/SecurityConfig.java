@@ -108,8 +108,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/v1/member/id/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/v1/member/password/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/v1/member/check-memberId/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/v1/member/login/google/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/v1/member/logout").authenticated()
                 .antMatchers(HttpMethod.POST, "/api/v1/member/refresh").authenticated()
+
 
                 .antMatchers("/api/v1/asset/**").authenticated()
                 .antMatchers("/api/v1/challenge/**").authenticated()

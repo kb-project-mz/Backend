@@ -1,7 +1,9 @@
 package fingertips.backend.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 import javax.servlet.Filter;
@@ -43,6 +45,11 @@ public class WebConfig extends AbstractAnnotationConfigDispatcherServletInitiali
                 FILE_SIZE_THRESHOLD
         );
         registration.setMultipartConfig(multipartConfig);
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 }
 

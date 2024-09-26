@@ -7,7 +7,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @RestController
@@ -20,28 +23,39 @@ public class GoogleController {
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String googleClientId;
 
-    // Google 로그인 페이지로 리디렉션하는 URL을 반환
-    @GetMapping("/oauth2")
-    public ResponseEntity<JsonResponse<String>> loginUrlGoogle() {
-        String reqUrl = "https://accounts.google.com/o/oauth2/v2/auth?client_id=" + googleClientId
-                + "&redirect_uri=http://localhost:8080/api/v1/member/login/google/callback"
-                + "&response_type=code&scope=email%20profile%20openid&access_type=offline";
-        return ResponseEntity.ok(JsonResponse.success(reqUrl));
+    // 구글 로그인 페이지로 리디렉션 URL 생성
+    @GetMapping
+    public ResponseEntity<JsonResponse<String>> googleLoginRedirect() {
+        // 구글 인증 URL 생성
+        String authUrl = UriComponentsBuilder.fromHttpUrl("https://accounts.google.com/o/oauth2/v2/auth")
+                .queryParam("response_type", "code")
+                .queryParam("client_id", googleClientId)
+                .queryParam("redirect_uri", "http://localhost:8080/api/v1/member/login/google/callback")
+                .queryParam("scope", "email profile")
+                .queryParam("access_type", "offline") // refresh token을 받기 위해 필요
+                .queryParam("prompt", "consent") // 사용자의 동의를 다시 요청
+                .toUriString();
+        System.out.println(URLEncoder.encode(authUrl, StandardCharsets.UTF_8));
+        return ResponseEntity.ok(JsonResponse.success(authUrl));
     }
 
-    @GetMapping("/google-client-id")
-    public ResponseEntity<JsonResponse<String>> getGoogleClientId() {
-        return ResponseEntity.ok(JsonResponse.success(googleClientId)); // 수정: 직접 사용
+    // 구글 로그인 콜백 처리
+    @GetMapping("/callback")
+    public ResponseEntity<JsonResponse<SocialLoginDTO>> handleGoogleCallback(@RequestParam String code) {
+        System.out.println("req_param");
+        System.out.println(code);
+        return socialLoginService.googleCallback(code);
     }
 
-    @PostMapping("/")
-    public ResponseEntity<JsonResponse<?>> googleLogin(@RequestBody Map<String, String> request) {
+    // 구글 로그인 토큰으로 로그인 처리
+    @PostMapping("/tokens")
+    public ResponseEntity<JsonResponse<SocialLoginDTO>> loginWithGoogleTokens(@RequestBody Map<String, String> request) {
         return socialLoginService.googleLogin(request);
     }
 
-    // Google 로그인 응답 처리
-    @GetMapping("/callback")
-    public ResponseEntity<JsonResponse<SocialLoginDTO>> googleCallback(@RequestParam String code) {
-        return socialLoginService.googleCallback(code);
+    // 구글 클라이언트 ID 확인
+    @GetMapping("/google-client-id")
+    public ResponseEntity<JsonResponse<String>> getGoogleClientId() {
+        return ResponseEntity.ok(JsonResponse.success(googleClientId));
     }
 }

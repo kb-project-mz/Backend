@@ -18,6 +18,8 @@ public class SocialLoginDTO {
     private String gender;
     private String socialType;
     private String googleId;
+    private String googleIdToken;
     private String googleAccessToken;
     private String googleRefreshToken;
+    private int expiresIn;
 }

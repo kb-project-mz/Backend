@@ -5,8 +5,8 @@
     </select>
 
     <insert id="insertMember">
-        INSERT INTO members (member_id, member_name, password, email, birthday, gender, social_type, google_id, google_access_token, google_refresh_token)
-        VALUES (#{memberId}, #{memberName}, #{password}, #{email}, #{birthday}, #{gender}, #{socialType}, #{googleId}, #{googleAccessToken}, #{googleRefreshToken})
+        INSERT INTO members (member_id, member_name, password, email, birthday, gender, social_type, google_id, google_access_token, google_refresh_token, google_id_token, expires_in)
+        VALUES (#{memberId}, #{memberName}, #{password}, #{email}, #{birthday}, #{gender}, #{socialType}, #{googleId}, #{googleAccessToken}, #{googleRefreshToken}, #{googleIdToken}, #{expiresIn})
     </insert>
 
     <update id="updateMemberTokens">

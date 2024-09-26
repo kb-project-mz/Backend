@@ -109,8 +109,8 @@ dependencies {
   implementation 'com.google.http-client:google-http-client-apache-v2:1.40.0'
 
   // JWT 및 OAuth2
-  implementation 'org.springframework.security:spring-security-oauth2-client:6.3.3'
-  implementation 'org.springframework.security:spring-security-oauth2-jose:6.3.3'
+  implementation 'org.springframework.security:spring-security-oauth2-client:5.8.13'
+  implementation 'org.springframework.security:spring-security-oauth2-jose:5.8.13'
 }
 
 test {

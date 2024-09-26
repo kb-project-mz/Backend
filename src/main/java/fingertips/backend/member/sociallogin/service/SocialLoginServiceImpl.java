@@ -8,19 +8,17 @@ import fingertips.backend.member.sociallogin.mapper.SocialLoginMapper;
 import fingertips.backend.security.util.JwtProcessor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.util.MultiValueMap;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.oauth2.jwt.Jwt;
 
+import java.net.URI;
 import java.util.Map;
 
 @Service
@@ -45,64 +43,75 @@ public class SocialLoginServiceImpl implements SocialLoginService {
     }
 
     @Override
-    public ResponseEntity<JsonResponse<?>> googleLogin(Map<String, String> request) {
+    public ResponseEntity<JsonResponse<SocialLoginDTO>> googleLogin(Map<String, String> request) {
         String googleIdToken = request.get("id_token");
         String googleAccessToken = request.get("access_token");
         String googleRefreshToken = request.get("refresh_token");
-        String expiresIn = request.get("expires_in");
+        int expiresIn = Integer.parseInt(request.get("expires_in"));
 
         if (googleIdToken == null || googleIdToken.isEmpty()) {
             throw new ApplicationException(ApplicationError.INVALID_ID_TOKEN);
         }
 
+        // ID Token으로 사용자 정보 추출
         SocialLoginDTO memberInfo = googleValidateToken(googleIdToken);
 
-        if (memberInfo == null) {
-            throw new ApplicationException(ApplicationError.INVALID_ID_TOKEN);
-        }
-
-        int memberCount = socialLoginMapper.checkMemberExists(memberInfo.getEmail());
-
-        if (memberCount == 0) {
-            memberInfo.setGoogleAccessToken(googleAccessToken);
-            memberInfo.setGoogleIdToken(googleIdToken);
-            memberInfo.setGoogleRefreshToken(googleRefreshToken);
-            memberInfo.setExpiresIn(expiresIn);
-            socialLoginMapper.insertMember(memberInfo);
-            return ResponseEntity.ok(JsonResponse.success("Registration success"));
-        } else {
-            socialLoginMapper.updateMemberTokens(
-                    memberInfo.getEmail(),
-                    googleAccessToken,
-                    googleIdToken,
-                    googleRefreshToken,
-                    expiresIn
-            );
-            return ResponseEntity.ok(JsonResponse.success("Login success"));
-        }
+        // 회원 로그인/회원가입 처리
+        return processGoogleLogin(memberInfo, googleAccessToken, googleIdToken, googleRefreshToken, expiresIn);
     }
 
-
+    @Override
     public ResponseEntity<JsonResponse<SocialLoginDTO>> googleCallback(String code) {
-
-        String googleAccessToken = getGoogleAccessToken(code);
-        SocialLoginDTO googleSocialLoginInfo = getGoogleSocialLoginInfo(googleAccessToken);
+        // 구글에서 Access Token, Id Token, Refresh Token 가져오기
+        Map<String, String> googleTokenInfo = getGoogleToken(code);
+        System.out.println("#### token Info ####" );
+        System.out.println(googleTokenInfo.get("access_token"));
+        System.out.println(googleTokenInfo.get("refresh_token"));
+        System.out.println(googleTokenInfo.get("id_token"));
+        // 구글에서 사용자 정보를 가져옴
+        SocialLoginDTO googleSocialLoginInfo = getGoogleSocialLoginInfo(googleTokenInfo.get("access_token"));
 
         if (googleSocialLoginInfo == null) {
             throw new ApplicationException(ApplicationError.USER_INFO_REQUEST_FAILED);
         }
 
-        socialLoginMapper.insertMember(googleSocialLoginInfo);
+        // 회원 로그인/회원가입 처리
+//        processGoogleLogin(googleSocialLoginInfo, googleTokenInfo.get("access_token"), googleTokenInfo.get("id_token"), googleTokenInfo.get("refresh_token"), 3600);
 
-        String jwtToken = jwtProcessor.generateAccessToken(googleSocialLoginInfo.getEmail(), "USER_ROLE");
-
-        googleSocialLoginInfo.setGoogleAccessToken(googleAccessToken);
-        return ResponseEntity.ok(JsonResponse.success(googleSocialLoginInfo));
+        // 처리 끝나고 프론트로 리다이렉트
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(URI.create("http://localhost:5173/home"));
+        return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
     }
 
-    private SocialLoginDTO googleValidateToken(String googleIdToken) {
+    private ResponseEntity<JsonResponse<SocialLoginDTO>> processGoogleLogin(SocialLoginDTO memberInfo, String googleAccessToken, String googleIdToken, String googleRefreshToken, int expiresIn) {
+        int memberCount = socialLoginMapper.checkMemberExists(memberInfo.getEmail());
 
+        if (memberCount == 0) {
+            // 회원가입
+            memberInfo.setGoogleIdToken(googleIdToken);
+            memberInfo.setGoogleAccessToken(googleAccessToken);
+            memberInfo.setGoogleRefreshToken(googleRefreshToken);
+            memberInfo.setExpiresIn(expiresIn);
+            socialLoginMapper.insertMember(memberInfo);
+            return ResponseEntity.ok(JsonResponse.success(memberInfo));
+        } else {
+            // 로그인
+            socialLoginMapper.updateMemberTokens(
+                    memberInfo.getEmail(),
+                    googleAccessToken,
+                    googleIdToken,
+                    googleRefreshToken,
+                    String.valueOf(expiresIn)
+            );
+            return ResponseEntity.ok(JsonResponse.success(memberInfo));
+        }
+    }
+
+
+    private SocialLoginDTO googleValidateToken(String googleIdToken) {
         try {
+            // Google ID Token을 디코드하여 사용자 정보 추출
             Jwt jwt = jwtDecoder.decode(googleIdToken);
             String email = jwt.getClaimAsString("email");
             String name = jwt.getClaimAsString("name");
@@ -119,47 +128,54 @@ public class SocialLoginServiceImpl implements SocialLoginService {
         }
     }
 
-    private String getGoogleAccessToken(String code) {
-        RestTemplate restTemplate = new RestTemplate();
-        String tokenUrl = "https://oauth2.googleapis.com/token";
+    private Map getGoogleToken(String code) {
 
+        String tokenUrl = "https://oauth2.googleapis.com/token";
         MultiValueMap<String, String> requestParams = new LinkedMultiValueMap<>();
+        requestParams.add("code", code);
         requestParams.add("client_id", googleClientId);
         requestParams.add("client_secret", googleClientSecret);
-        requestParams.add("code", code);
         requestParams.add("grant_type", "authorization_code");
-        requestParams.add("redirect_uri", "http://localhost:8080/api/v1/oauth2/google/callback");
+        requestParams.add("redirect_uri", "http://localhost:8080/api/v1/member/login/google/callback");
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<Map> response;
 
         try {
-            ResponseEntity<Map<String, String>> response = restTemplate.exchange(
-                    tokenUrl,
-                    HttpMethod.POST,
-                    new HttpEntity<>(requestParams, new HttpHeaders()),
-                    new ParameterizedTypeReference<Map<String, String>>() {}
-            );
-
-            return response.getBody().get("access_token");
+            response = restTemplate.postForEntity(tokenUrl, requestParams, Map.class);
+            System.out.println("tokenInfo");
+            System.out.println(response.getBody());
+            // 액세스 토큰 추출
+            return response.getBody();
         } catch (Exception e) {
             throw new ApplicationException(ApplicationError.OAUTH2_AUTHORIZATION_FAILED);
         }
     }
 
     private SocialLoginDTO getGoogleSocialLoginInfo(String googleAccessToken) {
-        String googleUserInfoUrl = "https://www.googleapis.com/oauth2/v3/userinfo";
+
+        String googleUserInfoUrl = "https://www.googleapis.com/userinfo/v2/me";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(googleAccessToken);
 
-        HttpEntity<String> entity = new HttpEntity<>(headers);
+        HttpEntity<String> request = new HttpEntity<>(headers);
         try {
-            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(googleUserInfoUrl, HttpMethod.GET, entity, new ParameterizedTypeReference<Map<String, Object>>() {});
+            ResponseEntity<Map> response = restTemplate.exchange(googleUserInfoUrl, HttpMethod.GET, request, Map.class);
 
             Map<String, Object> userInfo = response.getBody();
+            // 사용자 정보 추출
+            String email = (String) userInfo.get("email");
+            String name = (String) userInfo.get("name");
+            String socialId = (String) userInfo.get("id");
+            System.out.println("email: " + email
+            + " name: " + name
+            + " socialId: " + socialId
+            );
             return SocialLoginDTO.builder()
                     .email((String) userInfo.get("email"))
                     .memberName((String) userInfo.get("name"))
                     .socialType("GOOGLE")
-                    .googleId((String) userInfo.get("sub"))
+                    .googleId((String) userInfo.get("id"))
                     .build();
         } catch (Exception e) {
             throw new ApplicationException(ApplicationError.USER_INFO_REQUEST_FAILED);
