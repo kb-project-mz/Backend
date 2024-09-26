@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class BalanceDTO {
+    private String id;
     private int balance;
 
 }

@@ -25,10 +25,10 @@ public class HomeController {
     private final BalanceService balanceService;
     private final SocketIOService socketIOService;
 
-    @GetMapping("/balance/{memberId}")
-    public ResponseEntity<JsonResponse<List<BalanceDTO>>> getBalance(@PathVariable String memberId) {
-       List<BalanceDTO> resultList=balanceService.getBalance(memberId);
-        socketIOService.sendBalanceUpdate(memberId, resultList);
+    @GetMapping("/balance")
+    public ResponseEntity<JsonResponse<List<BalanceDTO>>> getBalance() {
+       List<BalanceDTO> resultList=balanceService.getBalance();
+//        socketIOService.sendBalanceUpdate(resultList);
 
         return ResponseEntity.ok().body(JsonResponse.success(resultList));
     }

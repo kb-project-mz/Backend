@@ -16,8 +16,8 @@ public class BalanceServiceImpl implements BalanceService{
     private final BalanceMapper balanceMapper;
 
     @Override
-    public List<BalanceDTO> getBalance(String memberId) {
-      return balanceMapper.getBalance(memberId);
+    public List<BalanceDTO> getBalance() {
+      return balanceMapper.getBalance();
     }
 
 }
