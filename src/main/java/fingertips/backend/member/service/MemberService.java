@@ -2,7 +2,6 @@ package fingertips.backend.member.service;
 
 import fingertips.backend.member.dto.MemberDTO;
 import fingertips.backend.member.dto.MemberIdFindDTO;
-import fingertips.backend.security.account.dto.LoginDTO;
 
 public interface MemberService {
 
@@ -14,4 +13,7 @@ public interface MemberService {
     String findByNameAndEmail(MemberIdFindDTO memberIdFindDTO);
     boolean isEmailTaken(String email);
     boolean existsMemberId(String memberId);
+
+    MemberDTO getMemberInfo(String memberId);
+    void updateMemberInfo(String memberId, MemberDTO memberDTO);
 }

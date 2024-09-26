@@ -21,6 +21,7 @@ public class MemberServiceImpl implements MemberService {
     private final MemberMapper mapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtProcessor jwtProcessor;
+    private final MemberMapper memberMapper;
 
     public String authenticate(String username, String password) {
         MemberDTO memberDTO = mapper.getMember(username);
@@ -78,5 +79,23 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public boolean existsMemberId(String memberId) {
         return mapper.existsMemberId(memberId) != 0;
+    }
+
+    @Override
+    public MemberDTO getMemberInfo(String memberId) {
+        return memberMapper.getMemberInfo(memberId);
+    }
+
+    @Override
+    public void updateMemberInfo(String memberId, MemberDTO memberDTO) {
+
+        MemberDTO updateDTO = MemberDTO.builder()
+                .memberId(memberId)
+                .password(memberDTO.getPassword())
+                .newEmail(memberDTO.getNewEmail())
+                .imageUrl(memberDTO.getImageUrl())
+                .build();
+
+        memberMapper.updateMemberInfo(memberId, updateDTO);
     }
 }

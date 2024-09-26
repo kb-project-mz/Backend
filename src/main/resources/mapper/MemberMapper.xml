@@ -36,4 +36,24 @@
     <select id="existsMemberId" parameterType="String" resultType="int">
         SELECT COUNT(*) FROM member WHERE member_id = #{memberId}
     </select>
+
+    <!-- 마이페이지를 위한 정보 받아오기 -->
+    <select id="getMemberInfo" parameterType="String" resultType="MemberDTO">
+        SELECT
+            id, member_id, member_name, birthday, email, image_url
+        FROM member
+        WHERE member_id = #{memberId}
+    </select>
+
+    <!-- 마이페이지를 위한 업데이트 위한 정보 받아오기 -->
+    <update id="updateMemberInfo" parameterType="MemberDTO">
+        UPDATE member
+        SET
+            password = #{password},
+            email = #{newEmail},
+            image_url = #{imageUrl}
+        WHERE
+            member_id = #{memberId}
+    </update>
+
 </mapper>
