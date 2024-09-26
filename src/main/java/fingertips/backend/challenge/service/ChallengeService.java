@@ -1,14 +1,18 @@
 package fingertips.backend.challenge.service;
-import fingertips.backend.challenge.dto.CardHIstoryDto;
-import fingertips.backend.challenge.dto.ChallengeDto;
+import fingertips.backend.challenge.dto.CardHIstoryDTO;
+import fingertips.backend.challenge.dto.ChallengeDTO;
+import fingertips.backend.challenge.dto.ProgressDTO;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ChallengeService
 {
-    List<ChallengeDto> getList(ChallengeDto challengeDto);
-    void insert(ChallengeDto challengeDto);
-    void delete(ChallengeDto dto);
+    List<ChallengeDTO> getList(Integer memberId);
+    void insert(ChallengeDTO challengeDto);
+    void delete(ChallengeDTO dto);
 
-    List<CardHIstoryDto> getList_card(CardHIstoryDto cardDto);
+    List<CardHIstoryDTO> getList_card(CardHIstoryDTO cardDto);
+
+    List<ProgressDTO> getChallengeLimitAndCardHistoryCount(Integer memberId);
 }

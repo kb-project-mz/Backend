@@ -36,7 +36,7 @@ public class ConsumptionController {
         List<AccountConsumptionDTO> accountHistoryList = consumptionService.getAccountHistoryList(memberId);
         return ResponseEntity.ok().body(JsonResponse.success(accountHistoryList));
     }
-
+  
     @GetMapping("/top-usage")
     public ResponseEntity<JsonResponse<String>> mostAndMaximumUsed(@RequestParam Map<String, String> params) {
 

@@ -4,24 +4,38 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="fingertips.backend.challenge.mapper.ChallengeMapper">
-    <select id="challenge_getList" resultType="ChallengeDto" parameterType="ChallengeDto">
-        select id,category,member_id,challenge_name,challenge_type,challenge_limit,detailed_category,start_date,end_date from challenge
+    <select id="challenge_getList" resultType="ChallengeDTO" parameterType="Integer">
+        select id,category,member_id,challenge_name,challenge_type,challenge_limit,detailed_category,start_date,end_date from challenge where member_id = #{memberId}
     </select>
 
 
-    <insert id="challenge_insert"  parameterType="ChallengeDto">
+    <insert id="challenge_insert"  parameterType="ChallengeDTO">
         insert into challenge(category,member_id, challenge_name, challenge_type, challenge_limit, detailed_category, start_date, end_date)
         values(#{category}, #{memberId}, #{challengeName}, #{challengeType}, #{challengeLimit}, #{detailedCategory}, #{startDate}, #{endDate})
     </insert>
 
-    <delete id="challenge_delete" parameterType="ChallengeDto">
+    <delete id="challenge_delete" parameterType="ChallengeDTO">
         delete from challenge where id=#{id}
     </delete>
 
 
     <!--   card_history 가져오기 왜? open ai로 질문하기 위해서~ -->
-    <select id="cardHistory_getList" parameterType="CardHIstoryDto" resultType="CardHIstoryDto">
+    <select id="cardHistory_getList" parameterType="CardHIstoryDTO" resultType="CardHIstoryDTO">
         select content from card_history where category=#{category}
     </select>
+
+
+
+    <select id="getChallengeLimitAndCardHistoryCount" resultType="ProgressDTO">
+        SELECT c.id, c.challenge_limit, COALESCE(COUNT(ch.id), 0) AS cardHistoryCount
+        FROM challenge c
+                 LEFT JOIN card_history ch
+                           ON ch.consumption_date BETWEEN c.start_date AND c.end_date
+                               AND ch.content LIKE CONCAT('%', c.detailed_category, '%')
+                               AND ch.category = c.category
+        where member_id = #{memberId}
+        GROUP BY c.id;
+    </select>
+
 </mapper>
 

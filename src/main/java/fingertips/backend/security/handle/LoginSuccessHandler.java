@@ -30,14 +30,20 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private AuthDTO makeAuth(MemberDTO user) {
 
+        int id = user.getId();
         String memberId = user.getMemberId();
+        String memberName = user.getMemberName();
+        String imageUrl = user.getImageUrl();
         String role = user.getRole();
 
         String accessToken = jwtProcessor.generateAccessToken(memberId, role);
         String refreshToken = jwtProcessor.generateRefreshToken(memberId);
 
         return AuthDTO.builder()
+                .id(id)
                 .memberId(memberId)
+                .memberName(memberName)
+                .imageUrl(imageUrl)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .role(role)
@@ -56,5 +62,9 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         AuthDTO result = makeAuth(memberDTO);
         JsonResponse.sendToken(response, result);
         loginFailureHandler.getAttemptsCache().put(memberId, 0);
+
+        memberDTO.setLoginLocked(0);
+        memberDTO.setLoginLockTime(0);
+        memberMapper.updateLockStatus(memberDTO);
     }
 }
