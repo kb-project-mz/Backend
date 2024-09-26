@@ -1,5 +1,6 @@
 package fingertips.backend.member.controller;
 
+import fingertips.backend.exception.dto.ErrorResponse;
 import fingertips.backend.exception.dto.JsonResponse;
 import fingertips.backend.member.dto.MemberDTO;
 import fingertips.backend.member.dto.MemberIdFindDTO;
@@ -24,26 +25,10 @@ public class MemberController {
     private final JwtProcessor jwtProcessor;
 
     @PostMapping("/join")
-    public ResponseEntity<JsonResponse<AuthDTO>> join(@RequestBody MemberDTO memberDTO) {
+    public ResponseEntity<JsonResponse<String>> join(@RequestBody MemberDTO memberDTO) {
 
-        String memberId = memberDTO.getMemberId();
-        String password = memberDTO.getPassword();
         memberService.joinMember(memberDTO);
-
-        String accessToken = memberService.authenticate(memberId, password);
-        String refreshToken = jwtProcessor.generateRefreshToken(memberId);
-
-        memberDTO.setRefreshToken(refreshToken);
-        memberService.setRefreshToken(memberDTO);
-
-        AuthDTO authDTO = AuthDTO.builder()
-                        .memberId(memberId)
-                        .accessToken(accessToken)
-                        .refreshToken(refreshToken)
-                        .role("ROLE_USER")
-                        .build();
-
-        return ResponseEntity.ok().body(JsonResponse.success(authDTO));
+        return ResponseEntity.ok().body(JsonResponse.success("Join Success"));
     }
 
     @GetMapping("/id/{memberName}/{email}")
@@ -60,6 +45,7 @@ public class MemberController {
 
     @GetMapping("/check-memberId/{memberId}")
     public ResponseEntity<JsonResponse<Boolean>> checkMemberId(@PathVariable String memberId) {
+
         boolean exists = memberService.existsMemberId(memberId);
         return ResponseEntity.ok(JsonResponse.success(exists));
     }
@@ -69,31 +55,11 @@ public class MemberController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/refresh")
-    public ResponseEntity<?> refreshAccessToken(@RequestBody String refreshToken) {
-        if (jwtProcessor.validateToken(refreshToken)) {
-            String memberId = jwtProcessor.getMemberId(refreshToken);
-            String role = jwtProcessor.getUserRole(refreshToken);
-            String newAccessToken = jwtProcessor.generateAccessToken(memberId, role);
-            String newRefreshToken = jwtProcessor.generateRefreshToken(memberId);
+    @GetMapping("/{memberId}")
+    public ResponseEntity<JsonResponse<MemberDTO>> getMember(@PathVariable String memberId) {
 
-            MemberDTO memberDTO = MemberDTO.builder()
-                    .id(memberId)
-                    .refreshToken(newRefreshToken)
-                    .build();
-
-            memberService.setRefreshToken(memberDTO);
-
-            return ResponseEntity.ok(
-                    AuthDTO.builder()
-                            .memberId(memberId)
-                            .accessToken(newAccessToken)
-                            .refreshToken(newRefreshToken)
-                            .build()
-            );
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
-        }
+        MemberDTO member = memberService.getMemberByMemberId(memberId);
+        return ResponseEntity.ok(JsonResponse.success(member));
     }
 
     /*
@@ -109,6 +75,33 @@ public class MemberController {
             return ResponseEntity.ok("Admin resource accessed");
         } else {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
+        }
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshAccessToken(@RequestBody String refreshToken) {
+        if (jwtProcessor.validateToken(refreshToken)) {
+            String memberId = jwtProcessor.getMemberId(refreshToken);
+            String role = jwtProcessor.getUserRole(refreshToken);
+            String newAccessToken = jwtProcessor.generateAccessToken(memberId, role);
+            String newRefreshToken = jwtProcessor.generateRefreshToken(memberId);
+
+            MemberDTO memberDTO = MemberDTO.builder()
+                    .memberId(memberId)
+                    .refreshToken(newRefreshToken)
+                    .build();
+
+            memberService.setRefreshToken(memberDTO);
+
+            return ResponseEntity.ok(
+                    AuthDTO.builder()
+                            .memberId(memberId)
+                            .accessToken(newAccessToken)
+                            .refreshToken(newRefreshToken)
+                            .build()
+            );
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
         }
     }
     */
