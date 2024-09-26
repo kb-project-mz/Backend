@@ -1,5 +1,6 @@
 package fingertips.backend.member.exception;
 
-public class PasswordMissmatchException {
+
+public class PasswordMissmatchException extends RuntimeException {
 
 }

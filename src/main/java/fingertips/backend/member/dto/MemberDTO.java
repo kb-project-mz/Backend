@@ -14,6 +14,8 @@ public class MemberDTO {
     private int id;
     private String memberId;
     private String password;
+    private String newPassword;
+    private String checkNewPassword;
     private String memberName;
     private String socialType;
     private String socialId;

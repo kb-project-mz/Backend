@@ -13,7 +13,6 @@ public enum ApplicationError {
     AUTHORIZATION_DENIED(HttpStatus.UNAUTHORIZED, "COMMON_002", "권한이 부족합니다."),
     AUTHORIZATION_FAILED(HttpStatus.UNAUTHORIZED, "COMMON_003", "인증에 실패했습니다."),
 
-
     // 로그인
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER_001", "존재하지 않는 회원입니다."),
     MEMBER_ID_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER_002", "존재하지 않는 아이디입니다."),
@@ -29,8 +28,13 @@ public enum ApplicationError {
     VERIFICATION_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "EMAIL_002", "인증 코드가 만료되었습니다."),
     EMAIL_SENDING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "EMAIL_003", "이메일 전송에 실패하였습니다."),
 
+    // 비밀번호 불일치
+    PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "MEMBER_007", "비밀번호가 일치하지 않습니다."),
+    PASSWORDCHECK_MISMATCH(HttpStatus.BAD_REQUEST, "MEMBER_008", "비밀번호 확인이 일치하지 않습니다."),
+
     // 서버 에러
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "SERVER_001", "서버 내부 에러가 발생하였습니다.");
+
 
 
     private final HttpStatus status;

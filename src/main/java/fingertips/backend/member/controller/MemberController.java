@@ -115,13 +115,23 @@ public class MemberController {
     }
 
     @PostMapping("/update/info")
-    public ResponseEntity<JsonResponse<MemberDTO>> updateMemberInfo(@RequestBody MemberDTO mypageInfo) {
+    public ResponseEntity<JsonResponse<MemberDTO>> updateMemberInfo(@RequestBody MemberDTO inputInfo) {
         // 로그인된 사용자 정보를 SecurityContext에서 가져옴
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String memberId = authentication.getName(); // 일반적으로 사용자의 username 또는 memberId가 저장됨
-        memberService.updateMemberInfo(memberId ,mypageInfo);
+
+        log.info("inputttttttttttttttt info memberId"+memberId);
+        log.info("inputttttttttttttttt info curr password"+inputInfo.getPassword());
+        log.info("inputttttttttttttttt info new password"+inputInfo.getNewPassword());
+        // 현재 로그인 한 사용자의 아이디를 넘겨줌
+        memberService.updateMemberInfo(memberId ,inputInfo);
+
+        // 업데이트 된 다음의 회원정보를 다시 불러서 가져옴
         MemberDTO updatedInfo = memberService.getMemberInfo(memberId);
-        log.info(updatedInfo.getEmail());
+
+        log.info("outppppppppppppppppppp info memberId"+memberId);
+        log.info("outppppppppppppppppppp info curr password"+updatedInfo.getPassword());
+        log.info("outppppppppppppppppppp info new password"+updatedInfo.getNewPassword());
         return ResponseEntity.ok(JsonResponse.success(updatedInfo));
     }
 
