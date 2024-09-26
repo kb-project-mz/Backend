@@ -15,4 +15,6 @@ public interface MemberMapper {
     int isEmailTaken(String email);
     String findByNameAndEmail(MemberIdFindDTO memberIdFindDTO);
     int existsMemberId(String memberId);
+    MemberDTO getMemberInfo(String memberId);
+    void updateMemberInfo(String memberId, MemberDTO memberDTO);
 }

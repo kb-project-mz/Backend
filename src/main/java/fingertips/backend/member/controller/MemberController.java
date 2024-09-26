@@ -1,16 +1,15 @@
 package fingertips.backend.member.controller;
 
-import fingertips.backend.exception.dto.ErrorResponse;
 import fingertips.backend.exception.dto.JsonResponse;
 import fingertips.backend.member.dto.MemberDTO;
 import fingertips.backend.member.dto.MemberIdFindDTO;
-import fingertips.backend.security.account.dto.AuthDTO;
 import fingertips.backend.member.service.MemberService;
 import fingertips.backend.security.util.JwtProcessor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -105,4 +104,25 @@ public class MemberController {
         }
     }
     */
+    // 멤버 정보 가져오기
+    @GetMapping("/info")
+    public ResponseEntity<JsonResponse<MemberDTO>> getMemberInfo() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String memberId = authentication.getName(); // JWT에서 추출된 memberId (또는 username)
+        log.info("memberId: " + memberId);
+        MemberDTO info = memberService.getMemberInfo(memberId);
+        return ResponseEntity.ok(JsonResponse.success(info));
+    }
+
+    @PostMapping("/update/info")
+    public ResponseEntity<JsonResponse<MemberDTO>> updateMemberInfo(@RequestBody MemberDTO mypageInfo) {
+        // 로그인된 사용자 정보를 SecurityContext에서 가져옴
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String memberId = authentication.getName(); // 일반적으로 사용자의 username 또는 memberId가 저장됨
+        memberService.updateMemberInfo(memberId ,mypageInfo);
+        MemberDTO updatedInfo = memberService.getMemberInfo(memberId);
+        log.info(updatedInfo.getEmail());
+        return ResponseEntity.ok(JsonResponse.success(updatedInfo));
+    }
+
 }
