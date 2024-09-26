@@ -1,18 +1,18 @@
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
-const cors = require("cors"); // CORS 모듈 추가
+const cors = require("cors");
 
-// Express 앱 생성
 const app = express();
 
-// CORS 설정 추가
+// cors 설정 추가
 app.use(cors());
 
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173", // Vue.js 클라이언트의 포트 추가
+    // vue 클라이언트 포트
+    origin: "http://localhost:5173",
     methods: ["GET", "POST"],
   },
 });
@@ -21,9 +21,10 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log("A user connected");
 
-  socket.on("message", (msg) => {
-    console.log("Message received:", msg);
-    io.emit("message", msg);
+  // balance DB가 업데이트 되었을 때 실행
+  socket.on("balanceUpdate", (memberId, balanceList) => {
+    console.log(`Balance updated for member: ${memberId}`);
+    io.emit("balanceUpdate", { memberId, balanceList });
   });
 
   socket.on("disconnect", () => {
