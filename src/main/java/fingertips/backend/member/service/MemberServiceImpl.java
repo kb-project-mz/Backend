@@ -79,4 +79,9 @@ public class MemberServiceImpl implements MemberService {
     public boolean existsMemberId(String memberId) {
         return mapper.existsMemberId(memberId) != 0;
     }
+
+    @Override
+    public void clearRefreshToken(String memberId) {
+        mapper.clearRefreshToken(memberId);
+    }
 }

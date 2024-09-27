@@ -14,4 +14,5 @@ public interface MemberService {
     String findByNameAndEmail(MemberIdFindDTO memberIdFindDTO);
     boolean isEmailTaken(String email);
     boolean existsMemberId(String memberId);
+    void clearRefreshToken(String memberId);
 }

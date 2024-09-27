@@ -36,4 +36,10 @@
     <select id="existsMemberId" parameterType="String" resultType="int">
         SELECT COUNT(*) FROM member WHERE member_id = #{memberId}
     </select>
+
+    <update id="clearRefreshToken">
+        UPDATE member_table
+        SET refresh_token = NULL
+        WHERE member_id = #{memberId}
+    </update>
 </mapper>

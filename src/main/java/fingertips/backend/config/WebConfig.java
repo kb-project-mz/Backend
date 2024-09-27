@@ -3,6 +3,7 @@ package fingertips.backend.config;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
@@ -49,7 +50,10 @@ public class WebConfig extends AbstractAnnotationConfigDispatcherServletInitiali
 
     @Bean
     public RestTemplate restTemplate() {
-        return new RestTemplate();
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(5000);  // 연결 타임아웃: 5초
+        factory.setReadTimeout(5000);     // 읽기 타임아웃: 5초
+        return new RestTemplate(factory);
+
     }
 }
-

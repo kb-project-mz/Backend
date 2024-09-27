@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 @Log4j
 @RequestMapping("/api/v1/member")
@@ -51,8 +52,14 @@ public class MemberController {
     }
 
     @GetMapping("/logout")
-    public ResponseEntity<Void> logout(HttpServletRequest request) {
-        return ResponseEntity.ok().build();
+    public ResponseEntity<JsonResponse<String>> logout(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            String token = bearerToken.substring(7);
+            String memberId = jwtProcessor.getMemberId(token);
+            memberService.clearRefreshToken(memberId);
+        }
+        return ResponseEntity.ok(JsonResponse.success("Logout successful"));
     }
 
     @GetMapping("/{memberId}")
@@ -60,6 +67,25 @@ public class MemberController {
 
         MemberDTO member = memberService.getMemberByMemberId(memberId);
         return ResponseEntity.ok(JsonResponse.success(member));
+    }
+
+    @PostMapping("/refreshToken")
+    public ResponseEntity<?> refreshAccessToken(@RequestBody Map<String, String> requestBody) {
+        String refreshToken = requestBody.get("refreshToken");
+
+        if (jwtProcessor.validateToken(refreshToken)) {
+            String memberId = jwtProcessor.getMemberId(refreshToken);
+            String newAccessToken = jwtProcessor.generateAccessToken(memberId, "ROLE_USER");
+            String newRefreshToken = jwtProcessor.generateRefreshToken(memberId);
+            memberService.setRefreshToken(MemberDTO.builder().memberId(memberId).refreshToken(newRefreshToken).build());
+
+            return ResponseEntity.ok(AuthDTO.builder()
+                    .accessToken(newAccessToken)
+                    .refreshToken(newRefreshToken)
+                    .build());
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token expired. Please login again.");
+        }
     }
 
     /*
@@ -75,33 +101,6 @@ public class MemberController {
             return ResponseEntity.ok("Admin resource accessed");
         } else {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
-        }
-    }
-
-    @PostMapping("/refresh")
-    public ResponseEntity<?> refreshAccessToken(@RequestBody String refreshToken) {
-        if (jwtProcessor.validateToken(refreshToken)) {
-            String memberId = jwtProcessor.getMemberId(refreshToken);
-            String role = jwtProcessor.getUserRole(refreshToken);
-            String newAccessToken = jwtProcessor.generateAccessToken(memberId, role);
-            String newRefreshToken = jwtProcessor.generateRefreshToken(memberId);
-
-            MemberDTO memberDTO = MemberDTO.builder()
-                    .memberId(memberId)
-                    .refreshToken(newRefreshToken)
-                    .build();
-
-            memberService.setRefreshToken(memberDTO);
-
-            return ResponseEntity.ok(
-                    AuthDTO.builder()
-                            .memberId(memberId)
-                            .accessToken(newAccessToken)
-                            .refreshToken(newRefreshToken)
-                            .build()
-            );
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
         }
     }
     */

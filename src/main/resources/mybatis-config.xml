@@ -21,5 +21,6 @@
         <mapper resource="mapper/ChallengeMapper.xml" />
         <mapper resource="mapper/ConsumptionMapper.xml" />
         <mapper resource="mapper/MemberMapper.xml" />
+        <mapper resource="mapper/SocialLoginMapper.xml" />
     </mappers>
 </configuration>

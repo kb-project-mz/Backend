@@ -7,11 +7,14 @@ import fingertips.backend.member.sociallogin.dto.SocialLoginDTO;
 import fingertips.backend.member.sociallogin.mapper.SocialLoginMapper;
 import fingertips.backend.security.util.JwtProcessor;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoders;
@@ -25,6 +28,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SocialLoginServiceImpl implements SocialLoginService {
 
+    private static final Logger logger = LoggerFactory.getLogger(SocialLoginServiceImpl.class);
+
     private final RestTemplate restTemplate;
     private final SocialLoginMapper socialLoginMapper;
     private final JwtProcessor jwtProcessor;
@@ -35,10 +40,14 @@ public class SocialLoginServiceImpl implements SocialLoginService {
     @Value("${spring.security.oauth2.client.registration.google.client-secret}")
     private String googleClientSecret;
 
+    @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
+    private String googleRedirectUri;
+
     private final JwtDecoder jwtDecoder = JwtDecoders.fromIssuerLocation("https://accounts.google.com");
 
     @Override
     public String getGoogleClientId() {
+        logger.info("Google Client ID 요청됨");
         return googleClientId;
     }
 
@@ -46,102 +55,112 @@ public class SocialLoginServiceImpl implements SocialLoginService {
     public ResponseEntity<JsonResponse<SocialLoginDTO>> googleLogin(Map<String, String> request) {
         String googleIdToken = request.get("id_token");
         if (googleIdToken == null || googleIdToken.isEmpty()) {
+            logger.error("구글 ID 토큰이 유효하지 않음");
             throw new ApplicationException(ApplicationError.INVALID_ID_TOKEN);
         }
 
-        // ID Token으로 사용자 정보 추출
+        logger.info("구글 ID 토큰 검증 시작");
         SocialLoginDTO memberInfo = googleValidateToken(googleIdToken);
+        setAdditionalTokenInfo(memberInfo, request);
 
-        // 사용자 토큰 정보를 DTO에 추가
-        memberInfo.setGoogleAccessToken(request.get("access_token"));
-        memberInfo.setGoogleIdToken(request.get("id_token"));
-        memberInfo.setGoogleRefreshToken(request.get("refresh_token"));
-        memberInfo.setExpiresIn(Integer.parseInt(request.get("expires_in")));
-
-        // 회원 로그인/회원가입 처리
         return processGoogleLogin(memberInfo, null);
     }
 
     @Override
     public ResponseEntity<JsonResponse<SocialLoginDTO>> googleCallback(String code) {
-        // 구글에서 Access Token, Id Token, Refresh Token 가져오기
-        Map<String, String> googleTokenInfo = getGoogleToken(code);
+        logger.info("구글 콜백 처리 시작, 코드: {}", code);
 
-        // 구글에서 사용자 정보를 가져옴
-        SocialLoginDTO googleSocialLoginInfo = getGoogleSocialLoginInfo(googleTokenInfo.get("access_token"));
+        String accessToken = getGoogleAccessToken(code);
+        logger.info("구글 액세스 토큰 획득: {}", accessToken);
 
-        if (googleSocialLoginInfo == null) {
-            throw new ApplicationException(ApplicationError.USER_INFO_REQUEST_FAILED);
-        }
+        // 액세스 토큰으로 사용자 정보 요청
+        SocialLoginDTO memberInfo = fetchUserInfoFromGoogle(accessToken);
+        logger.info("구글 사용자 정보 획득: {}", memberInfo);
 
-        // 사용자 토큰 정보를 DTO에 추가
-        googleSocialLoginInfo.setGoogleAccessToken(googleTokenInfo.get("access_token"));
-        googleSocialLoginInfo.setGoogleIdToken(googleTokenInfo.get("id_token"));
-        googleSocialLoginInfo.setGoogleRefreshToken(googleTokenInfo.get("refresh_token"));
-        googleSocialLoginInfo.setExpiresIn(3600);
-
-        // 회원 로그인/회원가입 처리
-        return processGoogleLogin(googleSocialLoginInfo, null);
+        return processGoogleLogin(memberInfo, accessToken);
     }
 
-    private ResponseEntity<JsonResponse<SocialLoginDTO>> processGoogleLogin(SocialLoginDTO memberInfo, HttpServletRequest request) {
-        // 회원이 존재하는지 확인
-        boolean isExistingMember = socialLoginMapper.checkMemberExists(memberInfo.getEmail()) > 0;
+    @Override
+    public boolean googleMemberExists(String email) {
+        logger.info("회원 존재 여부 확인 중: {}", email);
+        return socialLoginMapper.checkMemberExists(email) > 0;
+    }
 
-        // 회원이 존재하지 않으면 회원가입 처리
-        if (!isExistingMember) {
-            insertMember(memberInfo);
+    @Override
+    public void googleMemberJoin(SocialLoginDTO socialLoginDTO) {
+        logger.info("회원 가입 처리 중: {}", socialLoginDTO.getEmail());
+        socialLoginMapper.insertMember(socialLoginDTO);
+    }
+
+    @Override
+    public ResponseEntity<JsonResponse<SocialLoginDTO>> googleLoginWithTokens(SocialLoginDTO socialLoginDTO) {
+        logger.info("구글 토큰 검증 시작: {}", socialLoginDTO.getGoogleIdToken());
+        return processGoogleLogin(socialLoginDTO, null);
+    }
+
+    private String getGoogleAccessToken(String code) {
+        logger.info("구글 Access Token 요청 시작, 코드: {}", code);
+        String tokenUrl = "https://oauth2.googleapis.com/token";
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("code", code);
+        params.add("client_id", googleClientId);
+        params.add("client_secret", googleClientSecret);
+        params.add("redirect_uri", googleRedirectUri);
+        params.add("grant_type", "authorization_code");
+
+        // 요청 파라미터 확인 로그
+        logger.info("구글 Access Token 요청 파라미터: {}", params);
+
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(tokenUrl, params, Map.class);
+
+            logger.info("구글 Access Token 요청 응답 상태: {}", response.getStatusCode());
+            logger.info("구글 Access Token 요청 응답 바디: {}", response.getBody());
+
+            Map<String, String> responseBody = response.getBody();
+            if (responseBody != null && responseBody.get("access_token") != null) {
+                logger.info("구글 Access Token 획득 성공");
+                return responseBody.get("access_token");
+            } else {
+                logger.error("구글 Access Token 응답에 Access Token이 없습니다: {}", responseBody);
+                throw new ApplicationException(ApplicationError.INVALID_ACCESS_TOKEN);
+            }
+        } catch (HttpClientErrorException e) {
+            logger.error("HTTP 오류 발생: 상태 코드 = {}, 메시지 = {}", e.getStatusCode(), e.getResponseBodyAsString());
+            throw new ApplicationException(ApplicationError.INVALID_ACCESS_TOKEN);
+        } catch (Exception e) {
+            logger.error("구글 Access Token 요청 중 예외 발생", e);
+            throw new ApplicationException(ApplicationError.INVALID_ACCESS_TOKEN);
+        }
+
+    }
+
+    private SocialLoginDTO fetchUserInfoFromGoogle(String accessToken) {
+        String userInfoUrl = "https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + accessToken;
+
+        ResponseEntity<Map> response = restTemplate.getForEntity(userInfoUrl, Map.class);
+        Map<String, Object> userInfo = response.getBody();
+
+        if (userInfo != null) {
+            return SocialLoginDTO.builder()
+                    .email((String) userInfo.get("email"))
+                    .memberName((String) userInfo.get("name"))
+                    .googleId((String) userInfo.get("id"))
+                    .socialType("GOOGLE")
+                    .build();
         } else {
-            // 로그인 처리 (토큰 업데이트)
-            updateMemberTokens(memberInfo);
+            throw new ApplicationException(ApplicationError.INVALID_USER_INFO);
         }
-
-        // 세션에 사용자 정보 저장
-        if (request != null) {
-            saveSession(request, memberInfo);
-        }
-
-        // JWT 생성 (사용자 이메일과 역할 정보를 포함하여 AccessToken 생성)
-        String jwtToken = jwtProcessor.generateAccessToken(memberInfo.getEmail(), "ROLE_USER");  // 기본적으로 ROLE_USER로 설정
-
-        // JWT 토큰을 응답으로 반환
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + jwtToken);
-        return new ResponseEntity<>(JsonResponse.success(memberInfo), headers, HttpStatus.OK);
     }
 
-
-    // 회원가입 로직 함수로 분리
-    private void insertMember(SocialLoginDTO memberInfo) {
-        memberInfo.setSocialType("GOOGLE");  // 구글 소셜 로그인으로 가입된 사용자임을 표시
-        socialLoginMapper.insertMember(memberInfo);
-    }
-
-    // 토큰 업데이트 로직 함수로 분리
-    private void updateMemberTokens(SocialLoginDTO memberInfo) {
-        socialLoginMapper.updateMemberTokens(
-                memberInfo.getEmail(),
-                memberInfo.getGoogleAccessToken(),
-                memberInfo.getGoogleIdToken(),
-                memberInfo.getGoogleRefreshToken(),
-                String.valueOf(memberInfo.getExpiresIn())
-        );
-    }
-
-    // 세션 저장 로직 함수로 분리
-    private void saveSession(HttpServletRequest request, SocialLoginDTO memberInfo) {
-        HttpSession session = request.getSession();
-        session.setAttribute("loggedInUser", memberInfo);
-    }
-
-    // 구글 ID 토큰 검증 및 사용자 정보 추출
     private SocialLoginDTO googleValidateToken(String googleIdToken) {
         try {
-            // Google ID Token을 디코드하여 사용자 정보 추출
             Jwt jwt = jwtDecoder.decode(googleIdToken);
             String email = jwt.getClaimAsString("email");
             String name = jwt.getClaimAsString("name");
             String googleId = jwt.getClaimAsString("sub");
+
+            logger.info("구글 토큰 유효성 검증 완료: 이메일={}, 이름={}", email, name);
 
             return SocialLoginDTO.builder()
                     .email(email)
@@ -150,57 +169,55 @@ public class SocialLoginServiceImpl implements SocialLoginService {
                     .socialType("GOOGLE")
                     .build();
         } catch (Exception e) {
+            logger.error("구글 ID 토큰 검증 실패", e);
             throw new ApplicationException(ApplicationError.INVALID_ID_TOKEN);
         }
     }
 
-    // 구글 액세스 토큰 가져오기
-    private Map<String, String> getGoogleToken(String code) {
-        String tokenUrl = "https://oauth2.googleapis.com/token";
-        MultiValueMap<String, String> requestParams = new LinkedMultiValueMap<>();
-        requestParams.add("code", code);
-        requestParams.add("client_id", googleClientId);
-        requestParams.add("client_secret", googleClientSecret);
-        requestParams.add("grant_type", "authorization_code");
-        requestParams.add("redirect_uri", "http://localhost:8080/api/v1/member/login/google/callback");
-
-        try {
-            ResponseEntity<Map> response = restTemplate.postForEntity(tokenUrl, requestParams, Map.class);
-            return response.getBody();
-        } catch (Exception e) {
-            throw new ApplicationException(ApplicationError.OAUTH2_AUTHORIZATION_FAILED);
-        }
+    private void setAdditionalTokenInfo(SocialLoginDTO memberInfo, Map<String, String> request) {
+        memberInfo.setGoogleAccessToken(request.get("access_token"));
+        memberInfo.setGoogleIdToken(request.get("id_token"));
+        memberInfo.setGoogleRefreshToken(request.get("refresh_token"));
+        memberInfo.setExpiresIn(Integer.parseInt(request.get("expires_in")));
     }
 
-    // 구글 소셜 로그인 사용자 정보 가져오기
-    private SocialLoginDTO getGoogleSocialLoginInfo(String googleAccessToken) {
-        String googleUserInfoUrl = "https://www.googleapis.com/userinfo/v2/me";
+    private ResponseEntity<JsonResponse<SocialLoginDTO>> processGoogleLogin(SocialLoginDTO memberInfo, String accessToken) {
+        logger.info("processGoogleLogin 메서드 시작");
 
+        // 이메일로 회원 존재 여부 확인
+        logger.info("확인할 이메일: {}", memberInfo.getEmail());
+        boolean memberExists = socialLoginMapper.checkMemberExists(memberInfo.getEmail()) > 0;
+        logger.info("회원 존재 여부: {}", memberExists);
+
+        if (!memberExists) {
+            logger.info("회원 존재하지 않음. 회원가입 처리 시작.");
+            insertMember(memberInfo);
+        } else {
+            logger.info("회원 존재. 토큰 업데이트 시작.");
+            updateMemberTokens(memberInfo);
+        }
+
+        // JWT 토큰 생성
+        String jwtToken = jwtProcessor.generateAccessToken(memberInfo.getEmail(), "ROLE_USER");
+        logger.info("JWT 토큰 생성 완료: {}", jwtToken);
+
+        // HTTP 헤더에 JWT 토큰 추가
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(googleAccessToken);
+        headers.add("Authorization", "Bearer " + jwtToken);
 
-        HttpEntity<String> request = new HttpEntity<>(headers);
-        try {
-            ResponseEntity<Map> response = restTemplate.exchange(googleUserInfoUrl, HttpMethod.GET, request, Map.class);
-            Map<String, Object> userInfo = response.getBody();
-            return SocialLoginDTO.builder()
-                    .email((String) userInfo.get("email"))
-                    .memberName((String) userInfo.get("name"))
-                    .socialType("GOOGLE")
-                    .googleId((String) userInfo.get("id"))
-                    .build();
-        } catch (Exception e) {
-            throw new ApplicationException(ApplicationError.USER_INFO_REQUEST_FAILED);
-        }
+        logger.info("processGoogleLogin 완료 후 응답 준비");
+        return new ResponseEntity<>(JsonResponse.success(memberInfo), headers, HttpStatus.OK);
     }
 
-    @Override
-    public boolean googleMemberExists(String email) {
-        return socialLoginMapper.checkMemberExists(email) > 0;
+
+    private void insertMember(SocialLoginDTO memberInfo) {
+
+        memberInfo.setMemberId(memberInfo.getGoogleId());
+        socialLoginMapper.insertMember(memberInfo);
     }
 
-    @Override
-    public void googleMemberJoin(SocialLoginDTO socialLoginDTO) {
-        socialLoginMapper.insertMember(socialLoginDTO);
+    private void updateMemberTokens(SocialLoginDTO memberInfo) {
+        socialLoginMapper.updateMemberTokens(memberInfo);
     }
 }
+

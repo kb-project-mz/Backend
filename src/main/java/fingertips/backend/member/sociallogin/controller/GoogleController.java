@@ -50,7 +50,16 @@ public class GoogleController {
     // 구글 로그인 토큰으로 로그인 처리
     @PostMapping("/tokens")
     public ResponseEntity<JsonResponse<SocialLoginDTO>> loginWithGoogleTokens(@RequestBody Map<String, String> request) {
-        return socialLoginService.googleLogin(request);
+        SocialLoginDTO socialLoginDTO = SocialLoginDTO.builder()
+                .email(request.get("email"))
+                .googleId(request.get("google_id"))
+                .memberName(request.get("member_name"))
+                .googleAccessToken(request.get("access_token"))
+                .googleIdToken(request.get("id_token"))
+                .googleRefreshToken(request.get("refresh_token"))
+                .expiresIn(Integer.parseInt(request.get("expires_in")))
+                .build();
+        return socialLoginService.googleLoginWithTokens(socialLoginDTO);
     }
 
     // 구글 클라이언트 ID 확인

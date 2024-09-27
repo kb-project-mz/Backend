@@ -1,16 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="fingertips.backend.member.sociallogin.mapper.SocialLoginMapper">
 
-    <select id="checkMemberExists" resultType="int">
-        SELECT COUNT(*) FROM members WHERE email = #{email}
+    <select id="checkMemberExists" parameterType="String" resultType="int">
+        SELECT COUNT(*)
+        FROM member
+        WHERE email = #{email}
     </select>
 
-    <insert id="insertMember">
-        INSERT INTO members (member_id, member_name, password, email, birthday, gender, social_type, google_id, google_access_token, google_refresh_token, google_id_token, expires_in)
-        VALUES (#{memberId}, #{memberName}, #{password}, #{email}, #{birthday}, #{gender}, #{socialType}, #{googleId}, #{googleAccessToken}, #{googleRefreshToken}, #{googleIdToken}, #{expiresIn})
+    <insert id="insertMember" parameterType="fingertips.backend.member.sociallogin.dto.SocialLoginDTO">
+        INSERT INTO member (member_id, email, member_name, google_id, social_type, google_access_token, google_id_token, google_refresh_token, expires_in)
+        VALUES (#{googleId}, #{email}, #{memberName}, #{googleId}, #{socialType}, #{googleAccessToken}, #{googleIdToken}, #{googleRefreshToken}, #{expiresIn})
     </insert>
 
-    <update id="updateMemberTokens">
-        UPDATE members
+    <update id="updateMemberTokens" parameterType="fingertips.backend.member.sociallogin.dto.SocialLoginDTO">
+        UPDATE member
         SET google_access_token = #{googleAccessToken},
         google_id_token = #{googleIdToken},
         google_refresh_token = #{googleRefreshToken},

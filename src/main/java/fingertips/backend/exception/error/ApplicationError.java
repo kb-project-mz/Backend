@@ -36,6 +36,8 @@ public enum ApplicationError {
     OAUTH2_AUTHORIZATION_FAILED(HttpStatus.UNAUTHORIZED, "SOCIAL_005", "OAuth2 권한 부여에 실패했습니다."),
     SOCIAL_LOGIN_SESSION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "SOCIAL_006", "소셜 로그인 세션 생성에 실패했습니다."),
     SOCIAL_ACCOUNT_DISCONNECT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "SOCIAL_007", "소셜 계정 연동 해제에 실패했습니다."),
+    INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "SOCIAL_008", "유효하지 않은 액세스 토큰입니다."),
+    INVALID_USER_INFO(HttpStatus.BAD_REQUEST, "SOCIAL_009", "유효하지 않은 사용자 정보입니다."),
 
     // 서버 에러
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "SERVER_001", "서버 내부 에러가 발생하였습니다.");

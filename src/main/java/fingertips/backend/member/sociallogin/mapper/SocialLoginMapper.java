@@ -8,11 +8,5 @@ public interface SocialLoginMapper {
 
     int checkMemberExists(String email);
     void insertMember(SocialLoginDTO socialLoginDTO);
-    void updateMemberTokens(
-            String email,
-            String googleAccessToken,
-            String googleIdToken,
-            String googleRefreshToken,
-            String expiresIn
-    );
+    void updateMemberTokens(SocialLoginDTO socialLoginDTO);
 }
