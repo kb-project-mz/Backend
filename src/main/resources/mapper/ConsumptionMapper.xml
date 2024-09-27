@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="fingertips.backend.consumption.mapper.ConsumptionMapper">
-    <select id="getCardHistoryList" parameterType="int" resultType="CardConsumptionDTO">
+    <select id="getCardHistoryList" parameterType="Integer" resultType="CardConsumptionDTO">
         SELECT ch.card_id, c.bank_name, c.card_name, c.card_image, ch.consumption_date, ch.consumption_time,
                cat.category_name AS category, ch.content, ch.amount
         FROM card_history ch
@@ -26,7 +26,7 @@
             AND CONCAT(#{endYear}, '-', #{endMonth}, '-', #{endDay});
     </select>
 
-    <select id="getAccountHistoryList" parameterType="int" resultType="AccountConsumptionDTO">
+    <select id="getAccountHistoryList" parameterType="Integer" resultType="AccountConsumptionDTO">
         SELECT a.bank_name, a.account_name, a.account_book_image, ah.account_date, ah.account_time,
                cat.category_name AS category, ah.content, ah.amount
         FROM account_history ah

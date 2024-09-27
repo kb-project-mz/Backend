@@ -9,7 +9,7 @@ import java.util.List;
 @Mapper
 public interface AssetMapper {
 
-    List<AssetDTO> getAllAssets(int id);
-    void connectCard(int id);
-    void connectAccount(int id);
+    List<AssetDTO> getAllAssets(Integer id);
+    void connectCard(Integer id);
+    void connectAccount(Integer id);
 }

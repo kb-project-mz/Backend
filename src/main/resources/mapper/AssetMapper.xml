@@ -28,13 +28,13 @@
         GROUP BY a.id, financeName, a.account_name, a.account_book_image;
     </select>
 
-    <update id="connectCard" parameterType="int">
+    <update id="connectCard" parameterType="Integer">
         UPDATE card
         SET conn_status = 1
         WHERE id = #{id}
     </update>
 
-    <update id="connectAccount" parameterType="int">
+    <update id="connectAccount" parameterType="Integer">
         UPDATE account_book
         SET conn_status = 1
         WHERE id = #{id}

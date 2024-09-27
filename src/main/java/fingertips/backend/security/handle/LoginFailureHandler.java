@@ -65,7 +65,7 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
                 return;
             } else {
                 memberDTO.setLoginLocked(0);
-                memberDTO.setLoginLockTime(0);
+                memberDTO.setLoginLockTime(0L);
                 memberMapper.updateLockStatus(memberDTO);
                 attemptsCache.put(memberId, 0);
             }

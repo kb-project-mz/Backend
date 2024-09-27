@@ -20,10 +20,11 @@
         WHERE id = #{challengeId}
     </delete>
 
-    <select id="getCardHistoryContentByCategory" parameterType="Integer" resultType="CardHistoryDTO">
-        SELECT content
-        FROM card_history
-        WHERE category = #{category}
+    <select id="getCardHistoryContentByCategory" parameterType="CardHistoryFilterDTO" resultType="CardHistoryDTO">
+        SELECT ch.content
+        FROM card_history ch
+            JOIN card c ON ch.card_id = c.id
+        WHERE c.member_id = #{memberId} AND ch.category = #{category}
     </select>
 
     <select id="getChallengeStatus" resultType="ProgressDTO">

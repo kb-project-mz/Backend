@@ -33,13 +33,13 @@
         WHERE email = #{email} AND member_name = #{memberName}
     </select>
 
-    <select id="isEmailTaken" parameterType="String" resultType="int">
+    <select id="isEmailTaken" parameterType="String" resultType="Integer">
         SELECT COUNT(*)
         FROM member
         WHERE email = #{email}
     </select>
 
-    <select id="existsMemberId" parameterType="String" resultType="int">
+    <select id="existsMemberId" parameterType="String" resultType="Integer">
         SELECT COUNT(*)
         FROM member
         WHERE member_id = #{memberId}

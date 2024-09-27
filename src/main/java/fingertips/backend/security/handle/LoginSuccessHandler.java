@@ -64,7 +64,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         loginFailureHandler.getAttemptsCache().put(memberId, 0);
 
         memberDTO.setLoginLocked(0);
-        memberDTO.setLoginLockTime(0);
+        memberDTO.setLoginLockTime(0L);
         memberMapper.updateLockStatus(memberDTO);
     }
 }
