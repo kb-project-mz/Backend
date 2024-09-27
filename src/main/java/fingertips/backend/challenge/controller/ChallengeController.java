@@ -19,76 +19,39 @@ import java.util.stream.Collectors;
 public class ChallengeController {
 
     private final ChallengeService challengeService;
-    private final OpenAiService openAiService;
 
     @GetMapping("/{memberId}")
-    public ResponseEntity<JsonResponse<HashMap<String, Object>>> getList(@PathVariable Integer memberId) {
+    public ResponseEntity<JsonResponse<List<ChallengeDTO>>> getChallengeList(@PathVariable Integer memberId) {
 
-        HashMap<String, Object> map = new HashMap<>();
-        map.put("data", challengeService.getChallengeList(memberId));
-        return ResponseEntity.ok().body(JsonResponse.success(map));
+        List<ChallengeDTO> response = challengeService.getChallengeList(memberId);
+        return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 
     @PostMapping("")
-    public ResponseEntity<JsonResponse<HashMap<String, Object>>> write(@RequestBody ChallengeDTO dto) {
+    public ResponseEntity<JsonResponse<String>> insertChallenge(@RequestBody ChallengeDTO dto) {
 
         challengeService.insertChallenge(dto);
-        HashMap<String, Object> map = new HashMap<>();
-        return ResponseEntity.ok().body(JsonResponse.success(map));
+        return ResponseEntity.ok().body(JsonResponse.success("Create Challenge Success"));
     }
 
-    @DeleteMapping("/{challengeId}")
-    public ResponseEntity<JsonResponse<HashMap<String, Object>>> delete(@PathVariable Integer challengeId) {
+    @PostMapping("/{challengeId}")
+    public ResponseEntity<JsonResponse<String>> deleteChallenge(@PathVariable Integer challengeId) {
 
         challengeService.deleteChallenge(challengeId);
-        HashMap<String, Object> map = new HashMap<>();
-        map.put("result", "success");
-        return ResponseEntity.ok().body(JsonResponse.success(map));
+        return ResponseEntity.ok().body(JsonResponse.success("Delete Challenge Success"));
     }
 
-    @PostMapping("/detailedCategory")
-    public ResponseEntity<JsonResponse<HashMap<String, Object>>> getDetailedCategories(@RequestBody CardHistoryDTO dto) {
+    @GetMapping("/detailed-category/{category}")
+    public ResponseEntity<JsonResponse<List<String>>> getDetailedCategories(@PathVariable Integer category) {
 
-        List<CardHistoryDTO> cardHistoryList = challengeService.getCardHistoryByCategory(dto);
-
-        List<String> contents = cardHistoryList.stream()
-                .map(CardHistoryDTO::getContent)
-                .collect(Collectors.toList());
-
-        String prompt = "content가 교통수단 관련이면 3번 이상 반복되는 교통수단을 명칭만 알려줘." +
-                "그리고 dcontent가 카페 관련이면 3번이상 반복되는 카페이름을 알려줘. 이때 지점명은 제외해줘." +
-                "그리고 해당하는 값들만 콤마로 나열해서 보내줘  " + String.join(", ", contents);
-
-        String openAiResponse = openAiService.askOpenAi(prompt);
-
-        List<String> detailedCategories = Arrays.asList(openAiResponse.split(", "));
-
-        HashMap<String, Object> resultMap = new HashMap<>();
-        resultMap.put("detailedCategories", detailedCategories);
-
-        return ResponseEntity.ok(JsonResponse.success(resultMap));
+        List<String> response = challengeService.getDetailedCategories(category);
+        return ResponseEntity.ok(JsonResponse.success(response));
     }
 
-//    @GetMapping("/donutchart")
-//    public ResponseEntity<JsonResponse<HashMap<String, Object>>> getList_donutchart() {
-//        HashMap<String, Object> map = new HashMap<>();
-//
-//        // 진행 값과 전체 값을 직접 설정 (예시로 진행값 30과 전체값 100)
-//        int completed = 30;  // 진행된 값
-//        int total = 100;     // 전체 값
-//
-//        // 진행 값과 전체 값을 맵에 추가
-//        map.put("completed", completed);
-//        map.put("total", total);
-//
-//        // JSON 응답으로 반환
-//        return ResponseEntity.ok().body(JsonResponse.success(map));
-//    }
+    @GetMapping("/status/{memberId}")
+    public ResponseEntity<JsonResponse<List<ProgressDTO>>> getChallengeStatus(@PathVariable Integer memberId) {
 
-    @GetMapping("/challenge-limit-card-count/{memberId}")
-    public ResponseEntity<JsonResponse<List<ProgressDTO>>> getChallengeLimitAndCardHistoryCount(@PathVariable Integer memberId) {
-
-        List<ProgressDTO> resultList = challengeService.getChallengeLimitAndCardHistoryCount(memberId);
-        return ResponseEntity.ok().body(JsonResponse.success(resultList));
+        List<ProgressDTO> response = challengeService.getChallengeStatus(memberId);
+        return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 }

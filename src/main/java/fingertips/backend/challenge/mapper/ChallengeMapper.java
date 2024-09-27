@@ -13,6 +13,6 @@ public interface ChallengeMapper {
     List<ChallengeDTO> getChallengeList(Integer memberId);
     void insertChallenge(ChallengeDTO dto);
     void deleteChallenge(Integer challengeId);
-    List<CardHistoryDTO> getCardHistoryByCategory(CardHistoryDTO dto);
-    List<ProgressDTO> getChallengeLimitAndCardHistoryCount(Integer memberId);
+    List<CardHistoryDTO> getCardHistoryContentByCategory(Integer category);
+    List<ProgressDTO> getChallengeStatus(Integer memberId);
 }

@@ -15,18 +15,18 @@
         VALUES (#{category}, #{memberId}, #{challengeName}, #{challengeType}, #{challengeLimit}, #{detailedCategory}, #{startDate}, #{endDate})
     </insert>
 
-    <delete id="deleteChallenge" parameterType="int">
+    <delete id="deleteChallenge" parameterType="Integer">
         DELETE FROM challenge
         WHERE id = #{challengeId}
     </delete>
 
-    <select id="getCardHistoryByCategory" parameterType="CardHistoryDTO" resultType="CardHistoryDTO">
+    <select id="getCardHistoryContentByCategory" parameterType="Integer" resultType="CardHistoryDTO">
         SELECT content
         FROM card_history
         WHERE category = #{category}
     </select>
 
-    <select id="getChallengeLimitAndCardHistoryCount" resultType="ProgressDTO">
+    <select id="getChallengeStatus" resultType="ProgressDTO">
         SELECT c.id, c.challenge_limit, COALESCE(COUNT(ch.id), 0) AS cardHistoryCount
         FROM challenge c
             LEFT JOIN card_history ch

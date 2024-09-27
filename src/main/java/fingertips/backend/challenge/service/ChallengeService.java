@@ -10,6 +10,7 @@ public interface ChallengeService {
     List<ChallengeDTO> getChallengeList(Integer memberId);
     void insertChallenge(ChallengeDTO challengeDto);
     void deleteChallenge(int challengeId);
-    List<CardHistoryDTO> getCardHistoryByCategory(CardHistoryDTO cardDto);
-    List<ProgressDTO> getChallengeLimitAndCardHistoryCount(Integer memberId);
+    List<CardHistoryDTO> getCardHistoryContentByCategory(Integer category);
+    List<ProgressDTO> getChallengeStatus(Integer memberId);
+    List<String> getDetailedCategories(Integer category);
 }
