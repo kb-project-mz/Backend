@@ -11,15 +11,16 @@
     <select id="getAllAssets" resultType="AssetDTO">
         SELECT
             "1" financeKind,
+            c.id AS prdtId,
             c.bank_name AS financeName,
             c.card_name AS prdtName,
             c.card_image AS image,
-            SUM(c_h.amount) AS totalAmount
+            SUM(c_h.amount) AS totalAmount,
+            c.conn_status
         FROM
             card_history c_h
                 JOIN card c ON c.id = c_h.card_id
-        WHERE c.member_id = #{memberId}
-                AND c.conn_status = 0
+        WHERE c.member_id = #{id}
         GROUP BY
             c.id, financeName, c.card_name, c.card_image
 
@@ -27,15 +28,16 @@
 
         SELECT
             "2" as financeKind,
+            a_b.id AS prdtId,
             a_b.bank_name AS financeName,
             a_b.account_name AS prdtName,
             a_b.account_book_image AS image,
-            SUM(a_h.amount) AS totalAmount
+            SUM(a_h.amount) AS totalAmount,
+            a_b.conn_status
         FROM
             account_history a_h
                 JOIN account_book a_b ON a_b.id = a_h.account_id
-        WHERE a_b.member_id = #{memberId}
-                AND a_b.conn_status = 0
+        WHERE a_b.member_id = #{id}
         GROUP BY
             a_b.id, financeName, a_b.account_name, a_b.account_book_image;
     </select>
@@ -44,6 +46,7 @@
     <select id="getConnAssets" resultType="AssetDTO">
         SELECT
             "1" financeKind,
+            c.id AS prdtId,
             c.bank_name AS financeName,
             c.card_name AS prdtName,
             c.card_image AS image,
@@ -51,7 +54,7 @@
         FROM
             card_history c_h
                 JOIN card c ON c.id = c_h.card_id
-        WHERE c.member_id = #{memberId}
+        WHERE c.member_id = #{id}
           AND c.conn_status = 1
         GROUP BY
             c.id, financeName, c.card_name, c.card_image
@@ -60,6 +63,7 @@
 
         SELECT
             "2" as financeKind,
+            a_b.id AS prdtId,
             a_b.bank_name AS financeName,
             a_b.account_name AS prdtName,
             a_b.account_book_image AS image,
@@ -67,7 +71,7 @@
         FROM
             account_history a_h
                 JOIN account_book a_b ON a_b.id = a_h.account_id
-        WHERE a_b.member_id = #{memberId}
+        WHERE a_b.member_id = #{id}
           AND a_b.conn_status = 1
         GROUP BY
             a_b.id, financeName, a_b.account_name, a_b.account_book_image;
