@@ -30,7 +30,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private AuthDTO makeAuth(MemberDTO user) {
 
-        int id = user.getMemberIdx();
+        Integer memberIdx = user.getMemberIdx();
         String memberId = user.getMemberId();
         String memberName = user.getMemberName();
         String imageUrl = user.getImageUrl();
@@ -40,7 +40,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         String refreshToken = jwtProcessor.generateRefreshToken(memberId);
 
         return AuthDTO.builder()
-                .id(id)
+                .memberIdx(memberIdx)
                 .memberId(memberId)
                 .memberName(memberName)
                 .imageUrl(imageUrl)

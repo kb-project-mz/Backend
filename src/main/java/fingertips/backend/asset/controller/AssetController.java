@@ -19,7 +19,6 @@ public class AssetController {
 
     private final AssetService assetService;
 
-    // 사용자가 소유하는 계좌와 카드 정보 가져오기
     @GetMapping("/{memberIdx}")
     public ResponseEntity<JsonResponse<List<AssetDTO>>> getAllAssets(@PathVariable int memberIdx) {
 
@@ -27,7 +26,6 @@ public class AssetController {
         return ResponseEntity.ok(JsonResponse.success(assetList));
     }
 
-    // 카드 연동
     @PostMapping("/card/{memberIdx}")
     public ResponseEntity<JsonResponse<String>> updateCardStatus(@PathVariable int memberIdx) {
 
@@ -35,7 +33,6 @@ public class AssetController {
         return ResponseEntity.ok(JsonResponse.success("Update Success"));
     }
 
-    // 계좌 연동
     @PostMapping("/account/{memberIdx}")
     public ResponseEntity<JsonResponse<String>> updateAccountStatus(@PathVariable int memberIdx) {
 
