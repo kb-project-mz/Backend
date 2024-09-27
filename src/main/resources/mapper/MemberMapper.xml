@@ -38,29 +38,26 @@
     </select>
 
     <!-- 마이페이지를 위한 정보 받아오기 -->
-    <select id="getMemberInfo" parameterType="String" resultType="MemberDTO">
+    <select id="getProfile" parameterType="String" resultType="ProfileDTO">
         SELECT
-            member_id, password, member_name, birthday, email, image_url
+            member_id, member_name, birthday, email, image_url, social_type, social_id, join_date
         FROM member
         WHERE member_id = #{memberId}
     </select>
 
     <!-- 마이페이지를 위한 업데이트 위한 정보 받아오기(선택적 업데이트) -->
-    <update id="updateMemberInfo" parameterType="MemberDTO">
+    <update id="updateProfile" parameterType="UpdateProfileDTO">
         UPDATE member
-        <set>
-            <if test="newPassword != null and newPassword != ''">
-                password = #{newPassword},
-            </if>
-            <if test="newEmail != null and newEmail != ''">
-                email = #{newEmail},
-            </if>
-            <if test="imageUrl != null and imageUrl != ''">
-                image_url = #{imageUrl},
-            </if>
-        </set>
-        WHERE
-        member_id = #{memberId}
+        SET password = #{password},
+            email = #{email},
+            image_url = #{imageUrl}
+        WHERE member_id = #{memberId}
     </update>
+
+    <select id="getPassword" parameterType="String" resultType="String">
+        SELECT password
+        FROM member
+        WHERE member_id = #{memberId}
+    </select>
 
 </mapper>

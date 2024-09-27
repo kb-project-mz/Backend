@@ -3,6 +3,8 @@ package fingertips.backend.member.controller;
 import fingertips.backend.exception.dto.JsonResponse;
 import fingertips.backend.member.dto.MemberDTO;
 import fingertips.backend.member.dto.MemberIdFindDTO;
+import fingertips.backend.member.dto.ProfileDTO;
+import fingertips.backend.member.dto.UpdateProfileDTO;
 import fingertips.backend.member.service.MemberService;
 import fingertips.backend.security.util.JwtProcessor;
 import lombok.RequiredArgsConstructor;
@@ -104,35 +106,24 @@ public class MemberController {
         }
     }
     */
-    // 멤버 정보 가져오기
     @GetMapping("/info")
-    public ResponseEntity<JsonResponse<MemberDTO>> getMemberInfo() {
+    public ResponseEntity<JsonResponse<ProfileDTO>> getMemberInfo() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String memberId = authentication.getName(); // JWT에서 추출된 memberId (또는 username)
-        log.info("memberId: " + memberId);
-        MemberDTO info = memberService.getMemberInfo(memberId);
-        return ResponseEntity.ok(JsonResponse.success(info));
+        String memberId = authentication.getName();
+        ProfileDTO profile = memberService.getProfile(memberId);
+
+        log.info("profilllllllllllle" + profile.getJoinDate());
+        return ResponseEntity.ok(JsonResponse.success(profile));
     }
 
-    @PostMapping("/update/info")
-    public ResponseEntity<JsonResponse<MemberDTO>> updateMemberInfo(@RequestBody MemberDTO inputInfo) {
-        // 로그인된 사용자 정보를 SecurityContext에서 가져옴
+    @PostMapping("/info")
+    public ResponseEntity<JsonResponse<ProfileDTO>> updateMemberInfo(@RequestBody UpdateProfileDTO updateProfile) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String memberId = authentication.getName(); // 일반적으로 사용자의 username 또는 memberId가 저장됨
+        String memberId = authentication.getName();
+        memberService.updateProfile(memberId, updateProfile);
 
-        log.info("inputttttttttttttttt info memberId"+memberId);
-        log.info("inputttttttttttttttt info curr password"+inputInfo.getPassword());
-        log.info("inputttttttttttttttt info new password"+inputInfo.getNewPassword());
-        // 현재 로그인 한 사용자의 아이디를 넘겨줌
-        memberService.updateMemberInfo(memberId ,inputInfo);
-
-        // 업데이트 된 다음의 회원정보를 다시 불러서 가져옴
-        MemberDTO updatedInfo = memberService.getMemberInfo(memberId);
-
-        log.info("outppppppppppppppppppp info memberId"+memberId);
-        log.info("outppppppppppppppppppp info curr password"+updatedInfo.getPassword());
-        log.info("outppppppppppppppppppp info new password"+updatedInfo.getNewPassword());
-        return ResponseEntity.ok(JsonResponse.success(updatedInfo));
+        ProfileDTO updatedProfile = memberService.getProfile(memberId);
+        return ResponseEntity.ok(JsonResponse.success(updatedProfile));
     }
 
 }

@@ -4,12 +4,12 @@ import fingertips.backend.exception.error.ApplicationError;
 import fingertips.backend.exception.error.ApplicationException;
 import fingertips.backend.member.dto.MemberDTO;
 import fingertips.backend.member.dto.MemberIdFindDTO;
+import fingertips.backend.member.dto.ProfileDTO;
+import fingertips.backend.member.dto.UpdateProfileDTO;
 import fingertips.backend.member.mapper.MemberMapper;
 import fingertips.backend.security.util.JwtProcessor;
 import lombok.extern.log4j.Log4j;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -83,58 +83,38 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public MemberDTO getMemberInfo(String memberId) {
-        return memberMapper.getMemberInfo(memberId);
+    public ProfileDTO getProfile(String memberId) {
+        return memberMapper.getProfile(memberId);
     }
 
     @Override
-    public void updateMemberInfo(String memberId, MemberDTO memberDTO) {
-        // 1. 로그인 한 사용자의 정보 가져오기
-        MemberDTO currentInfo = memberMapper.getMemberInfo(memberId);
+    public void updateProfile(String memberId, UpdateProfileDTO updateProfile) {
+        ProfileDTO existingProfile = memberMapper.getProfile(memberId);
+        String existingPassword = memberMapper.getPassword(memberId);
 
-        String inputPassword = memberDTO.getPassword(); // 사용자가 입력한 비밀번호 : 값 들어옴
-        String inputNewPassword = memberDTO.getNewPassword(); // 사용자가 입력한 새 비밀번호
-        String inputCheckNewPassword = memberDTO.getCheckNewPassword(); // 사용자가 입력한 비밀번호 확인 필드
-
-        String currentPassword = currentInfo.getPassword(); // 이건 현재 DB에 저장되어 있는 암호화된 비밀번호임 : 값 들어옴
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        validateCurrentPassword(updateProfile.getPassword(), existingPassword, passwordEncoder);
 
-        // 2. 현재 비밀번호 맞는지 확인(입력받은 password랑 현재 저장 되어있는 멤버의 정보에서 password 가져온거랑 비교)
-        if (inputPassword != null && !passwordEncoder.matches(inputPassword, currentPassword)) {
-            throw new ApplicationException(ApplicationError.PASSWORD_MISMATCH);
-        }
-        if(inputNewPassword != null && !inputNewPassword.equals(inputCheckNewPassword)){
-            throw new ApplicationException(ApplicationError.PASSWORDCHECK_MISMATCH);
-        }
-        // 3. 디비 비밀번호 변경
-        MemberDTO updateDTO = MemberDTO.builder()
-//                //.memberId(memberId)
-                    .newPassword(inputNewPassword) // 새 비밀번호 이거나,, 기존 비밀번호가 들어가 있겠지?
-//                //.newEmail(memberDTO.getNewEmail() != null ? memberDTO.getNewEmail() : currentInfo.getEmail())
-//                //.imageUrl(memberDTO.getImageUrl() != null ? memberDTO.getImageUrl() : currentInfo.getImageUrl())
-                   .build();
-        log.info("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" + updateDTO.getNewPassword());
-        memberMapper.updateMemberInfo(memberId, updateDTO);
+        String updatedPassword = (updateProfile.getNewPassword() != null && !updateProfile.getNewPassword().isEmpty())
+                ? passwordEncoder.encode(updateProfile.getNewPassword())
+                : existingPassword;
 
+        UpdateProfileDTO updatedProfile = UpdateProfileDTO.builder()
+                .memberId(memberId)
+                .password(updatedPassword)
+                .email(updateProfile.getEmail() != null ? updateProfile.getEmail() : existingProfile.getEmail())
+                .imageUrl(updateProfile.getImageUrl() != null ? updateProfile.getImageUrl() : existingProfile.getImageUrl())
+                .build();
 
-//        // 4. 비밀번호 완료 메세지 띄우고 로그아웃 처리
-//
-//        // 새 비밀번호 암호화
-//        String encodedNewPassword = inputNewPassword != null
-//                ? passwordEncoder.encode(inputNewPassword)
-//                : currentInfo.getPassword(); // 비밀번호 변경이 없는 경우 현재 비밀번호 유지
-//
-//        // 업데이트할 DTO 생성
-//        MemberDTO updateDTO = MemberDTO.builder()
-//                //.memberId(memberId)
-//                .newPassword(encodedNewPassword) // 새 비밀번호 이거나,, 기존 비밀번호가 들어가 있겠지?
-//                //.newEmail(memberDTO.getNewEmail() != null ? memberDTO.getNewEmail() : currentInfo.getEmail())
-//                //.imageUrl(memberDTO.getImageUrl() != null ? memberDTO.getImageUrl() : currentInfo.getImageUrl())
-//                .build();
-//
-//        // DB 업데이트
-//        memberMapper.updateMemberInfo(memberId, updateDTO);
+        memberMapper.updateProfile(updatedProfile);
     }
 
-
+    private void validateCurrentPassword (String inputPassword,
+                                          String existingPassword,
+                                          BCryptPasswordEncoder passwordEncoder){
+        if (inputPassword == null || !passwordEncoder.matches(inputPassword, existingPassword)) {
+            throw new ApplicationException(ApplicationError.PASSWORD_MISMATCH);
+        }
+    }
 }
+
