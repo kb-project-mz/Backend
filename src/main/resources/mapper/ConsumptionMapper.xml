@@ -5,13 +5,12 @@
 
 <mapper namespace="fingertips.backend.consumption.mapper.ConsumptionMapper">
     <select id="getCardHistoryList" parameterType="int" resultType="CardConsumptionDTO">
-        SELECT c.bank_name, c.card_name, c.card_image, ch.consumption_date, ch.consumption_time,
-               cat.category_name AS category, ch.content, ch.amount,
-               ch.card_id AS "CardID"
+        SELECT ch.card_id, c.bank_name, c.card_name, c.card_image, ch.consumption_date, ch.consumption_time,
+               cat.category_name AS category, ch.content, ch.amount
         FROM card_history ch
             JOIN card c ON ch.card_id = c.id
             JOIN category cat ON ch.category = cat.id
-        WHERE c.member_id = #{memberId}
+        WHERE c.member_id = #{memberIdx}
             AND c.conn_status = 1
         ORDER BY consumption_date DESC
     </select>
@@ -21,7 +20,7 @@
         FROM card_history ch
             JOIN card c ON ch.card_id = c.id
             JOIN category cat ON ch.category = cat.id
-        WHERE c.member_id = #{memberId}
+        WHERE c.member_id = #{memberIdx}
             AND c.conn_status = 1
             AND ch.consumption_date BETWEEN CONCAT(#{startYear}, '-', #{startMonth}, '-', #{startDay})
             AND CONCAT(#{endYear}, '-', #{endMonth}, '-', #{endDay});
@@ -33,7 +32,7 @@
         FROM account_history ah
                  JOIN account_book a ON ah.account_id = a.id
                  JOIN category cat ON ah.category = cat.id
-        WHERE a.member_id = #{memberId}
+        WHERE a.member_id = #{memberIdx}
           AND a.conn_status = 1
         ORDER BY account_date DESC
     </select>

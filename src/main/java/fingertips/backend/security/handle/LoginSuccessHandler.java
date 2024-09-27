@@ -30,7 +30,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private AuthDTO makeAuth(MemberDTO user) {
 
-        int id = user.getId();
+        int id = user.getMemberIdx();
         String memberId = user.getMemberId();
         String memberName = user.getMemberName();
         String imageUrl = user.getImageUrl();
@@ -57,7 +57,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
         String memberId = userDetails.getUsername();
-        MemberDTO memberDTO = memberMapper.getMember(memberId);
+        MemberDTO memberDTO = memberMapper.getMemberByMemberId(memberId);
 
         AuthDTO result = makeAuth(memberDTO);
         JsonResponse.sendToken(response, result);

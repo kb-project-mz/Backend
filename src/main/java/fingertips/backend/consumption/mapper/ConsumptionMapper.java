@@ -10,7 +10,7 @@ import java.util.List;
 @Mapper
 public interface ConsumptionMapper {
 
-    List<CardConsumptionDTO> getCardHistoryList(int memberId);
+    List<CardConsumptionDTO> getCardHistoryList(int memberIdx);
     List<CardConsumptionDTO> getCardHistoryListByPeriod(PeriodDTO period);
-    List<AccountConsumptionDTO> getAccountHistoryList(int memberId);
+    List<AccountConsumptionDTO> getAccountHistoryList(int memberIdx);
 }
