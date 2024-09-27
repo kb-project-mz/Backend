@@ -18,5 +18,5 @@ public class AssetDTO {
     private String image;
     private int totalAmount;
     // 연동 상태
-    private boolean connStatus;
+    private int connStatus;
 }
