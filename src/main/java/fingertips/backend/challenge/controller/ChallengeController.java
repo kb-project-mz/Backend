@@ -1,6 +1,7 @@
 package fingertips.backend.challenge.controller;
 
 import fingertips.backend.challenge.dto.CardHistoryDTO;
+import fingertips.backend.challenge.dto.CardHistoryFilterDTO;
 import fingertips.backend.challenge.dto.ChallengeDTO;
 import fingertips.backend.challenge.dto.ProgressDTO;
 import fingertips.backend.challenge.service.ChallengeService;
@@ -20,10 +21,10 @@ public class ChallengeController {
 
     private final ChallengeService challengeService;
 
-    @GetMapping("/{memberId}")
-    public ResponseEntity<JsonResponse<List<ChallengeDTO>>> getChallengeList(@PathVariable Integer memberId) {
+    @GetMapping("/{memberIdx}")
+    public ResponseEntity<JsonResponse<List<ChallengeDTO>>> getChallengeList(@PathVariable Integer memberIdx) {
 
-        List<ChallengeDTO> response = challengeService.getChallengeList(memberId);
+        List<ChallengeDTO> response = challengeService.getChallengeList(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 
@@ -41,17 +42,23 @@ public class ChallengeController {
         return ResponseEntity.ok().body(JsonResponse.success("Delete Challenge Success"));
     }
 
-    @GetMapping("/detailed-category/{category}")
-    public ResponseEntity<JsonResponse<List<String>>> getDetailedCategories(@PathVariable Integer category) {
+    @GetMapping("/detailed-category/{memberIdx}/{category}")
+    public ResponseEntity<JsonResponse<List<String>>> getDetailedCategories(@PathVariable Integer memberIdx,
+                                                                            @PathVariable Integer category) {
 
-        List<String> response = challengeService.getDetailedCategories(category);
-        return ResponseEntity.ok(JsonResponse.success(response));
+        CardHistoryFilterDTO cardHistoryFilterDTO = CardHistoryFilterDTO.builder()
+                .memberId(memberIdx)
+                .category(category)
+                .build();
+
+        List<String> response = challengeService.getDetailedCategories(cardHistoryFilterDTO);
+        return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 
-    @GetMapping("/status/{memberId}")
-    public ResponseEntity<JsonResponse<List<ProgressDTO>>> getChallengeStatus(@PathVariable Integer memberId) {
+    @GetMapping("/status/{memberIdx}")
+    public ResponseEntity<JsonResponse<List<ProgressDTO>>> getChallengeStatus(@PathVariable Integer memberIdx) {
 
-        List<ProgressDTO> response = challengeService.getChallengeStatus(memberId);
+        List<ProgressDTO> response = challengeService.getChallengeStatus(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 }
