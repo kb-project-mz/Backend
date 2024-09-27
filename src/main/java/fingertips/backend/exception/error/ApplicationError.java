@@ -40,7 +40,11 @@ public enum ApplicationError {
     INVALID_USER_INFO(HttpStatus.BAD_REQUEST, "SOCIAL_009", "유효하지 않은 사용자 정보입니다."),
 
     // 서버 에러
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "SERVER_001", "서버 내부 에러가 발생하였습니다.");
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "SERVER_001", "서버 내부 에러가 발생하였습니다."),
+
+    // 데이터베이스 오류
+    DATABASE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "DB_001", "데이터베이스 처리 중 오류가 발생했습니다.");
+
 
 
     private final HttpStatus status;

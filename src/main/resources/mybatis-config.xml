@@ -13,6 +13,7 @@
         <package name="fingertips.backend.challenge.dto" />
         <package name="fingertips.backend.consumption.dto" />
         <package name="fingertips.backend.member.dto" />
+        <package name="fingertips.backend.member.sociallogin.dto" />
     </typeAliases>
 
     <mappers>

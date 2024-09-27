@@ -11,12 +11,12 @@
         WHERE email = #{email}
     </select>
 
-    <insert id="insertMember" parameterType="fingertips.backend.member.sociallogin.dto.SocialLoginDTO">
+    <insert id="insertMember" parameterType="SocialLoginDTO">
         INSERT INTO member (member_id, email, member_name, google_id, social_type, google_access_token, google_id_token, google_refresh_token, expires_in)
-        VALUES (#{googleId}, #{email}, #{memberName}, #{googleId}, #{socialType}, #{googleAccessToken}, #{googleIdToken}, #{googleRefreshToken}, #{expiresIn})
+        VALUES (#{memberId}, #{email}, #{memberName}, #{googleId}, #{socialType}, #{googleAccessToken}, #{googleIdToken}, #{googleRefreshToken}, #{expiresIn})
     </insert>
 
-    <update id="updateMemberTokens" parameterType="fingertips.backend.member.sociallogin.dto.SocialLoginDTO">
+    <update id="updateMemberTokens" parameterType="SocialLoginDTO">
         UPDATE member
         SET google_access_token = #{googleAccessToken},
         google_id_token = #{googleIdToken},

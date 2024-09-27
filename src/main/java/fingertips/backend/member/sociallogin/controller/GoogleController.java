@@ -3,7 +3,10 @@ package fingertips.backend.member.sociallogin.controller;
 import fingertips.backend.exception.dto.JsonResponse;
 import fingertips.backend.member.sociallogin.dto.SocialLoginDTO;
 import fingertips.backend.member.sociallogin.service.SocialLoginService;
+import fingertips.backend.member.sociallogin.service.SocialLoginServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,13 +21,14 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class GoogleController {
 
+    private static final Logger logger = LoggerFactory.getLogger(GoogleController.class);
     private final SocialLoginService socialLoginService;
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String googleClientId;
 
     // 구글 로그인 페이지로 리디렉션 URL 생성
-    @GetMapping
+    @GetMapping("")
     public ResponseEntity<JsonResponse<String>> googleLoginRedirect() {
         // 구글 인증 URL 생성
         String authUrl = UriComponentsBuilder.fromHttpUrl("https://accounts.google.com/o/oauth2/v2/auth")
@@ -39,13 +43,12 @@ public class GoogleController {
         return ResponseEntity.ok(JsonResponse.success(authUrl));
     }
 
-    // 구글 로그인 콜백 처리
     @GetMapping("/callback")
-    public ResponseEntity<JsonResponse<SocialLoginDTO>> handleGoogleCallback(@RequestParam String code) {
-        System.out.println("req_param");
-        System.out.println(code);
+    public ResponseEntity<JsonResponse<SocialLoginDTO>> googleCallback(@RequestParam("code") String code) {
+        logger.info("구글 콜백 요청 수신: code={}", code);
         return socialLoginService.googleCallback(code);
     }
+
 
     // 구글 로그인 토큰으로 로그인 처리
     @PostMapping("/tokens")
