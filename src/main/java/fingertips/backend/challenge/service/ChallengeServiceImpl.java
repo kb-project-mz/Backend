@@ -6,6 +6,7 @@ import fingertips.backend.challenge.dto.CardHistoryFilterDTO;
 import fingertips.backend.challenge.dto.ChallengeDTO;
 import fingertips.backend.challenge.dto.ProgressDTO;
 import fingertips.backend.challenge.mapper.ChallengeMapper;
+import fingertips.backend.consumption.dto.CardConsumptionDTO;
 import fingertips.backend.openai.service.OpenAiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -56,6 +57,7 @@ public class ChallengeServiceImpl implements ChallengeService {
                 .map(CardHistoryDTO::getContent)
                 .collect(Collectors.toList());
 
+//        formatConsumptionListAsTable()
         String prompt = "content가 교통수단 관련이면 3번 이상 반복되는 교통수단을 명칭만 알려줘." +
                 "그리고 dcontent가 카페 관련이면 3번이상 반복되는 카페이름을 알려줘. 이때 지점명은 제외해줘." +
                 "그리고 해당하는 값들만 콤마로 나열해서 보내줘  " + String.join(", ", contents);
@@ -63,5 +65,23 @@ public class ChallengeServiceImpl implements ChallengeService {
         String openAiResponse = openAiService.askOpenAi(prompt);
 
         return Arrays.asList(openAiResponse.split(", "));
+    }
+
+    public String formatConsumptionListAsTable(List<CardHistoryDTO> cardHistory) {
+
+        StringBuilder table = new StringBuilder();
+        String lineSeparator = System.lineSeparator();
+
+        table.append("|-----------------------|").append(lineSeparator);
+        table.append("|        content        |").append(lineSeparator);
+        table.append("|-----------------------|").append(lineSeparator);
+
+        for (CardHistoryDTO history : cardHistory) {
+            table.append(String.format("| %-25d |", history.getAmount())).append(lineSeparator);
+        }
+
+        table.append("|-----------------------|").append(lineSeparator);
+
+        return table.toString();
     }
 }
