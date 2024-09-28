@@ -2,6 +2,8 @@ package fingertips.backend.member.service;
 
 import fingertips.backend.member.dto.MemberDTO;
 import fingertips.backend.member.dto.MemberIdFindDTO;
+import fingertips.backend.member.dto.ProfileDTO;
+import fingertips.backend.member.dto.UpdateProfileDTO;
 
 public interface MemberService {
 
@@ -14,6 +16,6 @@ public interface MemberService {
     boolean isEmailTaken(String email);
     boolean existsMemberId(String memberId);
 
-    MemberDTO getMemberInfo(String memberId);
-    void updateMemberInfo(String memberId, MemberDTO memberDTO);
+    ProfileDTO getProfile(String memberId);
+    void updateProfile(String memberId, UpdateProfileDTO updateProfile);
 }

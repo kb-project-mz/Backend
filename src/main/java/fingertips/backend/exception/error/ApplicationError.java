@@ -30,7 +30,6 @@ public enum ApplicationError {
 
     // 비밀번호 불일치
     PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "MEMBER_007", "비밀번호가 일치하지 않습니다."),
-    PASSWORDCHECK_MISMATCH(HttpStatus.BAD_REQUEST, "MEMBER_008", "비밀번호 확인이 일치하지 않습니다."),
 
     // 서버 에러
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "SERVER_001", "서버 내부 에러가 발생하였습니다.");
