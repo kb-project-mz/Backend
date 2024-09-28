@@ -2,16 +2,16 @@ package fingertips.backend.member.sociallogin.service;
 
 import fingertips.backend.exception.dto.JsonResponse;
 import fingertips.backend.member.sociallogin.dto.SocialLoginDTO;
-import fingertips.backend.member.sociallogin.dto.TokenDto;
+import fingertips.backend.member.sociallogin.dto.TokenDTO;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Map;
 
 public interface SocialLoginService {
     String getGoogleClientId();
-    TokenDto googleLogin(Map<String, String> request);
-    TokenDto googleCallback(String code);
+    TokenDTO googleLogin(Map<String, String> request);
+    TokenDTO googleCallback(String code);
     boolean googleMemberExists(String email);
     void googleMemberJoin(SocialLoginDTO socialLoginDTO);
-    TokenDto googleLoginWithTokens(SocialLoginDTO socialLoginDTO);
+    TokenDTO googleLoginWithTokens(SocialLoginDTO socialLoginDTO);
 }

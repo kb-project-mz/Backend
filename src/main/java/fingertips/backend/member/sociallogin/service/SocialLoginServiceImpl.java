@@ -5,7 +5,7 @@ import fingertips.backend.exception.dto.JsonResponse;
 import fingertips.backend.exception.error.ApplicationError;
 import fingertips.backend.exception.error.ApplicationException;
 import fingertips.backend.member.sociallogin.dto.SocialLoginDTO;
-import fingertips.backend.member.sociallogin.dto.TokenDto;
+import fingertips.backend.member.sociallogin.dto.TokenDTO;
 import fingertips.backend.member.sociallogin.mapper.SocialLoginMapper;
 import fingertips.backend.security.account.dto.AuthDTO;
 import fingertips.backend.security.util.JwtProcessor;
@@ -58,7 +58,7 @@ public class SocialLoginServiceImpl implements SocialLoginService {
 
     @Override
     @Transactional
-    public TokenDto googleLogin(Map<String, String> request) {
+    public TokenDTO googleLogin(Map<String, String> request) {
         String googleIdToken = request.get("id_token");
         if (googleIdToken == null || googleIdToken.isEmpty()) {
             logger.error("구글 ID 토큰이 유효하지 않음");
@@ -78,7 +78,7 @@ public class SocialLoginServiceImpl implements SocialLoginService {
 
     @Override
     @Transactional
-    public TokenDto googleCallback(String code) {
+    public TokenDTO googleCallback(String code) {
         logger.info("구글 콜백 처리 시작, 코드: {}", code);
 
         Map<String, String> tokenInfo = getGoogleAccessToken(code);
@@ -127,7 +127,7 @@ public class SocialLoginServiceImpl implements SocialLoginService {
 
     @Override
     @Transactional
-    public TokenDto googleLoginWithTokens(SocialLoginDTO socialLoginDTO) {
+    public TokenDTO googleLoginWithTokens(SocialLoginDTO socialLoginDTO) {
         logger.info("구글 토큰 검증 시작: {}", socialLoginDTO.getGoogleIdToken());
         return processGoogleLogin(socialLoginDTO, null);
     }
@@ -157,7 +157,7 @@ public class SocialLoginServiceImpl implements SocialLoginService {
         }
     }
 
-    private TokenDto processGoogleLogin(SocialLoginDTO memberInfo, String accessToken) {
+    private TokenDTO processGoogleLogin(SocialLoginDTO memberInfo, String accessToken) {
         logger.info("processGoogleLogin 메서드 시작: memberInfo={}, accessToken={}", memberInfo, accessToken);
 
         logger.info("확인할 이메일: {}", memberInfo.getEmail());
@@ -183,11 +183,15 @@ public class SocialLoginServiceImpl implements SocialLoginService {
         memberInfo.setGoogleAccessToken(accessToken);
         logger.info("processGoogleLogin accessToken 저장: {}", memberInfo.getGoogleAccessToken());
 
+        if (memberInfo.getMemberId() == null) {
+            logger.error("구글 로그인 처리 중 memberId가 null입니다.");
+        }
+
         logger.info("processGoogleLogin 완료 후 응답 준비");
 
         JsonResponse<SocialLoginDTO> response = JsonResponse.success(memberInfo);
         System.out.println(response);
-        return new TokenDto(jwtToken, jwtRefreshToken, memberInfo.getMemberId(), memberInfo.getMemberName());
+        return new TokenDTO(jwtToken, jwtRefreshToken, memberInfo.getMemberId(), memberInfo.getMemberName());
 
     }
 
@@ -260,24 +264,29 @@ public class SocialLoginServiceImpl implements SocialLoginService {
 
     private SocialLoginDTO fetchUserInfoFromGoogle(String accessToken, String idToken, String refreshToken, Integer expiresIn) {
         logger.info("fetchUserInfoFromGoogle 호출: accessToken={}", accessToken);
-        String userInfoUrl = "https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + accessToken;
 
+        // 구글 사용자 정보 URL 생성
+        String userInfoUrl = "https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + accessToken;
         logger.info("구글 사용자 정보 URL: {}", userInfoUrl);
+
+        // 구글 사용자 정보 요청
         ResponseEntity<Map> response = restTemplate.getForEntity(userInfoUrl, Map.class);
         Map<String, Object> userInfo = response.getBody();
 
         logger.info("구글 사용자 정보 응답: {}", userInfo);
 
         if (userInfo != null) {
+            // 구글 사용자 정보로 SocialLoginDTO 생성
             SocialLoginDTO memberInfo = SocialLoginDTO.builder()
-                    .email((String) userInfo.get("email"))
-                    .memberName((String) userInfo.get("name"))
-                    .googleId((String) userInfo.get("id"))
-                    .socialType("GOOGLE")
-                    .googleAccessToken(accessToken)
-                    .googleIdToken(idToken)
-                    .googleRefreshToken(refreshToken)
-                    .expiresIn(expiresIn)
+                    .email((String) userInfo.get("email"))  // 이메일 설정
+                    .memberName((String) userInfo.get("name"))  // 이름 설정
+                    .memberId((String) userInfo.get("id"))  // 'id'를 'memberId'로 설정
+                    .googleId((String) userInfo.get("sub"))  // 구글 ID 설정
+                    .socialType("GOOGLE")  // 소셜 로그인 타입 설정
+                    .googleAccessToken(accessToken)  // 액세스 토큰 설정
+                    .googleIdToken(idToken)  // ID 토큰 설정
+                    .googleRefreshToken(refreshToken)  // 리프레시 토큰 설정
+                    .expiresIn(expiresIn)  // 만료 시간 설정
                     .build();
 
             logger.info("구글 사용자 정보와 액세스 토큰 설정 완료: {}", memberInfo);
@@ -288,6 +297,7 @@ public class SocialLoginServiceImpl implements SocialLoginService {
             throw new ApplicationException(ApplicationError.INVALID_USER_INFO);
         }
     }
+
 
     private SocialLoginDTO googleValidateToken(String googleIdToken) {
         logger.info("googleValidateToken 호출: googleIdToken={}", googleIdToken);

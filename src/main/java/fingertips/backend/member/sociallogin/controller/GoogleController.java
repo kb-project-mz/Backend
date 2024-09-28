@@ -2,7 +2,7 @@ package fingertips.backend.member.sociallogin.controller;
 
 import fingertips.backend.exception.dto.JsonResponse;
 import fingertips.backend.member.sociallogin.dto.SocialLoginDTO;
-import fingertips.backend.member.sociallogin.dto.TokenDto;
+import fingertips.backend.member.sociallogin.dto.TokenDTO;
 import fingertips.backend.member.sociallogin.service.SocialLoginService;
 import fingertips.backend.member.sociallogin.service.SocialLoginServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -49,14 +49,19 @@ public class GoogleController {
     @GetMapping("/callback")
     public RedirectView googleCallback(@RequestParam("code") String code) {
         logger.info("구글 콜백 요청 수신: code={}", code);
-        TokenDto token = socialLoginService.googleCallback(code);
-        return new RedirectView("http://localhost:5173/google-callback?access_token="+token.getAccessToken()+"&refresh_token="+token.getRefreshToken()+"&member_id="+token.getMemberId()+"&member_name="+URLEncoder.encode(token.getMemberName(), Charset.defaultCharset()));
-    }
+        TokenDTO token = socialLoginService.googleCallback(code);
 
+        logger.info("구글 로그인 성공: memberId={}, memberName={}", token.getMemberId(), token.getMemberName());
+
+        return new RedirectView("http://localhost:5173/google-callback?access_token=" + token.getAccessToken()
+                + "&refresh_token=" + token.getRefreshToken()
+                + "&member_id=" + token.getMemberId()
+                + "&member_name=" + URLEncoder.encode(token.getMemberName(), Charset.defaultCharset()));
+    }
 
     // 구글 로그인 토큰으로 로그인 처리
     @PostMapping("/tokens")
-    public ResponseEntity<JsonResponse<TokenDto>> loginWithGoogleTokens(@RequestBody Map<String, String> request) {
+    public ResponseEntity<JsonResponse<TokenDTO>> loginWithGoogleTokens(@RequestBody Map<String, String> request) {
         SocialLoginDTO socialLoginDTO = SocialLoginDTO.builder()
                 .email(request.get("email"))
                 .googleId(request.get("google_id"))
