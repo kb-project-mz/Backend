@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class AuthDTO {
 
-    private int id;
+    private Integer memberIdx;
     private String memberId;
     private String memberName;
     private String imageUrl;

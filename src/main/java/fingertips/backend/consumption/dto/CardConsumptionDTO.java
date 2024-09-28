@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CardConsumptionDTO {
 
+    private Integer cardId;
     private String bankName;
     private String cardName;
     private String cardImage;
@@ -18,5 +19,5 @@ public class CardConsumptionDTO {
     private String consumptionTime;
     private String category;
     private String content;
-    private int amount;
+    private Integer amount;
 }

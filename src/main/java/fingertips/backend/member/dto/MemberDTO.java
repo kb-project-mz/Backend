@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class MemberDTO {
-    private int id;
+    private Integer memberIdx;
     private String memberId;
     private String password;
     private String memberName;
@@ -25,11 +25,11 @@ public class MemberDTO {
     private String joinDate;
     private String region;
     private String job;
-    private int testStatus;
-    private int activeStatus;
+    private Integer testStatus;
+    private Integer activeStatus;
     private String refreshToken;
     private String withdrawDate;
     private String role;
-    private int loginLocked;
-    private long loginLockTime;
+    private Integer loginLocked;
+    private Long loginLockTime;
 }

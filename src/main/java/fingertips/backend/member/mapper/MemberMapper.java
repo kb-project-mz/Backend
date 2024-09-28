@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface MemberMapper {
 
-    MemberDTO getMember(String memberId);
+    MemberDTO getMemberByMemberId(String memberId);
     void insertMember(MemberDTO memberDTO);
     void updateLockStatus(MemberDTO memberDTO);
     void deleteMember(String username);

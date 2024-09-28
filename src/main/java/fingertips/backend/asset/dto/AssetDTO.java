@@ -7,14 +7,12 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AssetDTO {
-    // 카드면 1, 계좌면 2
-    private int financeKind;
-    // 은행 이름
-    private String financeName;
-    // 상품명
-    private String prdtName;
+
+    private Integer financeKind; // 카드 1, 계좌 2
+    private Integer prdtId;
+    private String financeName; // 은행 이름
+    private String prdtName; // 상품명
     private String image;
-    private int totalAmount;
-    // 연동 상태
-    private boolean connStatus;
+    private Integer totalAmount;
+    private Integer connStatus;
 }

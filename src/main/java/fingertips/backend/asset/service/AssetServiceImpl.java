@@ -16,26 +16,17 @@ public class AssetServiceImpl implements AssetService {
     private final AssetMapper assetMapper;
 
     @Override
-    public List<AssetDTO> getAllAssets(int memberId) {
-        List<AssetDTO> AllAssetList = assetMapper.getAllAssets(memberId);
-        return AllAssetList;
+    public List<AssetDTO> getAllAssets(Integer id) {
+        return assetMapper.getAllAssets(id);
     }
 
     @Override
-    public List<AssetDTO> getConnAssets(int memberId) {
-        List<AssetDTO> ConnAssetList = assetMapper.getConnAssets(memberId);
-        return ConnAssetList;
+    public void connectCard(Integer id) {
+        assetMapper.connectCard(id);
     }
 
     @Override
-    public void connCard(int id) {
-        assetMapper.connCard(id);
+    public void connectAccount(Integer id) {
+        assetMapper.connectAccount(id);
     }
-
-    @Override
-    public void connAccount(int id) {
-        assetMapper.connAccount(id);
-    }
-
-
 }

@@ -4,89 +4,39 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="fingertips.backend.asset.mapper.AssetMapper">
-
-    <!-- 카드정보(1), 계좌정보(2) UNION ALL해서 AssetDto에 담기
-             financeKind라는 컬럼을 추가로 넣어서 카드와 계좌를 구분함 -->
-    <!-- 사용자의 모든 계좌,카드 정보를 가져옴 -->
     <select id="getAllAssets" resultType="AssetDTO">
         SELECT
             "1" financeKind,
+            c.id AS prdtId,
             c.bank_name AS financeName,
             c.card_name AS prdtName,
             c.card_image AS image,
-            SUM(c_h.amount) AS totalAmount
-        FROM
-            card_history c_h
-                JOIN card c ON c.id = c_h.card_id
-        WHERE c.member_id = #{memberId}
-                AND c.conn_status = 0
-        GROUP BY
-            c.id, financeName, c.card_name, c.card_image
-
+            c.conn_status
+        FROM card c
+        WHERE c.member_id = #{memberIdx}
+        GROUP BY c.id, financeName, c.card_name, c.card_image
         UNION ALL
-
         SELECT
             "2" as financeKind,
-            a_b.bank_name AS financeName,
-            a_b.account_name AS prdtName,
-            a_b.account_book_image AS image,
-            SUM(a_h.amount) AS totalAmount
-        FROM
-            account_history a_h
-                JOIN account_book a_b ON a_b.id = a_h.account_id
-        WHERE a_b.member_id = #{memberId}
-                AND a_b.conn_status = 0
-        GROUP BY
-            a_b.id, financeName, a_b.account_name, a_b.account_book_image;
+            a.id AS prdtId,
+            a.bank_name AS financeName,
+            a.account_name AS prdtName,
+            a.account_book_image AS image,
+            a.conn_status
+        FROM account_book a
+        WHERE a.member_id = #{memberIdx}
+        GROUP BY a.id, financeName, a.account_name, a.account_book_image;
     </select>
 
-    <!-- 사용자의 연동 된 모든 계좌,카드를 가져옴 -->
-    <select id="getConnAssets" resultType="AssetDTO">
-        SELECT
-            "1" financeKind,
-            c.bank_name AS financeName,
-            c.card_name AS prdtName,
-            c.card_image AS image,
-            SUM(c_h.amount) AS totalAmount
-        FROM
-            card_history c_h
-                JOIN card c ON c.id = c_h.card_id
-        WHERE c.member_id = #{memberId}
-          AND c.conn_status = 1
-        GROUP BY
-            c.id, financeName, c.card_name, c.card_image
-
-        UNION ALL
-
-        SELECT
-            "2" as financeKind,
-            a_b.bank_name AS financeName,
-            a_b.account_name AS prdtName,
-            a_b.account_book_image AS image,
-            SUM(a_h.amount) AS totalAmount
-        FROM
-            account_history a_h
-                JOIN account_book a_b ON a_b.id = a_h.account_id
-        WHERE a_b.member_id = #{memberId}
-          AND a_b.conn_status = 1
-        GROUP BY
-            a_b.id, financeName, a_b.account_name, a_b.account_book_image;
-    </select>
-
-    <!-- 선택된 카드를 연동 -->
-    <update id="connCard" parameterType="int">
+    <update id="connectCard" parameterType="Integer">
         UPDATE card
         SET conn_status = 1
         WHERE id = #{id}
     </update>
 
-    <!-- 선택된 계좌를 연동 -->
-    <update id="connAccount" parameterType="int">
+    <update id="connectAccount" parameterType="Integer">
         UPDATE account_book
         SET conn_status = 1
         WHERE id = #{id}
     </update>
-
-
-
 </mapper>
