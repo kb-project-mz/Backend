@@ -19,5 +19,5 @@ public class AccountConsumptionDTO {
     private String type;
     private String category;
     private String content;
-    private int amount;
+    private Integer amount;
 }

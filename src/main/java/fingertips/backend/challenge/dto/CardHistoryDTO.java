@@ -1,10 +1,13 @@
 package fingertips.backend.challenge.dto;
 
-import lombok.Data;
+import lombok.*;
 
-@Data
-public class CardHIstoryDTO
-{
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class CardHistoryDTO {
+
     Integer id;
     Integer card_id;
     String consumption_date;
