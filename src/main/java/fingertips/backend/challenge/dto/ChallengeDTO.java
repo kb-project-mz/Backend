@@ -1,10 +1,13 @@
 package fingertips.backend.challenge.dto;
 
-import lombok.Data;
+import lombok.*;
 
-@Data
-public class ChallengeDTO
-{
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ChallengeDTO {
+
     private Integer id;
     private Integer category;
     private Integer memberId;

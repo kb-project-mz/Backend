@@ -25,7 +25,7 @@ public class MemberServiceImpl implements MemberService {
     private final MemberMapper memberMapper;
 
     public String authenticate(String username, String password) {
-        MemberDTO memberDTO = mapper.getMember(username);
+        MemberDTO memberDTO = mapper.getMemberByMemberId(username);
         if (memberDTO != null && passwordEncoder.matches(password, memberDTO.getPassword())) {
             return jwtProcessor.generateAccessToken(username, memberDTO.getRole());
         }
@@ -42,7 +42,7 @@ public class MemberServiceImpl implements MemberService {
 
     public MemberDTO getMemberByMemberId(String memberId) {
 
-        MemberDTO member = mapper.getMember(memberId);
+        MemberDTO member = mapper.getMemberByMemberId(memberId);
         if (member == null) {
             throw new ApplicationException(ApplicationError.MEMBER_NOT_FOUND);
         }

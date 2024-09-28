@@ -23,17 +23,17 @@ public class ConsumptionController {
 
     private final ConsumptionService consumptionService;
 
-    @GetMapping("/card/{memberId}")
-    public ResponseEntity<JsonResponse<List<CardConsumptionDTO>>> getCardHistoryListPerMonth(@PathVariable int memberId) {
+    @GetMapping("/card/{memberIdx}")
+    public ResponseEntity<JsonResponse<List<CardConsumptionDTO>>> getCardHistoryListPerMonth(@PathVariable int memberIdx) {
 
-        List<CardConsumptionDTO> cardHistoryList = consumptionService.getCardHistoryList(memberId);
+        List<CardConsumptionDTO> cardHistoryList = consumptionService.getCardHistoryList(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success(cardHistoryList));
     }
 
-    @GetMapping("/account/{memberId}")
-    public ResponseEntity<JsonResponse<List<AccountConsumptionDTO>>> getAccountHistoryListPerMonth(@PathVariable int memberId) {
+    @GetMapping("/account/{memberIdx}")
+    public ResponseEntity<JsonResponse<List<AccountConsumptionDTO>>> getAccountHistoryListPerMonth(@PathVariable int memberIdx) {
 
-        List<AccountConsumptionDTO> accountHistoryList = consumptionService.getAccountHistoryList(memberId);
+        List<AccountConsumptionDTO> accountHistoryList = consumptionService.getAccountHistoryList(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success(accountHistoryList));
     }
   
@@ -41,7 +41,7 @@ public class ConsumptionController {
     public ResponseEntity<JsonResponse<String>> mostAndMaximumUsed(@RequestParam Map<String, String> params) {
 
         PeriodDTO period = PeriodDTO.builder()
-                .memberId(Integer.parseInt(params.get("memberId")))
+                .memberIdx(Integer.parseInt(params.get("memberIdx")))
                 .startYear(Integer.parseInt(params.get("startYear")))
                 .startMonth(Integer.parseInt(params.get("startMonth")))
                 .startDay(Integer.parseInt(params.get("startDay")))

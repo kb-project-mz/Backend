@@ -11,11 +11,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PeriodDTO {
 
-    private int memberId;
-    private int startYear;
-    private int startMonth;
-    private int startDay;
-    private int endYear;
-    private int endMonth;
-    private int endDay;
+    private Integer memberIdx;
+    private Integer startYear;
+    private Integer startMonth;
+    private Integer startDay;
+    private Integer endYear;
+    private Integer endMonth;
+    private Integer endDay;
 }
