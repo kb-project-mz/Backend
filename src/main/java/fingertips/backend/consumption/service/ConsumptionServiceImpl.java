@@ -23,7 +23,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
     private final OpenAiService openAiService;
 
     @Override
-    public List<CardConsumptionDTO> getCardHistoryList(int memberId) {
+    public List<CardConsumptionDTO> getCardHistoryList(Integer memberId) {
         return consumptionMapper.getCardHistoryList(memberId);
     }
 
@@ -57,7 +57,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
     }
 
     @Override
-    public List<AccountConsumptionDTO> getAccountHistoryList(int memberId) {
+    public List<AccountConsumptionDTO> getAccountHistoryList(Integer memberId) {
         return consumptionMapper.getAccountHistoryList(memberId);
     }
 

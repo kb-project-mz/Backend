@@ -48,7 +48,7 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
                                         AuthenticationException exception) throws IOException, ServletException {
 
         String memberId = (String) request.getAttribute("memberId");
-        MemberDTO memberDTO = memberMapper.getMember(memberId);
+        MemberDTO memberDTO = memberMapper.getMemberByMemberId(memberId);
 
         if (exception instanceof UsernameNotFoundException || memberDTO == null) {
             JsonResponse.sendError(response, ApplicationError.MEMBER_ID_NOT_FOUND);
@@ -65,7 +65,7 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
                 return;
             } else {
                 memberDTO.setLoginLocked(0);
-                memberDTO.setLoginLockTime(0);
+                memberDTO.setLoginLockTime(0L);
                 memberMapper.updateLockStatus(memberDTO);
                 attemptsCache.put(memberId, 0);
             }
