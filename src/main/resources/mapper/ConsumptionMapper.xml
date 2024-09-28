@@ -6,7 +6,8 @@
 <mapper namespace="fingertips.backend.consumption.mapper.ConsumptionMapper">
     <select id="getCardHistoryList" parameterType="int" resultType="CardConsumptionDTO">
         SELECT c.bank_name, c.card_name, c.card_image, ch.consumption_date, ch.consumption_time,
-               cat.category_name AS category, ch.content, ch.amount
+               cat.category_name AS category, ch.content, ch.amount,
+               ch.card_id AS "CardID"
         FROM card_history ch
             JOIN card c ON ch.card_id = c.id
             JOIN category cat ON ch.category = cat.id
