@@ -30,10 +30,8 @@ public class GoogleController {
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String googleClientId;
 
-    // 구글 로그인 페이지로 리디렉션 URL 생성
     @GetMapping("")
     public ResponseEntity<JsonResponse<String>> googleLoginRedirect() {
-        // 구글 인증 URL 생성
         String authUrl = UriComponentsBuilder.fromHttpUrl("https://accounts.google.com/o/oauth2/v2/auth")
                 .queryParam("response_type", "code")
                 .queryParam("client_id", googleClientId)
@@ -48,10 +46,7 @@ public class GoogleController {
 
     @GetMapping("/callback")
     public RedirectView googleCallback(@RequestParam("code") String code) {
-        logger.info("구글 콜백 요청 수신: code={}", code);
         TokenDTO token = socialLoginService.googleCallback(code);
-
-        logger.info("구글 로그인 성공: memberId={}, memberName={}", token.getMemberId(), token.getMemberName());
 
         return new RedirectView("http://localhost:5173/google-callback?access_token=" + token.getAccessToken()
                 + "&refresh_token=" + token.getRefreshToken()
@@ -59,7 +54,6 @@ public class GoogleController {
                 + "&member_name=" + URLEncoder.encode(token.getMemberName(), Charset.defaultCharset()));
     }
 
-    // 구글 로그인 토큰으로 로그인 처리
     @PostMapping("/tokens")
     public ResponseEntity<JsonResponse<TokenDTO>> loginWithGoogleTokens(@RequestBody Map<String, String> request) {
         SocialLoginDTO socialLoginDTO = SocialLoginDTO.builder()
@@ -74,7 +68,6 @@ public class GoogleController {
         return ResponseEntity.ok(JsonResponse.success(socialLoginService.googleLoginWithTokens(socialLoginDTO)));
     }
 
-    // 구글 클라이언트 ID 확인
     @GetMapping("/google-client-id")
     public ResponseEntity<JsonResponse<String>> getGoogleClientId() {
         return ResponseEntity.ok(JsonResponse.success(googleClientId));

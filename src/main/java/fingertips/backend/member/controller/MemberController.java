@@ -62,7 +62,7 @@ public class MemberController {
         return ResponseEntity.ok(JsonResponse.success("Logout successful"));
     }
 
-    @GetMapping("/{memberId}")
+    @GetMapping("/memberInfo/{memberId}")
     public ResponseEntity<JsonResponse<MemberDTO>> getMember(@PathVariable String memberId) {
 
         MemberDTO member = memberService.getMemberByMemberId(memberId);
