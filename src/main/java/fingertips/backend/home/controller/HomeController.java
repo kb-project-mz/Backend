@@ -1,11 +1,8 @@
 package fingertips.backend.home.controller;
 
-import fingertips.backend.asset.dto.AssetDTO;
 import fingertips.backend.exception.dto.JsonResponse;
 import fingertips.backend.home.dto.BalanceDTO;
 import fingertips.backend.home.service.BalanceService;
-import fingertips.backend.home.service.SocketIOService;
-import fingertips.backend.member.dto.MemberDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -23,11 +20,10 @@ import java.util.List;
 public class HomeController {
 
     private final BalanceService balanceService;
-    private final SocketIOService socketIOService;
 
-    @GetMapping("/balance")
-    public ResponseEntity<JsonResponse<List<BalanceDTO>>> getBalance() {
-       List<BalanceDTO> resultList=balanceService.getBalance();
+    @GetMapping("/balance/{member_index}")
+    public ResponseEntity<JsonResponse<List<BalanceDTO>>> getBalance(@PathVariable int member_index) {
+        List<BalanceDTO> resultList=balanceService.getBalance(member_index);
 //        socketIOService.sendBalanceUpdate(resultList);
 
         return ResponseEntity.ok().body(JsonResponse.success(resultList));

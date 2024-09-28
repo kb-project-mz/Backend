@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface BalanceService {
     // 계좌 총 잔액 받아오기
-    List<BalanceDTO> getBalance();
+    List<BalanceDTO> getBalance(int member_index);
 }

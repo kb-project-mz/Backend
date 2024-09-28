@@ -5,20 +5,10 @@
 
 <mapper namespace="fingertips.backend.home.mapper.BalanceMapper">
 
-<!--    <select id="getBalance" parameterType="String" resultType="BalanceDTO">-->
-<!--        SELECT member_id as id, sum(balance) as balance-->
-<!--        FROM account_book-->
-<!--        GROUP BY member_id-->
-<!--        HAVING member_id = #{memberId};-->
-<!--    </select>-->
-
     <select id="getBalance" resultType="BalanceDTO">
-        SELECT m.member_id as id, SUM(a.balance) as balance
-        FROM member m
-                 JOIN account_book a ON m.id = a.member_id
-        GROUP BY m.member_id
+        SELECT id, member_id, bank_name, account_name, balance
+        FROM account_book
+        WHERE member_id = #{member_index}
     </select>
-
-
 
 </mapper>

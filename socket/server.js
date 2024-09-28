@@ -1,38 +1,35 @@
-const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
-const cors = require('cors');
-
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
 const app = express();
-
-// cors 설정 추가
-app.use(cors());
-
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    // vue 클라이언트 포트
-    origin: 'http://localhost:5173',
-    methods: ['GET', 'POST'],
+    origin: "http://localhost:5173", // Vue 서버의 주소
+    methods: ["GET", "POST"],
   },
 });
 
-// 클라이언트가 연결되었을 때의 처리
-io.on('connection', (socket) => {
-  console.log('A user connected');
+// 클라이언트가 연결되면 메시지 출력
+io.on("connection", (socket) => {
+  console.log("A client connected: " + socket.id);
 
-  // balanceUpdate 이벤트 수신 및 브로드캐스트
-  socket.on('balanceUpdate', (memberId, balanceList) => {
-    console.log(`Balance updated for member: ${memberId}`);
-    io.emit('balanceUpdate', { memberId, balanceList });
-  });
-
-  socket.on('disconnect', () => {
-    console.log('A user disconnected');
+  // Spring 서버로부터 balance 업데이트 시 emit
+  socket.on("disconnect", () => {
+    console.log("Client disconnected");
   });
 });
 
-// 서버 포트 설정 및 실행
-server.listen(3001, () => {
-  console.log('Node.js server listening on http://localhost:3001');
+// Spring 서버에서 데이터를 수신하고, 이를 Vue로 전송
+app.use(express.json());
+app.post("/update", (req, res) => {
+  const updatedData = req.body;
+  console.log("Received updated data from Spring:", updatedData); // Spring에서 받은 데이터 확인
+  io.emit("balanceUpdate", updatedData); // 모든 클라이언트에게 balance 업데이트 전달
+  console.log("Sent data to Vue clients:", updatedData);
+  res.sendStatus(200);
+});
+
+server.listen(3000, () => {
+  console.log("Socket.IO server running on port 3000");
 });
