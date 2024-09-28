@@ -18,6 +18,7 @@ public class JsonResponse<T> {
     private boolean success;
     private T data;
     private ErrorResponse error;
+    private String message;
 
     public static void sendError(HttpServletResponse response, ApplicationError error) throws IOException {
 

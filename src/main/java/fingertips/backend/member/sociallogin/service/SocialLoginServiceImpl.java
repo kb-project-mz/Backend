@@ -1,10 +1,13 @@
 package fingertips.backend.member.sociallogin.service;
 
+import com.nimbusds.jose.util.Pair;
 import fingertips.backend.exception.dto.JsonResponse;
 import fingertips.backend.exception.error.ApplicationError;
 import fingertips.backend.exception.error.ApplicationException;
 import fingertips.backend.member.sociallogin.dto.SocialLoginDTO;
+import fingertips.backend.member.sociallogin.dto.TokenDto;
 import fingertips.backend.member.sociallogin.mapper.SocialLoginMapper;
+import fingertips.backend.security.account.dto.AuthDTO;
 import fingertips.backend.security.util.JwtProcessor;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -19,14 +22,9 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.oauth2.jwt.Jwt;
-
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.view.RedirectView;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -60,7 +58,7 @@ public class SocialLoginServiceImpl implements SocialLoginService {
 
     @Override
     @Transactional
-    public ResponseEntity<JsonResponse<SocialLoginDTO>> googleLogin(Map<String, String> request) {
+    public TokenDto googleLogin(Map<String, String> request) {
         String googleIdToken = request.get("id_token");
         if (googleIdToken == null || googleIdToken.isEmpty()) {
             logger.error("구글 ID 토큰이 유효하지 않음");
@@ -80,7 +78,7 @@ public class SocialLoginServiceImpl implements SocialLoginService {
 
     @Override
     @Transactional
-    public ResponseEntity<JsonResponse<SocialLoginDTO>> googleCallback(String code) {
+    public TokenDto googleCallback(String code) {
         logger.info("구글 콜백 처리 시작, 코드: {}", code);
 
         Map<String, String> tokenInfo = getGoogleAccessToken(code);
@@ -129,7 +127,7 @@ public class SocialLoginServiceImpl implements SocialLoginService {
 
     @Override
     @Transactional
-    public ResponseEntity<JsonResponse<SocialLoginDTO>> googleLoginWithTokens(SocialLoginDTO socialLoginDTO) {
+    public TokenDto googleLoginWithTokens(SocialLoginDTO socialLoginDTO) {
         logger.info("구글 토큰 검증 시작: {}", socialLoginDTO.getGoogleIdToken());
         return processGoogleLogin(socialLoginDTO, null);
     }
@@ -159,7 +157,7 @@ public class SocialLoginServiceImpl implements SocialLoginService {
         }
     }
 
-    private ResponseEntity<JsonResponse<SocialLoginDTO>> processGoogleLogin(SocialLoginDTO memberInfo, String accessToken) {
+    private TokenDto processGoogleLogin(SocialLoginDTO memberInfo, String accessToken) {
         logger.info("processGoogleLogin 메서드 시작: memberInfo={}, accessToken={}", memberInfo, accessToken);
 
         logger.info("확인할 이메일: {}", memberInfo.getEmail());
@@ -175,6 +173,7 @@ public class SocialLoginServiceImpl implements SocialLoginService {
         }
 
         String jwtToken = jwtProcessor.generateAccessToken(memberInfo.getEmail(), "ROLE_USER");
+        String jwtRefreshToken = jwtProcessor.generateRefreshToken(memberInfo.getEmail());
         logger.info("JWT 토큰 생성 완료: {}", jwtToken);
 
         HttpHeaders headers = new HttpHeaders();
@@ -186,9 +185,10 @@ public class SocialLoginServiceImpl implements SocialLoginService {
 
         logger.info("processGoogleLogin 완료 후 응답 준비");
 
+        JsonResponse<SocialLoginDTO> response = JsonResponse.success(memberInfo);
+        System.out.println(response);
+        return new TokenDto(jwtToken, jwtRefreshToken, memberInfo.getMemberId(), memberInfo.getMemberName());
 
-
-        return new ResponseEntity<>(JsonResponse.success(memberInfo), headers, HttpStatus.OK);
     }
 
     private String generateUniqueMemberId(String googleId) {
@@ -237,7 +237,7 @@ public class SocialLoginServiceImpl implements SocialLoginService {
                     tokens.put("refresh_token", refreshToken);
 
                     if (expiresIn != null) {
-                        tokens.put("expires_in", String.valueOf(expiresIn));  // String으로 변환하여 전달
+                        tokens.put("expires_in", String.valueOf(expiresIn));
                     }
 
                     return tokens;
