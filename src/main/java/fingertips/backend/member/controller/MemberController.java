@@ -14,7 +14,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.logging.Logger;
 
 @Log4j
 @RequestMapping("/api/v1/member")
@@ -25,6 +28,7 @@ public class MemberController {
     private final MemberService memberService;
     private final JwtProcessor jwtProcessor;
 
+
     @PostMapping("/join")
     public ResponseEntity<JsonResponse<String>> join(@RequestBody MemberDTO memberDTO) {
 
@@ -32,16 +36,14 @@ public class MemberController {
         return ResponseEntity.ok().body(JsonResponse.success("Join Success"));
     }
 
-    @GetMapping("/id/{memberName}/{email}")
-    public ResponseEntity<JsonResponse<String>> findMemberId(@PathVariable String memberName, @PathVariable String email) {
+    @GetMapping("/memberIdx/{memberName}/{email}")
+    public ResponseEntity<JsonResponse<MemberIdFindDTO>> findMemberId(@PathVariable String memberName, @PathVariable String email) {
 
-        MemberIdFindDTO memberIdFindDTO = MemberIdFindDTO.builder()
-                .memberName(memberName)
-                .email(email)
-                .build();
+        String foundMemberId = memberService.findByNameAndEmail(memberName, email);
 
-        String memberId = memberService.findByNameAndEmail(memberIdFindDTO);
-        return ResponseEntity.ok(JsonResponse.success(memberId));
+        MemberIdFindDTO memberIdFindDTO = new MemberIdFindDTO(foundMemberId, memberName, email);
+
+        return ResponseEntity.ok(JsonResponse.success(memberIdFindDTO));
     }
 
     @GetMapping("/check-memberId/{memberId}")
@@ -51,7 +53,7 @@ public class MemberController {
         return ResponseEntity.ok(JsonResponse.success(exists));
     }
 
-    @GetMapping("/logout")
+    @PostMapping("/logout")
     public ResponseEntity<JsonResponse<String>> logout(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
