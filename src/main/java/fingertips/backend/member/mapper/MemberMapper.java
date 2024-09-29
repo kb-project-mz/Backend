@@ -12,7 +12,6 @@ public interface MemberMapper {
     void updateLockStatus(MemberDTO memberDTO);
     void deleteMember(String username);
     void setRefreshToken(MemberDTO memberDTO);
-    int isEmailTaken(String email);
     String findByNameAndEmail(MemberIdFindDTO memberIdFindDTO);
     int existsMemberId(String memberId);
     void clearRefreshToken(String memberId);

@@ -1,9 +1,12 @@
 package fingertips.backend.member.service;
 
-import lombok.extern.slf4j.Slf4j;
+import fingertips.backend.member.mapper.EmailMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
 import javax.mail.*;
 import javax.mail.internet.*;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -15,10 +18,11 @@ import java.util.Properties;
 import fingertips.backend.exception.error.ApplicationError;
 import fingertips.backend.exception.error.ApplicationException;
 
-@Slf4j
+@RequiredArgsConstructor
 @Service
 public class EmailServiceImpl implements EmailService {
 
+    private final EmailMapper emailMapper;
     private JavaMailSenderImpl javaMailSender;
 
     private String username;
@@ -28,7 +32,8 @@ public class EmailServiceImpl implements EmailService {
 
     private Map<String, String> verificationCodes = new HashMap<>();
 
-    public EmailServiceImpl() {
+    @PostConstruct
+    private void init() {
         loadEmailProperties();
         configureJavaMailSender();
     }
@@ -71,11 +76,8 @@ public class EmailServiceImpl implements EmailService {
             message.setText("인증 코드는 " + verificationCode + "입니다.");
 
             javaMailSender.send(message);
-
             verificationCodes.put(email, verificationCode);
-
         } catch (MessagingException e) {
-            log.error("Error sending email to {}", email, e);
             throw new ApplicationException(ApplicationError.EMAIL_SENDING_FAILED);
         }
     }
@@ -103,5 +105,11 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public String generateVerificationCode() {
         return String.valueOf((int) (Math.random() * 900000) + 100000);
+    }
+
+    @Override
+    public boolean isEmailTaken(String email) {
+        int isTaken = emailMapper.isEmailTaken(email);
+        return isTaken != 0;
     }
 }
