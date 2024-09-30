@@ -30,13 +30,8 @@
     <select id="findByNameAndEmail" parameterType="MemberIdFindDTO" resultType="String">
         SELECT member_id
         FROM member
-        WHERE email = #{email} AND member_name = #{memberName}
-    </select>
-
-    <select id="isEmailTaken" parameterType="String" resultType="Integer">
-        SELECT COUNT(*)
-        FROM member
         WHERE email = #{email}
+          AND member_name = #{memberName}
     </select>
 
     <select id="existsMemberId" parameterType="String" resultType="Integer">
@@ -68,4 +63,9 @@
         WHERE member_id = #{memberId}
     </select>
 
+    <update id="clearRefreshToken">
+        UPDATE member_table
+        SET refresh_token = NULL
+        WHERE member_id = #{memberId}
+    </update>
 </mapper>

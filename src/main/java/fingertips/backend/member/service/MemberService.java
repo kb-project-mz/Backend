@@ -12,10 +12,10 @@ public interface MemberService {
     MemberDTO getMemberByMemberId(String memberId);
     void deleteMember(String username);
     void setRefreshToken(MemberDTO memberDTO);
-    String findByNameAndEmail(MemberIdFindDTO memberIdFindDTO);
-    boolean isEmailTaken(String email);
     boolean existsMemberId(String memberId);
 
     ProfileDTO getProfile(String memberId);
     void updateProfile(String memberId, UpdateProfileDTO updateProfile);
+    void clearRefreshToken(String memberId);
+    String findByNameAndEmail(String memberName, String email);
 }
