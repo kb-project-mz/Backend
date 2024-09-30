@@ -28,11 +28,23 @@ public enum ApplicationError {
     VERIFICATION_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "EMAIL_002", "인증 코드가 만료되었습니다."),
     EMAIL_SENDING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "EMAIL_003", "이메일 전송에 실패하였습니다."),
 
-    // 비밀번호 불일치
-    PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "MEMBER_007", "비밀번호가 일치하지 않습니다."),
+    // 소셜 로그인
+    INVALID_ID_TOKEN(HttpStatus.UNAUTHORIZED, "SOCIAL_001", "유효하지 않은 ID 토큰입니다."),
+    TOKEN_VERIFICATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "SOCIAL_002", "토큰 검증에 실패하였습니다."),
+    USER_INFO_REQUEST_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "SOCIAL_003", "사용자 정보를 요청하는 데 실패했습니다."),
+    SOCIAL_LOGIN_INTEGRATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "SOCIAL_004", "소셜 로그인 연동에 실패했습니다."),
+    OAUTH2_AUTHORIZATION_FAILED(HttpStatus.UNAUTHORIZED, "SOCIAL_005", "OAuth2 권한 부여에 실패했습니다."),
+    SOCIAL_LOGIN_SESSION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "SOCIAL_006", "소셜 로그인 세션 생성에 실패했습니다."),
+    SOCIAL_ACCOUNT_DISCONNECT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "SOCIAL_007", "소셜 계정 연동 해제에 실패했습니다."),
+    INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "SOCIAL_008", "유효하지 않은 액세스 토큰입니다."),
+    INVALID_USER_INFO(HttpStatus.BAD_REQUEST, "SOCIAL_009", "유효하지 않은 사용자 정보입니다."),
 
     // 서버 에러
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "SERVER_001", "서버 내부 에러가 발생하였습니다.");
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "SERVER_001", "서버 내부 에러가 발생하였습니다."),
+
+    // 데이터베이스 오류
+    DATABASE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "DB_001", "데이터베이스 처리 중 오류가 발생했습니다.");
+
 
 
 

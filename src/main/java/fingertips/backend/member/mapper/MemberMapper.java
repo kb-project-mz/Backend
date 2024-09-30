@@ -15,10 +15,7 @@ public interface MemberMapper {
     void updateLockStatus(MemberDTO memberDTO);
     void deleteMember(String username);
     void setRefreshToken(MemberDTO memberDTO);
-    int isEmailTaken(String email);
     String findByNameAndEmail(MemberIdFindDTO memberIdFindDTO);
     int existsMemberId(String memberId);
-    ProfileDTO getProfile(String memberId);
-    void updateProfile(UpdateProfileDTO updateProfile);
-    String getPassword(String memberId);
+    void clearRefreshToken(String memberId);
 }
