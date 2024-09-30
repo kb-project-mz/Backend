@@ -57,14 +57,14 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
 
         long currentTime = System.currentTimeMillis();
 
-        if (memberDTO.getLoginLocked() == 1) {
+        if (memberDTO.getIsLoginLocked() == 1) {
             if (currentTime < memberDTO.getLoginLockTime() + LOCK_TIME_DURATION) {
                 log.info("currentTime: " + currentTime);
                 log.info("memberDTO.getLoginLockTime() + LOCK_TIME_DURATION: " + (memberDTO.getLoginLockTime() + LOCK_TIME_DURATION));
                 JsonResponse.sendError(response, ApplicationError.LOGIN_ATTEMPTS);
                 return;
             } else {
-                memberDTO.setLoginLocked(0);
+                memberDTO.setIsLoginLocked(0);
                 memberDTO.setLoginLockTime(0L);
                 memberMapper.updateLockStatus(memberDTO);
                 attemptsCache.put(memberId, 0);
@@ -76,7 +76,7 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
         log.info("attempts: " + attempts);
 
         if (attempts >= MAX_ATTEMPTS) {
-            memberDTO.setLoginLocked(1);
+            memberDTO.setIsLoginLocked(1);
             memberDTO.setLoginLockTime(currentTime);
             log.info("currentTime: " + currentTime);
             memberMapper.updateLockStatus(memberDTO);

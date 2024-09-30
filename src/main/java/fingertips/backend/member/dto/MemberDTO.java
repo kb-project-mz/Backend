@@ -14,6 +14,7 @@ public class MemberDTO {
     private String memberId;
     private String password;
     private String memberName;
+    private String socialType;
     private String birthday;
     private String gender;
     private String email;
@@ -21,12 +22,10 @@ public class MemberDTO {
     private String joinDate;
     private String region;
     private String job;
-    private Integer testStatus;
-    private Integer activeStatus;
-    private String socialType;
+    private Integer isActive;
     private String refreshToken;
     private String withdrawDate;
     private String role;
-    private Integer loginLocked;
+    private Integer isLoginLocked;
     private Long loginLockTime;
 }
