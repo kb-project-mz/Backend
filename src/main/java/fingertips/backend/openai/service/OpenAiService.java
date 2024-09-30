@@ -20,7 +20,7 @@ public class OpenAiService {
     @Value("${openai.api.model}")
     private String model;
 
-    private final RestTemplate restTemplate;
+    private final RestTemplate openAiRestTemplate;
 
     public String askOpenAi(String prompt) {
         String url = "https://api.openai.com/v1/chat/completions";
@@ -39,7 +39,7 @@ public class OpenAiService {
                 .maxTokens(100)
                 .build();
 
-        OpenAiResponse response = restTemplate.postForObject(url, request, OpenAiResponse.class);
+        OpenAiResponse response = openAiRestTemplate.postForObject(url, request, OpenAiResponse.class);
 
         if (response != null && response.getChoices() != null && !response.getChoices().isEmpty()) {
             log.info(response.getChoices().get(0).getMessage().getContent());
