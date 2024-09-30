@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="fingertips.backend.test.mapper.TestMapper">
+
+    <select id="getAllQuestions" resultType="TestQuestionDTO">
+        SELECT question_idx, question_text
+        FROM test_question
+        ORDER BY question_idx ASC
+    </select>
+
+    <insert id="insertOption" parameterType="TestOptionDTO">
+        INSERT INTO test_option (question_idx, option_text, score, type)
+        VALUES (#{questionIdx}, #{optionText}, #{score}, #{type})
+    </insert>
+
+    <select id="getOptionsByQuestionId" parameterType="int" resultType="TestOptionDTO">
+        SELECT option_idx, option_text, score, type
+        FROM test_option
+        WHERE question_idx = #{questionIdx}
+    </select>
+
+
+</mapper>
