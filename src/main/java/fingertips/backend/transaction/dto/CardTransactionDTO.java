@@ -1,4 +1,4 @@
-package fingertips.backend.consumption.dto;
+package fingertips.backend.transaction.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,15 +9,15 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CardConsumptionDTO {
+public class CardTransactionDTO {
 
-    private Integer cardId;
+    private Integer cardIdx;
     private String bankName;
     private String cardName;
     private String cardImage;
-    private String consumptionDate;
-    private String consumptionTime;
-    private String category;
-    private String content;
+    private String cardTransactionDate;
+    private String cardTransactionTime;
+    private String categoryName;
+    private String cardTransactionDescription;
     private Integer amount;
 }
