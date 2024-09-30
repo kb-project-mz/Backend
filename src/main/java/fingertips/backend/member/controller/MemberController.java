@@ -1,9 +1,11 @@
 package fingertips.backend.member.controller;
 
-import fingertips.backend.exception.dto.ErrorResponse;
+
 import fingertips.backend.exception.dto.JsonResponse;
 import fingertips.backend.member.dto.MemberDTO;
 import fingertips.backend.member.dto.MemberIdFindDTO;
+import fingertips.backend.member.dto.PasswordFindDTO;
+import fingertips.backend.member.service.EmailService;
 import fingertips.backend.security.account.dto.AuthDTO;
 import fingertips.backend.member.service.MemberService;
 import fingertips.backend.security.util.JwtProcessor;
@@ -17,7 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.logging.Logger;
+
 
 @Log4j
 @RequestMapping("/api/v1/member")
@@ -26,6 +28,7 @@ import java.util.logging.Logger;
 public class MemberController {
 
     private final MemberService memberService;
+    private final EmailService emailService;
     private final JwtProcessor jwtProcessor;
 
 
@@ -36,15 +39,34 @@ public class MemberController {
         return ResponseEntity.ok().body(JsonResponse.success("Join Success"));
     }
 
-    @GetMapping("/memberIdx/{memberName}/{email}")
+    @GetMapping("/memberId/{memberName}/{email}")
     public ResponseEntity<JsonResponse<MemberIdFindDTO>> findMemberId(@PathVariable String memberName, @PathVariable String email) {
 
         String foundMemberId = memberService.findByNameAndEmail(memberName, email);
 
-        MemberIdFindDTO memberIdFindDTO = new MemberIdFindDTO(foundMemberId, memberName, email);
+        MemberIdFindDTO memberIdFindDTO = MemberIdFindDTO.builder()
+                .memberId(foundMemberId)
+                .memberName(memberName)
+                .email(email)
+                .build();
 
         return ResponseEntity.ok(JsonResponse.success(memberIdFindDTO));
     }
+
+    @GetMapping("/password/{memberName}/{email}")
+    public ResponseEntity<JsonResponse<PasswordFindDTO>> findPassword(@PathVariable String memberName, @PathVariable String email) {
+
+        memberService.findByNameAndEmail(memberName, email);
+
+        PasswordFindDTO passwordFindDTO = PasswordFindDTO.builder()
+                .memberName(memberName)
+                .email(email)
+                .newPassword(null)
+                .build();
+
+        return ResponseEntity.ok(JsonResponse.success(passwordFindDTO));
+    }
+
 
     @GetMapping("/check-memberId/{memberId}")
     public ResponseEntity<JsonResponse<Boolean>> checkMemberId(@PathVariable String memberId) {

@@ -7,6 +7,8 @@ public interface EmailService {
     boolean verifyEmail(String email, String inputCode);
     String generateVerificationCode();
     boolean isEmailTaken(String email);
+    String generateRandomPassword();
+    void sendNewPasswordEmail(String email, String newPassword);
 }
 
 

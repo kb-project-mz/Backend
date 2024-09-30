@@ -2,6 +2,7 @@ package fingertips.backend.member.service;
 
 import fingertips.backend.member.dto.MemberDTO;
 import fingertips.backend.member.dto.MemberIdFindDTO;
+import fingertips.backend.member.dto.PasswordFindDTO;
 import fingertips.backend.security.account.dto.LoginDTO;
 
 public interface MemberService {
@@ -14,4 +15,5 @@ public interface MemberService {
     void clearRefreshToken(String memberId);
     String findByNameAndEmail(String memberName, String email);
     void withdrawMember(String memberId);
+    void updatePasswordByEmail(PasswordFindDTO passwordFindDTO);
 }

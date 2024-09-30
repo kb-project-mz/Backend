@@ -4,17 +4,13 @@ import fingertips.backend.exception.error.ApplicationError;
 import fingertips.backend.exception.error.ApplicationException;
 import fingertips.backend.member.dto.MemberDTO;
 import fingertips.backend.member.dto.MemberIdFindDTO;
+import fingertips.backend.member.dto.PasswordFindDTO;
 import fingertips.backend.member.mapper.MemberMapper;
 import fingertips.backend.security.util.JwtProcessor;
 import lombok.extern.log4j.Log4j;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 
 @Log4j
 @RequiredArgsConstructor
@@ -89,6 +85,16 @@ public class MemberServiceImpl implements MemberService {
     }
 
     public void withdrawMember(String memberId) {
+
         memberMapper.withdrawMember(memberId);
+    }
+
+    @Override
+    public void updatePasswordByEmail(PasswordFindDTO passwordFindDTO) {
+        String encryptedPassword = passwordEncoder.encode(passwordFindDTO.getNewPassword());
+
+        passwordFindDTO.setNewPassword(encryptedPassword);
+
+        memberMapper.updatePasswordByEmail(passwordFindDTO);
     }
 }
