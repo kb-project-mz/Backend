@@ -5,10 +5,17 @@
 
 <mapper namespace="fingertips.backend.challenge.mapper.ChallengeMapper">
     <select id="getChallengeList" resultType="ChallengeDTO" parameterType="Integer">
-        SELECT id, category, member_id, challenge_name, challenge_type, challenge_limit, detailed_category, start_date, end_date
-        FROM challenge
-        WHERE member_id = #{memberId} AND is_public = 1 AND is_active = 1
+        SELECT
+            ch.challenge_idx,ca.category_name,ch.member_idx,ch.challenge_name,ch.challenge_type,ch.challenge_limit,ch.detailed_category,ch.challenge_start_date,ch.challenge_end_date
+        FROM
+            challenge ch
+        JOIN
+            category ca ON ca.category_idx = ch.category_idx
+        WHERE
+            ch.member_idx = #{memberIdx} AND ch.is_public = 1 AND ch.is_delete = 0;
     </select>
+
+
 
     <insert id="insertChallenge"  parameterType="ChallengeDTO">
         INSERT INTO challenge (category, member_id, challenge_name, challenge_type, challenge_limit, detailed_category, start_date, end_date, is_open)
@@ -30,6 +37,10 @@
 
     <select id="getChallengeStatus" resultType="ProgressDTO">
         SELECT c.id, c.challenge_limit, COALESCE(COUNT(ch.id), 0) AS cardHistoryCount
+--         SELECT c.id, c.challenge_limit,  CASE
+--                                              WHEN c.challenge_type = 0 THEN COALESCE(count(ch.id), 0)
+--                                              WHEN c.challenge_type = 1 THEN COALESCE(sum(ch.amount), 0)
+--             END AS cardHistoryCount
         FROM challenge c
             LEFT JOIN card_history ch
                 ON ch.consumption_date BETWEEN c.start_date AND c.end_date

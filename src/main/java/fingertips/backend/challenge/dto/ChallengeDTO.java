@@ -6,15 +6,16 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChallengeDTO {
+public class ChallengeDTO
+{
 
-    private Integer id;
-    private Integer category;
-    private Integer memberId;
+    private Integer challengeIdx;
+    private String categoryName; // private Integer challenge.category; => private String category.category_name
+    private Integer memberIdx;
     private String challengeName;
-    private Integer challengeType;
+    private String challengeType;
     private Integer challengeLimit;
     private String detailedCategory;
-    private String startDate;
-    private String endDate;
+    private String challengeStartDate;
+    private String challengeEndDate;
 }

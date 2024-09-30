@@ -25,6 +25,13 @@ public class ChallengeController {
     public ResponseEntity<JsonResponse<List<ChallengeDTO>>> getChallengeList(@PathVariable Integer memberIdx) {
 
         List<ChallengeDTO> response = challengeService.getChallengeList(memberIdx);
+        System.out.println("select 왜 안될까??");
+        System.out.println("select 왜 안될까??");
+        System.out.println("select 왜 안될까??");
+        System.out.println("select 왜 안될까??");
+        System.out.println("select 왜 안될까??");
+        System.out.println("select 왜 안될까??");
+
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 
