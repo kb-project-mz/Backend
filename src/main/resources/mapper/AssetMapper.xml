@@ -13,8 +13,8 @@
             c.card_image AS image,
             c.connected_status
         FROM card c
-        WHERE c.member_id = #{memberIdx}
-        GROUP BY c.id, financeName, c.card_name, c.card_image
+        WHERE c.member_idx = #{memberIdx}
+        GROUP BY c.card_idx, financeName, c.card_name, c.card_image
         UNION ALL
         SELECT
             "2" as financeKind,
@@ -24,8 +24,8 @@
             a.account_image AS image,
             a.connected_status
         FROM account a
-        WHERE a.member_id = #{memberIdx}
-        GROUP BY a.id, financeName, a.account_name, a.account_image;
+        WHERE a.member_idx = #{memberIdx}
+        GROUP BY a.account_idx, financeName, a.account_name, a.account_image;
     </select>
 
     <update id="connectCard" parameterType="Integer">
