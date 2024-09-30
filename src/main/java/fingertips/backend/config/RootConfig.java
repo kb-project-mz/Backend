@@ -31,7 +31,8 @@ import org.springframework.web.client.RestTemplate;
         "fingertips.backend.challenge.mapper",
         "fingertips.backend.consumption.mapper",
         "fingertips.backend.member.mapper",
-        "fingertips.backend.member.sociallogin.mapper"
+        "fingertips.backend.member.sociallogin.mapper",
+        "fingertips.backend.test.mapper"
 })
 @ComponentScan(basePackages = {"fingertips.backend"})
 @Slf4j

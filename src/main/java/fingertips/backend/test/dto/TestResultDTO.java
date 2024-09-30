@@ -8,8 +8,9 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TestQuestionDTO {
+public class TestResultDTO {
 
-    private Integer questionIdx;
-    private String questionText;
+    private Integer memberIdx;
+    private String type;
+    private Integer totalScore;
 }

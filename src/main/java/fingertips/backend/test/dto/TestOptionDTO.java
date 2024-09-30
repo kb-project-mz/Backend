@@ -8,8 +8,11 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TestQuestionDTO {
+public class TestOptionDTO {
 
+    private Integer optionIdx;
     private Integer questionIdx;
-    private String questionText;
+    private String optionText;
+    private Integer score;
+    private String type;
 }
