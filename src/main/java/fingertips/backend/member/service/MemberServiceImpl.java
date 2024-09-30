@@ -25,7 +25,6 @@ public class MemberServiceImpl implements MemberService {
     private final MemberMapper memberMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtProcessor jwtProcessor;
-    private final MemberMapper memberMapper;
 
     public String authenticate(String username, String password) {
         MemberDTO memberDTO = memberMapper.getMemberByMemberId(username);
@@ -119,12 +118,13 @@ public class MemberServiceImpl implements MemberService {
 
     private void validateCurrentPassword (String inputPassword,
                                           String existingPassword,
-                                          BCryptPasswordEncoder passwordEncoder){
+                                          BCryptPasswordEncoder passwordEncoder) {
         if (inputPassword == null || !passwordEncoder.matches(inputPassword, existingPassword)) {
             throw new ApplicationException(ApplicationError.PASSWORD_MISMATCH);
         }
-    public void withdrawMember(String memberId) {
-        memberMapper.withdrawMember(memberId);
+    }
+
+    public void withdrawMember(String memberIdx) {
+        memberMapper.withdrawMember(memberIdx);
     }
 }
-
