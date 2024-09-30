@@ -123,8 +123,9 @@ public class MemberServiceImpl implements MemberService {
             throw new ApplicationException(ApplicationError.PASSWORD_MISMATCH);
         }
     }
-
-    public void withdrawMember(String memberIdx) {
-        memberMapper.withdrawMember(memberIdx);
+    
+    @Override
+    public void withdrawMember(String memberId) {
+        memberMapper.withdrawMember(memberId);
     }
 }
