@@ -17,14 +17,14 @@
 
     <update id="updateLockStatus" parameterType="MemberDTO">
         UPDATE member
-        SET login_locked = #{loginLocked}, login_lock_time = #{loginLockTime}
+        SET is_login_locked = #{isLoginLocked}, login_lock_time = #{loginLockTime}
         WHERE member_id = #{memberId}
     </update>
 
     <update id="setRefreshToken" parameterType="MemberDTO">
         UPDATE member
         SET refresh_token = #{refreshToken}
-        WHERE id = #{id}
+        WHERE member_idx = #{memberIdx}
     </update>
 
     <select id="findByNameAndEmail" parameterType="MemberIdFindDTO" resultType="String">
@@ -64,8 +64,15 @@
     </select>
 
     <update id="clearRefreshToken">
-        UPDATE member_table
+        UPDATE member
         SET refresh_token = NULL
         WHERE member_id = #{memberId}
     </update>
+
+    <update id="withdrawMember" parameterType="String">
+        UPDATE member
+        SET is_active = 0, withdraw_date = NOW()
+        WHERE member_id = #{memberId}
+    </update>
+
 </mapper>

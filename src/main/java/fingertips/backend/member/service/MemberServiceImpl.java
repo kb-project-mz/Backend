@@ -52,10 +52,6 @@ public class MemberServiceImpl implements MemberService {
         return member;
     }
 
-    public void deleteMember(String username) {
-        memberMapper.deleteMember(username);
-    }
-
     @Override
     public void setRefreshToken(MemberDTO memberDTO) {
 
@@ -127,6 +123,8 @@ public class MemberServiceImpl implements MemberService {
         if (inputPassword == null || !passwordEncoder.matches(inputPassword, existingPassword)) {
             throw new ApplicationException(ApplicationError.PASSWORD_MISMATCH);
         }
+    public void withdrawMember(String memberId) {
+        memberMapper.withdrawMember(memberId);
     }
 }
 
