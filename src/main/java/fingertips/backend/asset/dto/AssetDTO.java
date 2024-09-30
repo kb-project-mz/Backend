@@ -14,5 +14,5 @@ public class AssetDTO {
     private String prdtName; // 상품명
     private String image;
     private Integer totalAmount;
-    private Integer connStatus;
+    private Integer connectedStatus;
 }

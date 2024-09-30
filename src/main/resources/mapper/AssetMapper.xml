@@ -7,36 +7,36 @@
     <select id="getAllAssets" resultType="AssetDTO">
         SELECT
             "1" financeKind,
-            c.id AS prdtId,
+            c.card_idx AS prdtId,
             c.bank_name AS financeName,
             c.card_name AS prdtName,
             c.card_image AS image,
-            c.conn_status
+            c.connected_status
         FROM card c
         WHERE c.member_id = #{memberIdx}
         GROUP BY c.id, financeName, c.card_name, c.card_image
         UNION ALL
         SELECT
             "2" as financeKind,
-            a.id AS prdtId,
+            a.account_idx AS prdtId,
             a.bank_name AS financeName,
             a.account_name AS prdtName,
-            a.account_book_image AS image,
-            a.conn_status
-        FROM account_book a
+            a.account_image AS image,
+            a.connected_status
+        FROM account a
         WHERE a.member_id = #{memberIdx}
-        GROUP BY a.id, financeName, a.account_name, a.account_book_image;
+        GROUP BY a.id, financeName, a.account_name, a.account_image;
     </select>
 
     <update id="connectCard" parameterType="Integer">
         UPDATE card
-        SET conn_status = 1
-        WHERE id = #{id}
+        SET connected_status = 1
+        WHERE card_idx = #{cardIdx}
     </update>
 
     <update id="connectAccount" parameterType="Integer">
-        UPDATE account_book
-        SET conn_status = 1
-        WHERE id = #{id}
+        UPDATE account
+        SET connected_status = 1
+        WHERE account_idx = #{accountIdx}
     </update>
 </mapper>
