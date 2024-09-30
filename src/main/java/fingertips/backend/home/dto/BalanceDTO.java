@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class BalanceDTO {
-    private int id;
-    private int memberId;
+    private int accountIdx;
+    private int memberIdx;
     private String bankName;
     private String accountName;
     private int balance;

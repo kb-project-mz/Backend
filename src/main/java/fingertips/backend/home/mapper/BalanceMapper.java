@@ -9,6 +9,6 @@ import java.util.List;
 @Mapper
 public interface BalanceMapper {
 
-    List<BalanceDTO> getBalance(int member_index);
+    List<BalanceDTO> getBalanceByMemberIdx(int memberIdx);
 
 }

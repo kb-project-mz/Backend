@@ -6,10 +6,7 @@ import fingertips.backend.home.service.BalanceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,12 +18,12 @@ public class HomeController {
 
     private final BalanceService balanceService;
 
-    @GetMapping("/balance/{member_index}")
-    public ResponseEntity<JsonResponse<List<BalanceDTO>>> getBalance(@PathVariable int member_index) {
-        List<BalanceDTO> resultList=balanceService.getBalance(member_index);
-//        socketIOService.sendBalanceUpdate(resultList);
+    @PostMapping("/balance/{memberIdx}")
+    public ResponseEntity<JsonResponse<List<BalanceDTO>>> getBalanceByMemberIdx(@PathVariable int memberIdx) {
 
-        return ResponseEntity.ok().body(JsonResponse.success(resultList));
+        balanceService.setMemberIdx(memberIdx);
+        List<BalanceDTO> balanceByMemberIdx = balanceService.getBalanceByMemberIdx(memberIdx);
+        return ResponseEntity.ok().body(JsonResponse.success(balanceByMemberIdx));
     }
 
 }

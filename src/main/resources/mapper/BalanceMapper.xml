@@ -5,10 +5,10 @@
 
 <mapper namespace="fingertips.backend.home.mapper.BalanceMapper">
 
-    <select id="getBalance" resultType="BalanceDTO">
-        SELECT id, member_id, bank_name, account_name, balance
-        FROM account_book
-        WHERE member_id = #{member_index}
+    <select id="getBalanceByMemberIdx" resultType="BalanceDTO">
+        SELECT account_idx, member_idx, bank_name, account_name, balance
+        FROM account
+        WHERE member_idx = #{memberIdx}
     </select>
 
 </mapper>

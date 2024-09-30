@@ -22,27 +22,37 @@ import java.util.List;
 public class BalanceServiceImpl implements BalanceService {
 
     private final BalanceMapper balanceMapper;
+
     @Autowired
     private final RestTemplate restTemplate;
 
     private List<BalanceDTO> lastBalances;
 
+    // localStorage에서 받아온 memberIdx 전역변수로 저장
+    private int memberIdx;
+
     @Override
-    public List<BalanceDTO> getBalance(int member_index) {
-        return balanceMapper.getBalance(member_index);
+    public void setMemberIdx(int memberIdx) {
+        this.memberIdx = memberIdx;
     }
 
-    @Scheduled(fixedRate = 5000)  // 5초마다 실행
-    public void checkForBalanceUpdates() {
-        List<BalanceDTO> currentBalances = balanceMapper.getBalance(1); // 예시로 member_index=1
-        if (!currentBalances.equals(lastBalances)) {
-            System.out.println("Balance changed, sending update to Node.js server");
 
-            // Node.js 서버로 업데이트 전송
+    @Override
+    public List<BalanceDTO> getBalanceByMemberIdx(int memberIdx) {
+        return balanceMapper.getBalanceByMemberIdx(memberIdx);
+    }
+
+    @Scheduled(fixedRate = 1000)  // 5초마다 실행
+    public void checkForBalanceUpdates() {
+        List<BalanceDTO> currentBalances = balanceMapper.getBalanceByMemberIdx(memberIdx);
+        // db의 balance가 변화가 있다면 실행
+        if (!currentBalances.equals(lastBalances)) {
+
+            // Node.js 서버 url
             String socketUrl = "http://localhost:3000/update";
             // Node.js 서버로 업데이트 전송
             try {
-                //인코딩 진행
+                //인코딩 후 node.js로 데이터 보내기
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
                 headers.set(HttpHeaders.ACCEPT_CHARSET, "UTF-8");
@@ -50,13 +60,14 @@ public class BalanceServiceImpl implements BalanceService {
                 HttpEntity<List<BalanceDTO>> entity = new HttpEntity<>(currentBalances, headers);
 
                 ResponseEntity<String> response = restTemplate.postForEntity(socketUrl, entity, String.class);
-                System.out.println("Data sent to Node.js successfully: " + currentBalances);
             } catch (Exception e) {
+                // Node.js로 데이터 보내기 실패
                 System.out.println("Failed to send data to Node.js: " + e.getMessage());
             }
 
-            lastBalances = currentBalances;  // 마지막 상태 업데이트
+            lastBalances = currentBalances;
         } else {
+            // db의 balance가 변화가 없다면 실행
             System.out.println("No balance changes detected.");
         }
     }
