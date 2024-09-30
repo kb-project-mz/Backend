@@ -11,7 +11,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
         "fingertips.backend.admin.controller",
         "fingertips.backend.asset.controller",
         "fingertips.backend.challenge.controller",
-        "fingertips.backend.consumption.controller",
+        "fingertips.backend.transaction.controller",
         "fingertips.backend.member.controller",
         "fingertips.backend.member.sociallogin.controller",
         "fingertips.backend.exception",

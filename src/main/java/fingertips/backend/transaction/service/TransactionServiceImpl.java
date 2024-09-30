@@ -1,43 +1,41 @@
-package fingertips.backend.consumption.service;
+package fingertips.backend.transaction.service;
 
-import fingertips.backend.consumption.dto.AccountConsumptionDTO;
-import fingertips.backend.consumption.dto.CardConsumptionDTO;
-import fingertips.backend.consumption.dto.PeriodDTO;
-import fingertips.backend.consumption.mapper.ConsumptionMapper;
+import fingertips.backend.transaction.dto.AccountTransactionDTO;
+import fingertips.backend.transaction.dto.CardTransactionDTO;
+import fingertips.backend.transaction.dto.PeriodDTO;
+import fingertips.backend.transaction.mapper.TransactionMapper;
 import fingertips.backend.openai.service.OpenAiService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ConsumptionServiceImpl implements ConsumptionService {
+public class TransactionServiceImpl implements TransactionService {
 
-    private final ConsumptionMapper consumptionMapper;
+    private final TransactionMapper consumptionMapper;
     private final OpenAiService openAiService;
 
     @Override
-    public List<CardConsumptionDTO> getCardHistoryList(Integer memberId) {
-        return consumptionMapper.getCardHistoryList(memberId);
+    public List<CardTransactionDTO> getCardTransactionList(Integer memberId) {
+        return consumptionMapper.getCardTransactionList(memberId);
     }
 
     @Override
-    public List<CardConsumptionDTO> getCardHistoryListByPeriod(PeriodDTO period) {
-        return consumptionMapper.getCardHistoryListByPeriod(period);
+    public List<CardTransactionDTO> getCardTransactionListByPeriod(PeriodDTO period) {
+        return consumptionMapper.getCardTransactionListByPeriod(period);
     }
 
     // TODO : 프롬프트 수정
     @Override
     public String getMostAndMaximumUsed(PeriodDTO period) {
 
-        List<CardConsumptionDTO> cardHistoryListByPeriod = getCardHistoryListByPeriod(period);
-        String data = formatConsumptionListAsTable(cardHistoryListByPeriod);
+        List<CardTransactionDTO> cardTransactionListByPeriod = getCardTransactionListByPeriod(period);
+        String data = formatConsumptionListAsTable(cardTransactionListByPeriod);
 
         String prompt = data.concat("이 테이블의 content 테이블은 돈을 쓴 사용처야. " +
                 "동일한 브랜드에 속하는 상호명을 인식하여 하나의 브랜드로 통일해줘. " +
@@ -57,11 +55,11 @@ public class ConsumptionServiceImpl implements ConsumptionService {
     }
 
     @Override
-    public List<AccountConsumptionDTO> getAccountHistoryList(Integer memberId) {
-        return consumptionMapper.getAccountHistoryList(memberId);
+    public List<AccountTransactionDTO> getAccountTransactionList(Integer memberId) {
+        return consumptionMapper.getAccountTransactionList(memberId);
     }
 
-    public String formatConsumptionListAsTable(List<CardConsumptionDTO> cardConsumption) {
+    public String formatConsumptionListAsTable(List<CardTransactionDTO> cardConsumption) {
 
         StringBuilder table = new StringBuilder();
         String lineSeparator = System.lineSeparator();
@@ -70,9 +68,9 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         table.append("|  amount  |               content               |").append(lineSeparator);
         table.append("|----------|-------------------------------------|").append(lineSeparator);
 
-        for (CardConsumptionDTO history : cardConsumption) {
+        for (CardTransactionDTO transaction : cardConsumption) {
             table.append(String.format("| %-8d | %-35s |",
-                    history.getAmount(), history.getContent())).append(lineSeparator);
+                    transaction.getAmount(), transaction.getCardTransactionDescription())).append(lineSeparator);
         }
 
         table.append("|----------|-------------------------------------|").append(lineSeparator);

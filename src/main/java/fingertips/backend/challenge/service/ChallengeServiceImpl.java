@@ -6,13 +6,11 @@ import fingertips.backend.challenge.dto.CardHistoryFilterDTO;
 import fingertips.backend.challenge.dto.ChallengeDTO;
 import fingertips.backend.challenge.dto.ProgressDTO;
 import fingertips.backend.challenge.mapper.ChallengeMapper;
-import fingertips.backend.consumption.dto.CardConsumptionDTO;
 import fingertips.backend.openai.service.OpenAiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
