@@ -13,17 +13,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+
 @Log4j
 @RequiredArgsConstructor
 @Service
 public class MemberServiceImpl implements MemberService {
 
-    private final MemberMapper mapper;
+    private final MemberMapper memberMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtProcessor jwtProcessor;
 
     public String authenticate(String username, String password) {
-        MemberDTO memberDTO = mapper.getMemberByMemberId(username);
+        MemberDTO memberDTO = memberMapper.getMemberByMemberId(username);
         if (memberDTO != null && passwordEncoder.matches(password, memberDTO.getPassword())) {
             return jwtProcessor.generateAccessToken(username, memberDTO.getRole());
         }
@@ -35,12 +38,12 @@ public class MemberServiceImpl implements MemberService {
         String encodedPassword = passwordEncoder.encode(memberDTO.getPassword());
         memberDTO.setPassword(encodedPassword);
 
-        mapper.insertMember(memberDTO);
+        memberMapper.insertMember(memberDTO);
     }
 
     public MemberDTO getMemberByMemberId(String memberId) {
 
-        MemberDTO member = mapper.getMemberByMemberId(memberId);
+        MemberDTO member = memberMapper.getMemberByMemberId(memberId);
         if (member == null) {
             throw new ApplicationException(ApplicationError.MEMBER_NOT_FOUND);
         }
@@ -48,35 +51,44 @@ public class MemberServiceImpl implements MemberService {
     }
 
     public void deleteMember(String username) {
-        mapper.deleteMember(username);
-    }
-
-    public String findByNameAndEmail(MemberIdFindDTO memberIdFindDTO) {
-
-        String memberId = mapper.findByNameAndEmail(memberIdFindDTO);
-
-        if (memberId == null) {
-            throw new ApplicationException(ApplicationError.MEMBER_NOT_FOUND);
-        }
-
-        return memberId;
+        memberMapper.deleteMember(username);
     }
 
     @Override
     public void setRefreshToken(MemberDTO memberDTO) {
 
-        mapper.setRefreshToken(memberDTO);
-    }
-
-    @Override
-    public boolean isEmailTaken(String email) {
-
-        int isTaken = mapper.isEmailTaken(email);
-        return isTaken != 0;
+        memberMapper.setRefreshToken(memberDTO);
     }
 
     @Override
     public boolean existsMemberId(String memberId) {
-        return mapper.existsMemberId(memberId) != 0;
+        return memberMapper.existsMemberId(memberId) != 0;
+    }
+
+    @Override
+    public void clearRefreshToken(String memberId) {
+        memberMapper.clearRefreshToken(memberId);
+    }
+
+    public String findByNameAndEmail(String memberName, String email) {
+
+        MemberIdFindDTO memberIdFindDTO = MemberIdFindDTO.builder()
+                .memberName(memberName)
+                .email(email)
+                .build();
+
+        try {
+            String foundMemberId = memberMapper.findByNameAndEmail(memberIdFindDTO);
+
+            if (foundMemberId == null) {
+                throw new ApplicationException(ApplicationError.MEMBER_NOT_FOUND);
+            }
+            System.out.println(foundMemberId);
+            return foundMemberId;
+        } catch (Exception e) {
+
+            log.error("Error occurred while finding member by name and email: ", e);
+            throw new ApplicationException(ApplicationError.INTERNAL_SERVER_ERROR);
+        }
     }
 }

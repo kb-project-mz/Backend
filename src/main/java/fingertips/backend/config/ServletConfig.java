@@ -14,6 +14,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
         "fingertips.backend.consumption.controller",
         "fingertips.backend.member.controller",
         "fingertips.backend.home.controller",
+        "fingertips.backend.member.sociallogin.controller",
         "fingertips.backend.exception",
 })
 public class ServletConfig implements WebMvcConfigurer {
