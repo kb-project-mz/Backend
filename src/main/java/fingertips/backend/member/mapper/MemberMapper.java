@@ -15,4 +15,5 @@ public interface MemberMapper {
     int isEmailTaken(String email);
     String findByNameAndEmail(MemberIdFindDTO memberIdFindDTO);
     int existsMemberId(String memberId);
+    void clearRefreshToken(String memberId);
 }
