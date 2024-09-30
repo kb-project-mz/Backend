@@ -50,10 +50,6 @@ public class MemberServiceImpl implements MemberService {
         return member;
     }
 
-    public void deleteMember(String username) {
-        memberMapper.deleteMember(username);
-    }
-
     @Override
     public void setRefreshToken(MemberDTO memberDTO) {
 
@@ -90,5 +86,9 @@ public class MemberServiceImpl implements MemberService {
             log.error("Error occurred while finding member by name and email: ", e);
             throw new ApplicationException(ApplicationError.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public void withdrawMember(String memberId) {
+        memberMapper.withdrawMember(memberId);
     }
 }
