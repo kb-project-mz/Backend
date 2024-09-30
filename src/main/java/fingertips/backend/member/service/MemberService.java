@@ -13,6 +13,9 @@ public interface MemberService {
     void deleteMember(String username);
     void setRefreshToken(MemberDTO memberDTO);
     boolean existsMemberId(String memberId);
+
+    ProfileDTO getProfile(String memberId);
+    void updateProfile(String memberId, UpdateProfileDTO updateProfile);
     void clearRefreshToken(String memberId);
     String findByNameAndEmail(String memberName, String email);
 }

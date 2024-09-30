@@ -28,6 +28,8 @@ public enum ApplicationError {
     VERIFICATION_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "EMAIL_002", "인증 코드가 만료되었습니다."),
     EMAIL_SENDING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "EMAIL_003", "이메일 전송에 실패하였습니다."),
 
+    // 비밀번호 불일치
+    PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "MEMBER_007", "비밀번호가 일치하지 않습니다."),
     // 소셜 로그인
     INVALID_ID_TOKEN(HttpStatus.UNAUTHORIZED, "SOCIAL_001", "유효하지 않은 ID 토큰입니다."),
     TOKEN_VERIFICATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "SOCIAL_002", "토큰 검증에 실패하였습니다."),
