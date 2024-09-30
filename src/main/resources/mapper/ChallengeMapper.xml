@@ -7,16 +7,17 @@
     <select id="getChallengeList" resultType="ChallengeDTO" parameterType="Integer">
         SELECT id, category, member_id, challenge_name, challenge_type, challenge_limit, detailed_category, start_date, end_date
         FROM challenge
-        WHERE member_id = #{memberId}
+        WHERE member_id = #{memberId} AND is_public = 1 AND is_active = 1
     </select>
 
     <insert id="insertChallenge"  parameterType="ChallengeDTO">
-        INSERT INTO challenge (category, member_id, challenge_name, challenge_type, challenge_limit, detailed_category, start_date, end_date)
-        VALUES (#{category}, #{memberId}, #{challengeName}, #{challengeType}, #{challengeLimit}, #{detailedCategory}, #{startDate}, #{endDate})
+        INSERT INTO challenge (category, member_id, challenge_name, challenge_type, challenge_limit, detailed_category, start_date, end_date, is_open)
+        VALUES (#{category}, #{memberId}, #{challengeName}, #{challengeType}, #{challengeLimit}, #{detailedCategory}, #{startDate}, #{endDate}, #{isOpen})
     </insert>
 
     <delete id="deleteChallenge" parameterType="Integer">
-        DELETE FROM challenge
+        UPDATE challenge
+        SET active_status = 1
         WHERE id = #{challengeId}
     </delete>
 
@@ -24,7 +25,7 @@
         SELECT ch.content
         FROM card_history ch
             JOIN card c ON ch.card_id = c.id
-        WHERE c.member_id = #{memberId} AND ch.category = #{category}
+        WHERE c.member_id = #{memberId} AND ch.category = #{category} AND c.conn_status = 1
     </select>
 
     <select id="getChallengeStatus" resultType="ProgressDTO">
@@ -34,7 +35,13 @@
                 ON ch.consumption_date BETWEEN c.start_date AND c.end_date
                     AND ch.content LIKE CONCAT('%', c.detailed_category, '%')
                     AND ch.category = c.category
-        WHERE member_id = #{memberId}
+        WHERE member_id = #{memberId} AND is_active = 1
         GROUP BY c.id;
+    </select>
+
+    <select id="getAllChallengeList" resultType="ChallengeDTO">
+        SELECT *
+        FROM challenge
+        WHERE
     </select>
 </mapper>
