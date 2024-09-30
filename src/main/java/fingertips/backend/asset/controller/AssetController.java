@@ -26,17 +26,17 @@ public class AssetController {
         return ResponseEntity.ok(JsonResponse.success(assetList));
     }
 
-    @PostMapping("/card/{cardId}")
-    public ResponseEntity<JsonResponse<String>> updateCardStatus(@PathVariable int cardId) {
+    @PostMapping("/card/{cardIdx}")
+    public ResponseEntity<JsonResponse<String>> updateCardStatus(@PathVariable int cardIdx) {
 
-        assetService.connectCard(cardId);
+        assetService.connectCard(cardIdx);
         return ResponseEntity.ok(JsonResponse.success("Update Success"));
     }
 
-    @PostMapping("/account/{accountId}")
-    public ResponseEntity<JsonResponse<String>> updateAccountStatus(@PathVariable int accountId) {
+    @PostMapping("/account/{accountIdx}")
+    public ResponseEntity<JsonResponse<String>> updateAccountStatus(@PathVariable int accountIdx) {
 
-        assetService.connectAccount(accountId);
+        assetService.connectAccount(accountIdx);
         return ResponseEntity.ok(JsonResponse.success("Update Success"));
     }
 }
