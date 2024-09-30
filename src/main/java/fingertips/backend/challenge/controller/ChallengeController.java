@@ -59,4 +59,11 @@ public class ChallengeController {
         List<ProgressDTO> response = challengeService.getChallengeStatus(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
+
+    @GetMapping("")
+    public ResponseEntity<JsonResponse<List<ChallengeDTO>>> getAllChallengeList() {
+
+        List<ChallengeDTO> response = challengeService.getAllChallengeList();
+        return ResponseEntity.ok().body(JsonResponse.success(response));
+    }
 }

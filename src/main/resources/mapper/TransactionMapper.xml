@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="fingertips.backend.transaction.mapper.TransactionMapper">
-    <select id="getCardTransactionList" parameterType="Integer" resultType="CardTransactionDTO2">
+    <select id="getCardTransactionList" parameterType="Integer" resultType="CardTransactionDTO">
         SELECT ct.card_idx, c.bank_name, c.card_name, c.card_image, ct.card_transaction_date, ct.card_transaction_time,
                cat.category_name, ct.card_transaction_description, ct.amount
         FROM card_transaction ct
@@ -15,7 +15,7 @@
         ORDER BY card_transaction_date DESC
     </select>
 
-    <select id="getCardTransactionListByPeriod" parameterType="PeriodDTO" resultType="CardTransactionDTO2">
+    <select id="getCardTransactionListByPeriod" parameterType="PeriodDTO" resultType="CardTransactionDTO">
         SELECT cat.category_name, ct.card_transaction_description, ct.amount
         FROM card_transaction ct
             JOIN card c ON ct.card_idx = c.card_idx

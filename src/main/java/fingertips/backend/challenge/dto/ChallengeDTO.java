@@ -18,8 +18,6 @@ public class ChallengeDTO {
     private String challengeStatus;
     private String challengeStartDate;
     private String challengeEndDate;
-    private String createDate;
     private String categoryName;
     private Integer isPublic;
-    private Integer isDelete;
 }

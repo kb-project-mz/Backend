@@ -26,7 +26,7 @@
         WHERE challenge_idx = #{challengeIdx}
     </delete>
 
-    <select id="getCardHistoryContentByCategory" parameterType="CardTransactionFilterDTO" resultType="CardTransactionDTO2">
+    <select id="getCardHistoryContentByCategory" parameterType="CardTransactionFilterDTO" resultType="String">
         SELECT ct.card_transaction_description
         FROM card_transaction ct
             JOIN card c ON ct.card_idx = c.card_idx
@@ -34,23 +34,23 @@
     </select>
 
     <select id="getChallengeStatus" resultType="ProgressDTO">
-        SELECT c.id, c.challenge_limit, COALESCE(COUNT(ch.id), 0) AS cardHistoryCount
---         SELECT c.id, c.challenge_limit,  CASE
---                                              WHEN c.challenge_type = 0 THEN COALESCE(count(ch.id), 0)
---                                              WHEN c.challenge_type = 1 THEN COALESCE(sum(ch.amount), 0)
---             END AS cardHistoryCount
+--         SELECT c.id, c.challenge_limit, COALESCE(COUNT(ch.id), 0) AS cardHistoryCount
+        SELECT c.challenge_idx, c.challenge_limit, CASE
+                                            WHEN c.challenge_type = 0 THEN COALESCE(count(ct.card_transaction_idx), 0)
+                                            WHEN c.challenge_type = 1 THEN COALESCE(sum(ct.amount), 0)
+                                        END AS cardHistoryCount
         FROM challenge c
-            LEFT JOIN card_history ch
-                ON ch.consumption_date BETWEEN c.start_date AND c.end_date
-                    AND ch.content LIKE CONCAT('%', c.detailed_category, '%')
-                    AND ch.category = c.category
-        WHERE member_id = #{memberId} AND is_active = 1
-        GROUP BY c.id;
+            LEFT JOIN card_transaction ct
+                ON ct.card_transaction_date BETWEEN c.challenge_start_date AND c.challenge_end_date
+                    AND ct.card_transaction_description LIKE CONCAT('%', c.detailed_category, '%')
+                    AND ct.category_idx = c.category_idx
+        WHERE member_idx = #{memberIdx} AND is_delete = 0
+        GROUP BY c.challenge_idx;
     </select>
 
     <select id="getAllChallengeList" parameterType="String" resultType="ChallengeDTO">
-        SELECT ch.challenge_idx, ch.challengeName, ch.challengeType, ch.challengeLimit, ch.categoryIdx, ch.detailedCategory,
-               ch.challengeStatus, ca.categoryName
+        SELECT ch.challenge_idx, ch.challenge_name, ch.challenge_type, ch.challenge_limit, ch.category_idx, ch.detailed_category,
+               ch.challenge_status, ca.category_name
         FROM challenge ch
             JOIN category ca ON ca.category_idx = ch.category_idx
         WHERE is_public = 1 AND is_delete = 0
