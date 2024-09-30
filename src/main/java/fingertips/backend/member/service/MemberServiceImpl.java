@@ -54,18 +54,10 @@ public class MemberServiceImpl implements MemberService {
         memberMapper.deleteMember(username);
     }
 
-
     @Override
     public void setRefreshToken(MemberDTO memberDTO) {
 
         memberMapper.setRefreshToken(memberDTO);
-    }
-
-    @Override
-    public boolean isEmailTaken(String email) {
-
-        int isTaken = memberMapper.isEmailTaken(email);
-        return isTaken != 0;
     }
 
     @Override

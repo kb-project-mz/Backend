@@ -23,5 +23,6 @@
         <mapper resource="mapper/ConsumptionMapper.xml" />
         <mapper resource="mapper/MemberMapper.xml" />
         <mapper resource="mapper/SocialLoginMapper.xml" />
+        <mapper resource="mapper/EmailMapper.xml" />
     </mappers>
 </configuration>
