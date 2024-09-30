@@ -1,4 +1,16 @@
 package fingertips.backend.consumption.mapper;
 
-public class ConsumptionMapper {
+import fingertips.backend.consumption.dto.AccountConsumptionDTO;
+import fingertips.backend.consumption.dto.CardConsumptionDTO;
+import fingertips.backend.consumption.dto.PeriodDTO;
+import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
+
+@Mapper
+public interface ConsumptionMapper {
+
+    List<CardConsumptionDTO> getCardHistoryList(Integer memberIdx);
+    List<CardConsumptionDTO> getCardHistoryListByPeriod(PeriodDTO period);
+    List<AccountConsumptionDTO> getAccountHistoryList(Integer memberIdx);
 }
