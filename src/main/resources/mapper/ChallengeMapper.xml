@@ -5,7 +5,7 @@
 
 <mapper namespace="fingertips.backend.challenge.mapper.ChallengeMapper">
     <select id="getChallengeList" resultType="ChallengeDTO" parameterType="Integer">
-        SELECT ch.challenge_idx, ca.category_name, ch.member_idx, ch.challenge_name, ch.challenge_type,
+        SELECT ch.challenge_idx, ca.category_name, ch.member_idx, ch.challenge_name, ch.challenge_type, ch.challenge_status,
                ch.challenge_limit, ch.detailed_category, ch.challenge_start_date, ch.challenge_end_date
         FROM challenge ch
         JOIN category ca ON ca.category_idx = ch.category_idx
@@ -34,18 +34,20 @@
     </select>
 
     <select id="getChallengeStatus" resultType="ProgressDTO">
---         SELECT c.id, c.challenge_limit, COALESCE(COUNT(ch.id), 0) AS cardHistoryCount
-        SELECT c.challenge_idx, c.challenge_limit, CASE
-                                            WHEN c.challenge_type = 0 THEN COALESCE(count(ct.card_transaction_idx), 0)
-                                            WHEN c.challenge_type = 1 THEN COALESCE(sum(ct.amount), 0)
-                                        END AS cardHistoryCount
+        SELECT c.challenge_idx,
+               c.challenge_limit,
+               CASE
+                   WHEN c.challenge_type = "횟수" THEN COALESCE(COUNT(ct.card_transaction_idx), 0)
+                   WHEN c.challenge_type = "금액" THEN COALESCE(SUM(ct.amount), 0)
+                   END AS cardHistoryCount
         FROM challenge c
-            LEFT JOIN card_transaction ct
-                ON ct.card_transaction_date BETWEEN c.challenge_start_date AND c.challenge_end_date
-                    AND ct.card_transaction_description LIKE CONCAT('%', c.detailed_category, '%')
-                    AND ct.category_idx = c.category_idx
-        WHERE member_idx = #{memberIdx} AND is_delete = 0
-        GROUP BY c.challenge_idx;
+                 LEFT JOIN card_transaction ct
+                           ON ct.card_transaction_date BETWEEN c.challenge_start_date AND c.challenge_end_date
+                               AND ct.card_transaction_description LIKE CONCAT('%', c.detailed_category, '%')
+                               AND ct.category_idx = c.category_idx
+        WHERE c.member_idx = #{memberIdx}
+          AND c.is_delete = 0
+        GROUP BY c.challenge_idx, c.challenge_limit, c.challenge_type
     </select>
 
     <select id="getAllChallengeList" parameterType="String" resultType="ChallengeDTO">
