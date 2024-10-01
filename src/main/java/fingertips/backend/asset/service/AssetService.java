@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface AssetService {
 
-    List<AssetDTO> getAllAssets(Integer id);
-    void connectCard(Integer id);
-    void connectAccount(Integer id);
+    List<AssetDTO> getAllAssets(Integer memberIdx);
+    void connectCard(Integer cardIdx);
+    void connectAccount(Integer accountIdx);
 }

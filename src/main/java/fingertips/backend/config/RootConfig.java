@@ -29,7 +29,7 @@ import org.springframework.web.client.RestTemplate;
         "fingertips.backend.admin.mapper",
         "fingertips.backend.asset.mapper",
         "fingertips.backend.challenge.mapper",
-        "fingertips.backend.consumption.mapper",
+        "fingertips.backend.transaction.mapper",
         "fingertips.backend.member.mapper",
         "fingertips.backend.member.sociallogin.mapper",
         "fingertips.backend.test.mapper"

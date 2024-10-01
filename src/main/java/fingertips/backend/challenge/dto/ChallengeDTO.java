@@ -8,13 +8,16 @@ import lombok.*;
 @AllArgsConstructor
 public class ChallengeDTO {
 
-    private Integer id;
-    private Integer category;
-    private Integer memberId;
+    private Integer challengeIdx;
+    private Integer memberIdx;
     private String challengeName;
-    private Integer challengeType;
+    private String challengeType;
     private Integer challengeLimit;
+    private Integer categoryIdx;
     private String detailedCategory;
-    private String startDate;
-    private String endDate;
+    private String challengeStatus;
+    private String challengeStartDate;
+    private String challengeEndDate;
+    private String categoryName;
+    private Integer isPublic;
 }
