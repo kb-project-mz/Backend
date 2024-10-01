@@ -21,4 +21,5 @@ public interface MemberMapper {
     void updateProfile(UpdateProfileDTO updateProfile);
     String getPassword(String memberId);
     void clearRefreshToken(String memberId);
+    void withdrawMember(String memberId);
 }
