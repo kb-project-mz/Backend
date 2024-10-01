@@ -1,12 +1,14 @@
 package fingertips.backend.member.service;
 
+import fingertips.backend.member.dto.PasswordFindDTO;
 import fingertips.backend.member.mapper.EmailMapper;
+import fingertips.backend.member.mapper.MemberMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -21,14 +23,16 @@ import java.util.Properties;
 import fingertips.backend.exception.error.ApplicationError;
 import fingertips.backend.exception.error.ApplicationException;
 
+@Log4j
 @RequiredArgsConstructor
 @Service
 public class EmailServiceImpl implements EmailService {
 
     private final EmailMapper emailMapper;
     private JavaMailSenderImpl javaMailSender;
+    private final MemberMapper memberMapper;
+    private final PasswordEncoder passwordEncoder;
 
-    private static final Logger logger = LoggerFactory.getLogger(EmailServiceImpl.class);
 
     private String username;
     private String password;
@@ -120,9 +124,42 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public String generateRandomPassword() {
+
         String randomPassword = RandomStringUtils.randomAlphanumeric(8);
-        logger.info("임시 비밀번호가 생성되었습니다: {}", randomPassword);
+
         return randomPassword;
+    }
+
+    @Override
+    public PasswordFindDTO processFindPasswordAndUpdate(PasswordFindDTO passwordFindDTO) {
+
+        String newPassword = generateRandomPassword();
+
+        passwordFindDTO.setNewPassword(newPassword);
+
+        try {
+            updatePasswordByEmail(passwordFindDTO);
+        } catch (Exception e) {
+            throw new ApplicationException(ApplicationError.INTERNAL_SERVER_ERROR);
+        }
+
+        try {
+            sendNewPasswordEmail(passwordFindDTO.getEmail(), newPassword);
+        } catch (Exception e) {
+            throw new ApplicationException(ApplicationError.EMAIL_SENDING_FAILED);
+        }
+
+        return PasswordFindDTO.builder()
+                .memberName(passwordFindDTO.getMemberName())
+                .email(passwordFindDTO.getEmail())
+                .newPassword(null)
+                .build();
+    }
+
+    public void updatePasswordByEmail(PasswordFindDTO passwordFindDTO) throws Exception {
+        String encryptedPassword = passwordEncoder.encode(passwordFindDTO.getNewPassword());
+        passwordFindDTO.setNewPassword(encryptedPassword);
+        memberMapper.updatePasswordByEmail(passwordFindDTO);
     }
 
     @Override
@@ -143,9 +180,7 @@ public class EmailServiceImpl implements EmailService {
                     + "감사합니다.\n"
                     + "fingertips 팀 드림");
             javaMailSender.send(message);
-            logger.info("새 비밀번호 이메일이 성공적으로 전송되었습니다. 수신 이메일: {}", email);
         } catch (MessagingException e) {
-            logger.error("이메일 전송 중 오류 발생. 수신 이메일: {}", email, e);
             throw new ApplicationException(ApplicationError.EMAIL_SENDING_FAILED);
         }
     }

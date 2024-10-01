@@ -23,7 +23,6 @@ public class MemberServiceImpl implements MemberService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProcessor jwtProcessor;
 
-    private static final Logger logger = LoggerFactory.getLogger(MemberServiceImpl.class);
 
     public String authenticate(String username, String password) {
         MemberDTO memberDTO = memberMapper.getMemberByMemberId(username);
@@ -105,19 +104,51 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public void updatePasswordByEmail(PasswordFindDTO passwordFindDTO) {
-        logger.info("이메일: {}로 비밀번호 업데이트 요청이 접수되었습니다.", passwordFindDTO.getEmail());
 
         String encryptedPassword = passwordEncoder.encode(passwordFindDTO.getNewPassword());
-        logger.info("입력된 비밀번호가 암호화되었습니다.");
 
         passwordFindDTO.setNewPassword(encryptedPassword);
 
         try {
             memberMapper.updatePasswordByEmail(passwordFindDTO);
-            logger.info("비밀번호가 성공적으로 업데이트되었습니다. 이메일: {}", passwordFindDTO.getEmail());
         } catch (Exception e) {
-            logger.error("비밀번호 업데이트 중 오류 발생. 이메일: {}", passwordFindDTO.getEmail(), e);
-            throw e;  // 예외를 다시 던져서 처리할 수 있도록 함
+            throw e;
         }
+    }
+
+    public PasswordFindDTO processFindPassword(String memberName, String email) {
+        String memberId = findByNameAndEmail(memberName, email);
+        if (memberId == null) {
+            throw new ApplicationException(ApplicationError.MEMBER_NOT_FOUND);
+        }
+        return PasswordFindDTO.builder()
+                .memberName(memberName)
+                .email(email)
+                .memberId(memberId)
+                .newPassword(null)
+                .build();
+    }
+
+    public String processVerifyPassword(PasswordFindDTO passwordFindDTO) {
+        String memberId = findByNameAndEmail(passwordFindDTO.getMemberName(), passwordFindDTO.getEmail());
+        if (memberId == null) {
+            throw new ApplicationException(ApplicationError.MEMBER_NOT_FOUND);
+        }
+
+        MemberDTO memberDTO = getMemberByMemberId(memberId);
+        if (memberDTO == null) {
+            throw new ApplicationException(ApplicationError.MEMBER_NOT_FOUND);
+        }
+
+        if (passwordFindDTO.getNewPassword() == null) {
+            throw new ApplicationException(ApplicationError.PASSWORD_INVALID);
+        }
+
+        boolean isPasswordMatching = passwordEncoder.matches(passwordFindDTO.getNewPassword(), memberDTO.getPassword());
+        if (!isPasswordMatching) {
+            throw new ApplicationException(ApplicationError.PASSWORD_INVALID);
+        }
+
+        return memberId;
     }
 }

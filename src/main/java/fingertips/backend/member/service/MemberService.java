@@ -18,4 +18,6 @@ public interface MemberService {
     String findByNameAndEmail(String memberName, String email);
     void withdrawMember(String memberId);
     void updatePasswordByEmail(PasswordFindDTO passwordFindDTO);
+    PasswordFindDTO processFindPassword(String memberName, String email);
+    String processVerifyPassword(PasswordFindDTO passwordFindDTO);
 }
