@@ -42,7 +42,7 @@ public class BalanceServiceImpl implements BalanceService {
         return balanceMapper.getBalanceByMemberIdx(memberIdx);
     }
 
-    @Scheduled(fixedRate = 1000)  // 5초마다 실행
+    @Scheduled(fixedRate = 1000)
     public void checkForBalanceUpdates() {
         List<BalanceDTO> currentBalances = balanceMapper.getBalanceByMemberIdx(memberIdx);
         // db의 balance가 변화가 있다면 실행
