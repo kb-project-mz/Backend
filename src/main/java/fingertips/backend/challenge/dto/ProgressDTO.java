@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 public class ProgressDTO {
 
-    private Integer id;
+    private Integer challengeIdx;
     private Integer challengeLimit;
     private Integer cardHistoryCount;
 }

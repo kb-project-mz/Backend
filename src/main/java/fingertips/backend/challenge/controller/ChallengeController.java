@@ -1,18 +1,15 @@
 package fingertips.backend.challenge.controller;
 
-import fingertips.backend.challenge.dto.CardHistoryDTO;
-import fingertips.backend.challenge.dto.CardHistoryFilterDTO;
+import fingertips.backend.challenge.dto.CardTransactionFilterDTO;
 import fingertips.backend.challenge.dto.ChallengeDTO;
 import fingertips.backend.challenge.dto.ProgressDTO;
 import fingertips.backend.challenge.service.ChallengeService;
 import fingertips.backend.exception.dto.JsonResponse;
-import fingertips.backend.openai.service.OpenAiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value="/api/v1/challenge")
@@ -25,6 +22,7 @@ public class ChallengeController {
     public ResponseEntity<JsonResponse<List<ChallengeDTO>>> getChallengeList(@PathVariable Integer memberIdx) {
 
         List<ChallengeDTO> response = challengeService.getChallengeList(memberIdx);
+
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 
@@ -35,10 +33,10 @@ public class ChallengeController {
         return ResponseEntity.ok().body(JsonResponse.success("Create Challenge Success"));
     }
 
-    @PostMapping("/{challengeId}")
-    public ResponseEntity<JsonResponse<String>> deleteChallenge(@PathVariable Integer challengeId) {
+    @PostMapping("/{challengeIdx}")
+    public ResponseEntity<JsonResponse<String>> deleteChallenge(@PathVariable Integer challengeIdx) {
 
-        challengeService.deleteChallenge(challengeId);
+        challengeService.deleteChallenge(challengeIdx);
         return ResponseEntity.ok().body(JsonResponse.success("Delete Challenge Success"));
     }
 
@@ -46,9 +44,9 @@ public class ChallengeController {
     public ResponseEntity<JsonResponse<List<String>>> getDetailedCategories(@PathVariable Integer memberIdx,
                                                                             @PathVariable Integer category) {
 
-        CardHistoryFilterDTO cardHistoryFilterDTO = CardHistoryFilterDTO.builder()
-                .memberId(memberIdx)
-                .category(category)
+        CardTransactionFilterDTO cardHistoryFilterDTO = CardTransactionFilterDTO.builder()
+                .memberIdx(memberIdx)
+                .categoryIdx(category)
                 .build();
 
         List<String> response = challengeService.getDetailedCategories(cardHistoryFilterDTO);
@@ -59,6 +57,13 @@ public class ChallengeController {
     public ResponseEntity<JsonResponse<List<ProgressDTO>>> getChallengeStatus(@PathVariable Integer memberIdx) {
 
         List<ProgressDTO> response = challengeService.getChallengeStatus(memberIdx);
+        return ResponseEntity.ok().body(JsonResponse.success(response));
+    }
+
+    @GetMapping("")
+    public ResponseEntity<JsonResponse<List<ChallengeDTO>>> getAllChallengeList() {
+
+        List<ChallengeDTO> response = challengeService.getAllChallengeList();
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 }

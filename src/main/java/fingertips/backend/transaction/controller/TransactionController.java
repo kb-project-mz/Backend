@@ -1,11 +1,10 @@
-package fingertips.backend.consumption.controller;
+package fingertips.backend.transaction.controller;
 
-import fingertips.backend.consumption.dto.AccountConsumptionDTO;
-import fingertips.backend.consumption.dto.CardConsumptionDTO;
-import fingertips.backend.consumption.dto.PeriodDTO;
-import fingertips.backend.consumption.service.ConsumptionService;
+import fingertips.backend.transaction.dto.AccountTransactionDTO;
+import fingertips.backend.transaction.dto.CardTransactionDTO;
+import fingertips.backend.transaction.dto.PeriodDTO;
+import fingertips.backend.transaction.service.TransactionService;
 import fingertips.backend.exception.dto.JsonResponse;
-import fingertips.backend.openai.service.OpenAiService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,23 +17,23 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/history")
-public class ConsumptionController {
+@RequestMapping("/api/v1/transaction")
+public class TransactionController {
 
-    private final ConsumptionService consumptionService;
+    private final TransactionService transactionService;
 
     @GetMapping("/card/{memberIdx}")
-    public ResponseEntity<JsonResponse<List<CardConsumptionDTO>>> getCardHistoryListPerMonth(@PathVariable int memberIdx) {
+    public ResponseEntity<JsonResponse<List<CardTransactionDTO>>> getCardTransactionListPerMonth(@PathVariable int memberIdx) {
 
-        List<CardConsumptionDTO> cardHistoryList = consumptionService.getCardHistoryList(memberIdx);
-        return ResponseEntity.ok().body(JsonResponse.success(cardHistoryList));
+        List<CardTransactionDTO> cardTransactionList = transactionService.getCardTransactionList(memberIdx);
+        return ResponseEntity.ok().body(JsonResponse.success(cardTransactionList));
     }
 
     @GetMapping("/account/{memberIdx}")
-    public ResponseEntity<JsonResponse<List<AccountConsumptionDTO>>> getAccountHistoryListPerMonth(@PathVariable int memberIdx) {
+    public ResponseEntity<JsonResponse<List<AccountTransactionDTO>>> getAccountTransactionListPerMonth(@PathVariable int memberIdx) {
 
-        List<AccountConsumptionDTO> accountHistoryList = consumptionService.getAccountHistoryList(memberIdx);
-        return ResponseEntity.ok().body(JsonResponse.success(accountHistoryList));
+        List<AccountTransactionDTO> accountTransactionList = transactionService.getAccountTransactionList(memberIdx);
+        return ResponseEntity.ok().body(JsonResponse.success(accountTransactionList));
     }
   
     @GetMapping("/top-usage")
@@ -50,7 +49,7 @@ public class ConsumptionController {
                 .endDay(Integer.parseInt(params.get("endDay")))
                 .build();
 
-        String response = consumptionService.getMostAndMaximumUsed(period);
+        String response = transactionService.getMostAndMaximumUsed(period);
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 }
