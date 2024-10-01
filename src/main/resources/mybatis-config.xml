@@ -13,6 +13,7 @@
         <package name="fingertips.backend.challenge.dto" />
         <package name="fingertips.backend.consumption.dto" />
         <package name="fingertips.backend.member.dto" />
+        <package name="fingertips.backend.home.dto" />
         <package name="fingertips.backend.member.sociallogin.dto" />
     </typeAliases>
 
@@ -22,6 +23,7 @@
         <mapper resource="mapper/ChallengeMapper.xml" />
         <mapper resource="mapper/ConsumptionMapper.xml" />
         <mapper resource="mapper/MemberMapper.xml" />
+        <mapper resource="mapper/BalanceMapper.xml" />
         <mapper resource="mapper/SocialLoginMapper.xml" />
         <mapper resource="mapper/EmailMapper.xml" />
     </mappers>
