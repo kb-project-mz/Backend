@@ -4,6 +4,8 @@ import fingertips.backend.member.dto.MemberDTO;
 import fingertips.backend.member.dto.MemberIdFindDTO;
 import fingertips.backend.member.dto.ProfileDTO;
 import fingertips.backend.member.dto.UpdateProfileDTO;
+import fingertips.backend.member.util.UploadFile;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface MemberService {
 
@@ -18,4 +20,5 @@ public interface MemberService {
     void clearRefreshToken(String memberId);
     String findByNameAndEmail(String memberName, String email);
     void withdrawMember(String memberId);
+
 }
