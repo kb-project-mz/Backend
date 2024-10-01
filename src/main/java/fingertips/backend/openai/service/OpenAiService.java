@@ -36,7 +36,7 @@ public class OpenAiService {
         OpenAiRequest request = OpenAiRequest.builder()
                 .model(model)
                 .messages(messageList)
-                .maxTokens(100)
+                .maxTokens(200)
                 .build();
 
         OpenAiResponse response = openAiRestTemplate.postForObject(url, request, OpenAiResponse.class);

@@ -39,7 +39,24 @@ public class TransactionController {
     @GetMapping("/top-usage")
     public ResponseEntity<JsonResponse<String>> mostAndMaximumUsed(@RequestParam Map<String, String> params) {
 
-        PeriodDTO period = PeriodDTO.builder()
+        PeriodDTO period = makePeriodDTO(params);
+
+        String response = transactionService.getMostAndMaximumUsed(period);
+        return ResponseEntity.ok().body(JsonResponse.success(response));
+    }
+
+    @GetMapping("/recommendation")
+    public ResponseEntity<JsonResponse<String>> getRecommendation(@RequestParam Map<String, String> params) {
+
+        PeriodDTO period = makePeriodDTO(params);
+
+        String response = transactionService.getAiRecommendation(period);
+        return ResponseEntity.ok().body(JsonResponse.success(response));
+    }
+
+    private PeriodDTO makePeriodDTO(@RequestParam Map<String, String> params) {
+
+        return PeriodDTO.builder()
                 .memberIdx(Integer.parseInt(params.get("memberIdx")))
                 .startYear(Integer.parseInt(params.get("startYear")))
                 .startMonth(Integer.parseInt(params.get("startMonth")))
@@ -48,8 +65,5 @@ public class TransactionController {
                 .endMonth(Integer.parseInt(params.get("endMonth")))
                 .endDay(Integer.parseInt(params.get("endDay")))
                 .build();
-
-        String response = transactionService.getMostAndMaximumUsed(period);
-        return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 }
