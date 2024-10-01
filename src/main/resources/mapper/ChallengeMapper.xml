@@ -5,43 +5,56 @@
 
 <mapper namespace="fingertips.backend.challenge.mapper.ChallengeMapper">
     <select id="getChallengeList" resultType="ChallengeDTO" parameterType="Integer">
-        SELECT id, category, member_id, challenge_name, challenge_type, challenge_limit, detailed_category, start_date, end_date
-        FROM challenge
-        WHERE member_id = #{memberId} AND is_public = 1 AND is_active = 1
+        SELECT ch.challenge_idx, ca.category_name, ch.member_idx, ch.challenge_name, ch.challenge_type, ch.challenge_status,
+               ch.challenge_limit, ch.detailed_category, ch.challenge_start_date, ch.challenge_end_date
+        FROM challenge ch
+        JOIN category ca ON ca.category_idx = ch.category_idx
+        WHERE ch.member_idx = #{memberIdx} AND ch.is_public = 1 AND ch.is_delete = 0;
     </select>
 
+
     <insert id="insertChallenge"  parameterType="ChallengeDTO">
-        INSERT INTO challenge (category, member_id, challenge_name, challenge_type, challenge_limit, detailed_category, start_date, end_date, is_open)
-        VALUES (#{category}, #{memberId}, #{challengeName}, #{challengeType}, #{challengeLimit}, #{detailedCategory}, #{startDate}, #{endDate}, #{isOpen})
+        INSERT INTO challenge (member_idx, challenge_name, challenge_type, challenge_limit, category_idx,
+                               detailed_category, challenge_status, challenge_start_date, challenge_end_date, is_public)
+        VALUES (#{memberIdx}, #{challengeName}, #{challengeType}, #{challengeLimit},#{categoryIdx},
+                #{detailedCategory}, #{challengeStatus}, #{challengeStartDate}, #{challengeEndDate}, #{isPublic})
     </insert>
 
     <delete id="deleteChallenge" parameterType="Integer">
         UPDATE challenge
-        SET is_active = 1
-        WHERE id = #{challengeId}
+        SET is_delete = 1
+        WHERE challenge_idx = #{challengeIdx}
     </delete>
 
-    <select id="getCardHistoryContentByCategory" parameterType="CardHistoryFilterDTO" resultType="CardHistoryDTO">
-        SELECT ch.content
-        FROM card_history ch
-            JOIN card c ON ch.card_id = c.id
-        WHERE c.member_id = #{memberId} AND ch.category = #{category} AND c.conn_status = 1
+    <select id="getCardHistoryContentByCategory" parameterType="CardTransactionFilterDTO" resultType="String">
+        SELECT ct.card_transaction_description
+        FROM card_transaction ct
+            JOIN card c ON ct.card_idx = c.card_idx
+        WHERE c.member_idx = #{memberIdx} AND ct.category_idx = #{categoryIdx} AND c.connected_status = 1
     </select>
 
     <select id="getChallengeStatus" resultType="ProgressDTO">
-        SELECT c.id, c.challenge_limit, COALESCE(COUNT(ch.id), 0) AS cardHistoryCount
+        SELECT c.challenge_idx,
+               c.challenge_limit,
+               CASE
+                   WHEN c.challenge_type = "횟수" THEN COALESCE(COUNT(ct.card_transaction_idx), 0)
+                   WHEN c.challenge_type = "금액" THEN COALESCE(SUM(ct.amount), 0)
+                   END AS cardHistoryCount
         FROM challenge c
-            LEFT JOIN card_history ch
-                ON ch.consumption_date BETWEEN c.start_date AND c.end_date
-                    AND ch.content LIKE CONCAT('%', c.detailed_category, '%')
-                    AND ch.category = c.category
-        WHERE member_id = #{memberId} AND is_active = 1
-        GROUP BY c.id;
+                 LEFT JOIN card_transaction ct
+                           ON ct.card_transaction_date BETWEEN c.challenge_start_date AND c.challenge_end_date
+                               AND ct.card_transaction_description LIKE CONCAT('%', c.detailed_category, '%')
+                               AND ct.category_idx = c.category_idx
+        WHERE c.member_idx = #{memberIdx}
+          AND c.is_delete = 0
+        GROUP BY c.challenge_idx, c.challenge_limit, c.challenge_type
     </select>
 
-    <select id="getAllChallengeList" resultType="ChallengeDTO">
-        SELECT *
-        FROM challenge
-        WHERE
+    <select id="getAllChallengeList" parameterType="String" resultType="ChallengeDTO">
+        SELECT ch.challenge_idx, ch.challenge_name, ch.challenge_type, ch.challenge_limit, ch.category_idx, ch.detailed_category,
+               ch.challenge_status, ca.category_name
+        FROM challenge ch
+            JOIN category ca ON ca.category_idx = ch.category_idx
+        WHERE is_public = 1 AND is_delete = 0
     </select>
 </mapper>

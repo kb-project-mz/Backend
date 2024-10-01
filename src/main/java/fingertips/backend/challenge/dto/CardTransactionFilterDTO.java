@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CardHistoryFilterDTO {
+public class CardTransactionFilterDTO {
 
-    private Integer memberId;
-    private Integer category;
+    private Integer memberIdx;
+    private Integer categoryIdx;
 }
