@@ -119,7 +119,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/v1/member/**").authenticated()
                 .antMatchers("/api/v1/consumption/**").authenticated()
                 .antMatchers("/api/v1/member/**").authenticated()
-                .antMatchers("/api/v1/sbti/**").authenticated()
+                .antMatchers("/api/v1/test/**").authenticated()
 
                 .anyRequest().permitAll();
 

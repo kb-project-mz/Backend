@@ -13,15 +13,16 @@
 
     <!-- 2. 선택지 리스트 불러오기 -->
     <select id="getOptionsByQuestionId" parameterType="int" resultType="TestOptionDTO">
-        SELECT option_idx, question_idx, option_text, score, type
+        SELECT option_idx, question_idx, option_text, score, type_idx
         FROM test_option
         WHERE question_idx = #{questionIdx}
     </select>
 
     <!-- 3. 결과 테이블에 넣기 -->
     <insert id="insertTestResult" parameterType="TestResultDTO">
-        INSERT INTO test_result (member_idx, type, create_date, total_score)
-        VALUES (#{memberIdx}, #{type}, NOW(), #{totalScore})
+        INSERT INTO test_result (member_idx, type_idx, total_score)
+        VALUES (#{memberIdx}, #{typeIdx}, #{totalScore})
     </insert>
+
 
 </mapper>

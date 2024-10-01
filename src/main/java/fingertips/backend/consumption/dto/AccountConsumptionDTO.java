@@ -1,12 +1,8 @@
 package fingertips.backend.consumption.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Getter
-@Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class AccountConsumptionDTO {

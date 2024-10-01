@@ -3,14 +3,13 @@ package fingertips.backend.test.dto;
 
 import lombok.*;
 
-@Getter
-@Setter
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class TestResultDTO {
 
-    private Integer memberIdx;
-    private String type;
-    private Integer totalScore;
+    private int memberIdx;
+    private int typeIdx;
+    private int totalScore;
 }

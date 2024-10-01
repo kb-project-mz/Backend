@@ -15,7 +15,7 @@ public interface TestMapper {
     List<TestQuestionDTO> getAllQuestions();
 
     // 특정 질문에 대한 선택지 리스트를 가져오는 메서드
-    List<TestOptionDTO> getOptionsByQuestionId(@Param("questionIdx") int questionIdx);
+    List<TestOptionDTO> getOptionsByQuestionId(int questionIdx);
 
     // 테스트 결과를 저장하는 메서드
     void insertTestResult(TestResultDTO testResultDTO);
