@@ -3,6 +3,8 @@ package fingertips.backend.member.service;
 import fingertips.backend.member.mapper.EmailMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,8 @@ public class EmailServiceImpl implements EmailService {
 
     private final EmailMapper emailMapper;
     private JavaMailSenderImpl javaMailSender;
+
+    private static final Logger logger = LoggerFactory.getLogger(EmailServiceImpl.class);
 
     private String username;
     private String password;
@@ -116,7 +120,9 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public String generateRandomPassword() {
-        return RandomStringUtils.randomAlphanumeric(8);
+        String randomPassword = RandomStringUtils.randomAlphanumeric(8);
+        logger.info("임시 비밀번호가 생성되었습니다: {}", randomPassword);
+        return randomPassword;
     }
 
     @Override
@@ -133,15 +139,14 @@ public class EmailServiceImpl implements EmailService {
                     + "로그인 후 비밀번호 변경 방법:\n"
                     + "1. 로그인 후, '마이페이지'로 이동합니다.\n"
                     + "2. '비밀번호 변경' 메뉴에서 새 비밀번호를 설정합니다.\n\n"
-                    + "항상 최고의 서비스를 제공하기 위해 노력하는 fingertips이 되겠습니다.\n\n"
+                    + "항상 최고의 서비스를 제공하기 위해 노력하는 fingertips가 되겠습니다.\n\n"
                     + "감사합니다.\n"
                     + "fingertips 팀 드림");
             javaMailSender.send(message);
+            logger.info("새 비밀번호 이메일이 성공적으로 전송되었습니다. 수신 이메일: {}", email);
         } catch (MessagingException e) {
+            logger.error("이메일 전송 중 오류 발생. 수신 이메일: {}", email, e);
             throw new ApplicationException(ApplicationError.EMAIL_SENDING_FAILED);
         }
     }
-
-
-
 }

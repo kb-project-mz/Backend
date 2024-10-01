@@ -58,5 +58,17 @@
         WHERE email = #{email}
     </update>
 
+    <select id="checkEmailDuplicate" resultType="int">
+        SELECT COUNT(*)
+        FROM member
+        WHERE email = #{email}
+    </select>
+
+    <select id="existsMemberName" parameterType="String" resultType="Integer">
+        SELECT COUNT(*)
+        FROM member
+        WHERE member_name = #{memberName}
+    </select>
+
 
 </mapper>

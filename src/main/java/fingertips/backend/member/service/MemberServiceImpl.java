@@ -9,6 +9,8 @@ import fingertips.backend.member.mapper.MemberMapper;
 import fingertips.backend.security.util.JwtProcessor;
 import lombok.extern.log4j.Log4j;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,8 @@ public class MemberServiceImpl implements MemberService {
     private final MemberMapper memberMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtProcessor jwtProcessor;
+
+    private static final Logger logger = LoggerFactory.getLogger(MemberServiceImpl.class);
 
     public String authenticate(String username, String password) {
         MemberDTO memberDTO = memberMapper.getMemberByMemberId(username);
@@ -58,6 +62,16 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    public boolean existsMemberName(String memberName) {
+        return memberMapper.existsMemberName(memberName) != 0;
+    }
+
+    public boolean checkEmailDuplicate(String email) {
+        System.out.println("입력된 이메일: " + email);
+        return memberMapper.checkEmailDuplicate(email) > 0;
+    }
+
+    @Override
     public void clearRefreshToken(String memberId) {
         memberMapper.clearRefreshToken(memberId);
     }
@@ -91,10 +105,19 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public void updatePasswordByEmail(PasswordFindDTO passwordFindDTO) {
+        logger.info("이메일: {}로 비밀번호 업데이트 요청이 접수되었습니다.", passwordFindDTO.getEmail());
+
         String encryptedPassword = passwordEncoder.encode(passwordFindDTO.getNewPassword());
+        logger.info("입력된 비밀번호가 암호화되었습니다.");
 
         passwordFindDTO.setNewPassword(encryptedPassword);
 
-        memberMapper.updatePasswordByEmail(passwordFindDTO);
+        try {
+            memberMapper.updatePasswordByEmail(passwordFindDTO);
+            logger.info("비밀번호가 성공적으로 업데이트되었습니다. 이메일: {}", passwordFindDTO.getEmail());
+        } catch (Exception e) {
+            logger.error("비밀번호 업데이트 중 오류 발생. 이메일: {}", passwordFindDTO.getEmail(), e);
+            throw e;  // 예외를 다시 던져서 처리할 수 있도록 함
+        }
     }
 }

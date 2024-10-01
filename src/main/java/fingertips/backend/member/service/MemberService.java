@@ -12,6 +12,8 @@ public interface MemberService {
     MemberDTO getMemberByMemberId(String memberId);
     void setRefreshToken(MemberDTO memberDTO);
     boolean existsMemberId(String memberId);
+    boolean checkEmailDuplicate(String email);
+    boolean existsMemberName(String memberName);
     void clearRefreshToken(String memberId);
     String findByNameAndEmail(String memberName, String email);
     void withdrawMember(String memberId);

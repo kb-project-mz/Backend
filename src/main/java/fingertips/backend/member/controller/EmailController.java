@@ -6,6 +6,8 @@ import fingertips.backend.member.dto.MemberIdFindDTO;
 import fingertips.backend.member.dto.PasswordFindDTO;
 import fingertips.backend.member.service.EmailService;
 import fingertips.backend.member.service.MemberService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +25,8 @@ public class EmailController {
 
     private final EmailService emailService;
     private final MemberService memberService;
+
+    private static final Logger logger = LoggerFactory.getLogger(EmailController.class);
 
     // 이메일 인증 코드 확인
     @PostMapping("/verification")
@@ -50,14 +54,28 @@ public class EmailController {
     // 새 비밀번호 전송
     @PostMapping("/newpassword")
     public ResponseEntity<JsonResponse<PasswordFindDTO>> findPassword(@RequestBody PasswordFindDTO passwordFindDTO) {
+        logger.info("비밀번호 재설정 요청이 접수되었습니다. 이메일: {}", passwordFindDTO.getEmail());
 
         String newPassword = emailService.generateRandomPassword();
+        logger.info("생성된 새 비밀번호 (이메일: {}): {}", passwordFindDTO.getEmail(), newPassword);
 
         passwordFindDTO.setNewPassword(newPassword);
 
-        memberService.updatePasswordByEmail(passwordFindDTO);
+        try {
+            memberService.updatePasswordByEmail(passwordFindDTO);
+            logger.info("비밀번호가 성공적으로 업데이트되었습니다. 이메일: {}", passwordFindDTO.getEmail());
+        } catch (Exception e) {
+            logger.warn("비밀번호 업데이트 중 오류 발생. 이메일: {}", passwordFindDTO.getEmail());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);  // 실패 시 null 응답
+        }
 
-        emailService.sendNewPasswordEmail(passwordFindDTO.getEmail(), newPassword);
+        try {
+            emailService.sendNewPasswordEmail(passwordFindDTO.getEmail(), newPassword);
+            logger.info("새 비밀번호 이메일이 전송되었습니다. 이메일: {}", passwordFindDTO.getEmail());
+        } catch (Exception e) {
+            logger.warn("새 비밀번호 이메일 전송 중 오류 발생. 이메일: {}", passwordFindDTO.getEmail());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);  // 실패 시 null 응답
+        }
 
         PasswordFindDTO responseDTO = PasswordFindDTO.builder()
                 .memberName(passwordFindDTO.getMemberName())
@@ -65,7 +83,8 @@ public class EmailController {
                 .newPassword(null)
                 .build();
 
-        return ResponseEntity.ok(JsonResponse.success(responseDTO));
+        logger.info("비밀번호 재설정 프로세스가 완료되었습니다. 이메일: {}", passwordFindDTO.getEmail());
+        return ResponseEntity.ok(JsonResponse.success(responseDTO));  // 성공 시 응답 반환
     }
 }
 
