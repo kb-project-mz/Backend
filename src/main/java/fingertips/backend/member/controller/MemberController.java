@@ -43,11 +43,8 @@ import java.util.Map;
 public class MemberController {
 
     private final MemberService memberService;
+    private final UploadFileService uploadFileService;
     private final JwtProcessor jwtProcessor;
-
-    private final PasswordEncoder passwordEncoder;
-
-    private static final Logger logger = LoggerFactory.getLogger(MemberController.class);
 
 
     @PostMapping("/join")
