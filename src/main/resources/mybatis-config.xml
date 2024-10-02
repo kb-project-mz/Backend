@@ -26,5 +26,6 @@
         <mapper resource="mapper/BalanceMapper.xml" />
         <mapper resource="mapper/SocialLoginMapper.xml" />
         <mapper resource="mapper/EmailMapper.xml" />
+
     </mappers>
 </configuration>
