@@ -5,12 +5,13 @@ import fingertips.backend.exception.error.ApplicationException;
 import fingertips.backend.member.dto.MemberDTO;
 import fingertips.backend.member.dto.MemberIdFindDTO;
 import fingertips.backend.member.dto.PasswordFindDTO;
+import fingertips.backend.member.dto.ProfileDTO;
+import fingertips.backend.member.dto.UpdateProfileDTO;
 import fingertips.backend.member.mapper.MemberMapper;
 import fingertips.backend.security.util.JwtProcessor;
 import lombok.extern.log4j.Log4j;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -97,6 +98,42 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
+    @Override
+    public ProfileDTO getProfile(String memberId) {
+        return memberMapper.getProfile(memberId);
+    }
+
+    @Override
+    public void updateProfile(String memberId, UpdateProfileDTO updateProfile) {
+        ProfileDTO existingProfile = memberMapper.getProfile(memberId);
+        String existingPassword = memberMapper.getPassword(memberId);
+
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        validateCurrentPassword(updateProfile.getPassword(), existingPassword, passwordEncoder);
+
+        String updatedPassword = (updateProfile.getNewPassword() != null && !updateProfile.getNewPassword().isEmpty())
+                ? passwordEncoder.encode(updateProfile.getNewPassword())
+                : existingPassword;
+
+        UpdateProfileDTO updatedProfile = UpdateProfileDTO.builder()
+                .memberId(memberId)
+                .password(updatedPassword)
+                .email(updateProfile.getEmail() != null ? updateProfile.getEmail() : existingProfile.getEmail())
+                .imageUrl(updateProfile.getImageUrl() != null ? updateProfile.getImageUrl() : existingProfile.getImageUrl())
+                .build();
+
+        memberMapper.updateProfile(updatedProfile);
+    }
+
+    private void validateCurrentPassword (String inputPassword,
+                                          String existingPassword,
+                                          BCryptPasswordEncoder passwordEncoder) {
+        if (inputPassword == null || !passwordEncoder.matches(inputPassword, existingPassword)) {
+            throw new ApplicationException(ApplicationError.PASSWORD_MISMATCH);
+        }
+    }
+    
+    @Override
     public void withdrawMember(String memberId) {
 
         memberMapper.withdrawMember(memberId);

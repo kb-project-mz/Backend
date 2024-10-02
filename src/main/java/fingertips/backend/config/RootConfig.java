@@ -20,6 +20,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.client.RestTemplate;
 
@@ -29,13 +31,15 @@ import org.springframework.web.client.RestTemplate;
         "fingertips.backend.admin.mapper",
         "fingertips.backend.asset.mapper",
         "fingertips.backend.challenge.mapper",
-        "fingertips.backend.consumption.mapper",
+        "fingertips.backend.transaction.mapper",
         "fingertips.backend.member.mapper",
+        "fingertips.backend.home.mapper",
         "fingertips.backend.member.sociallogin.mapper"
 })
 @ComponentScan(basePackages = {"fingertips.backend"})
 @Slf4j
 @EnableTransactionManagement
+@EnableScheduling
 public class RootConfig {
 
     @Value("${jdbc.driver}") String driver;
@@ -77,5 +81,13 @@ public class RootConfig {
         DataSourceTransactionManager manager = new DataSourceTransactionManager(dataSource());
 
         return manager;
+    }
+
+    // 실시간 계좌 잔액을 위한 스케줄링
+    @Bean
+    public ThreadPoolTaskScheduler taskScheduler() {
+        ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
+        taskScheduler.setPoolSize(10);  // 풀 크기 설정
+        return taskScheduler;
     }
 }

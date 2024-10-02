@@ -1,4 +1,4 @@
-package fingertips.backend.consumption.dto;
+package fingertips.backend.transaction.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

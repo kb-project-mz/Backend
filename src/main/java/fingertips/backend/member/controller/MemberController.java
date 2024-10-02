@@ -1,12 +1,14 @@
 package fingertips.backend.member.controller;
 
-
 import fingertips.backend.exception.dto.JsonResponse;
 import fingertips.backend.member.dto.MemberDTO;
 import fingertips.backend.member.dto.MemberIdFindDTO;
 import fingertips.backend.member.dto.PasswordFindDTO;
 import fingertips.backend.member.service.EmailService;
 import fingertips.backend.security.account.dto.AuthDTO;
+import fingertips.backend.exception.dto.JsonResponse;
+import fingertips.backend.member.dto.ProfileDTO;
+import fingertips.backend.member.dto.UpdateProfileDTO;
 import fingertips.backend.member.service.MemberService;
 import fingertips.backend.security.util.JwtProcessor;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -164,4 +168,24 @@ public class MemberController {
         }
     }
     */
+    @GetMapping("/info")
+    public ResponseEntity<JsonResponse<ProfileDTO>> getMemberInfo() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String memberId = authentication.getName();
+        ProfileDTO profile = memberService.getProfile(memberId);
+
+        log.info("profilllllllllllle" + profile.getJoinDate());
+        return ResponseEntity.ok(JsonResponse.success(profile));
+    }
+
+    @PostMapping("/info")
+    public ResponseEntity<JsonResponse<ProfileDTO>> updateMemberInfo(@RequestBody UpdateProfileDTO updateProfile) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String memberId = authentication.getName();
+        memberService.updateProfile(memberId, updateProfile);
+
+        ProfileDTO updatedProfile = memberService.getProfile(memberId);
+        return ResponseEntity.ok(JsonResponse.success(updatedProfile));
+    }
+
 }
