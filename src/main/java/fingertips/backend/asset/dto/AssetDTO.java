@@ -15,4 +15,5 @@ public class AssetDTO {
     private String image;
     private Integer totalAmount;
     private Integer connectedStatus;
+    private Integer balance;
 }

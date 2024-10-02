@@ -7,6 +7,7 @@ import fingertips.backend.member.dto.ProfileDTO;
 import fingertips.backend.member.dto.UpdateProfileDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.web.multipart.MultipartFile;
 
 @Mapper
 public interface MemberMapper {
@@ -22,7 +23,9 @@ public interface MemberMapper {
     String getPassword(String memberId);
     void clearRefreshToken(String memberId);
     void withdrawMember(String memberId);
+
     void updatePasswordByEmail(PasswordFindDTO passwordFindDTO);
     int checkEmailDuplicate(String email);
     int existsMemberName(String memberName);
+
 }

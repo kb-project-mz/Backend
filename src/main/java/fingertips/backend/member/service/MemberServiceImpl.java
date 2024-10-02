@@ -8,12 +8,14 @@ import fingertips.backend.member.dto.PasswordFindDTO;
 import fingertips.backend.member.dto.ProfileDTO;
 import fingertips.backend.member.dto.UpdateProfileDTO;
 import fingertips.backend.member.mapper.MemberMapper;
+import fingertips.backend.member.util.UploadFile;
 import fingertips.backend.security.util.JwtProcessor;
 import lombok.extern.log4j.Log4j;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Log4j
 @RequiredArgsConstructor
@@ -23,6 +25,7 @@ public class MemberServiceImpl implements MemberService {
     private final MemberMapper memberMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtProcessor jwtProcessor;
+    private final UploadFileService uploadFileService;
 
 
     public String authenticate(String username, String password) {
@@ -108,6 +111,8 @@ public class MemberServiceImpl implements MemberService {
         ProfileDTO existingProfile = memberMapper.getProfile(memberId);
         String existingPassword = memberMapper.getPassword(memberId);
 
+        log.info("1111111111111111111111111111" + existingProfile);
+        log.info("22222222222222222222222222" + existingPassword);
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         validateCurrentPassword(updateProfile.getPassword(), existingPassword, passwordEncoder);
 
@@ -115,12 +120,14 @@ public class MemberServiceImpl implements MemberService {
                 ? passwordEncoder.encode(updateProfile.getNewPassword())
                 : existingPassword;
 
+
         UpdateProfileDTO updatedProfile = UpdateProfileDTO.builder()
                 .memberId(memberId)
                 .password(updatedPassword)
                 .email(updateProfile.getEmail() != null ? updateProfile.getEmail() : existingProfile.getEmail())
-                .imageUrl(updateProfile.getImageUrl() != null ? updateProfile.getImageUrl() : existingProfile.getImageUrl())
+                .imageUrl(updateProfile.getImageUrl() != null ? updateProfile.getImageUrl() : existingProfile.getImageUrl()) //이미지 업데이트
                 .build();
+
 
         memberMapper.updateProfile(updatedProfile);
     }
