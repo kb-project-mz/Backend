@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -43,11 +44,8 @@ import java.util.Map;
 public class MemberController {
 
     private final MemberService memberService;
+    private final UploadFileService uploadFileService;
     private final JwtProcessor jwtProcessor;
-
-    private final PasswordEncoder passwordEncoder;
-
-    private static final Logger logger = LoggerFactory.getLogger(MemberController.class);
 
 
     @PostMapping("/join")
@@ -197,7 +195,7 @@ public class MemberController {
 
     @PostMapping("/info")
     public ResponseEntity<JsonResponse<ProfileDTO>> updateMemberInfo(
-            @RequestParam("profileImage") MultipartFile profileImage,
+            @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
             @RequestParam String password,
             @RequestParam String newPassword,
             @RequestParam String email) {
@@ -206,11 +204,10 @@ public class MemberController {
         String memberId = authentication.getName();
 
         String imageUrl = null;
-        if(profileImage != null && !profileImage.isEmpty()) {
-            UploadFile uploadFile = uploadFileService.storeFile(profileImage);
-            imageUrl = uploadFile.getStoreFileName();
-        }
+        UploadFile uploadFile = uploadFileService.storeFile(profileImage);
+        imageUrl = uploadFile.getStoreFileName();
 
+        log.info("0000000000000000000" + imageUrl);
         UpdateProfileDTO updateProfile = UpdateProfileDTO.builder()
                 .memberId(memberId)
                 .password(password)
@@ -221,7 +218,6 @@ public class MemberController {
 
         memberService.updateProfile(memberId, updateProfile);
 
-        log.info("111111111================================");
         ProfileDTO updatedProfile = memberService.getProfile(memberId);
         return ResponseEntity.ok(JsonResponse.success(updatedProfile));
     }
