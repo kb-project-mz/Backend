@@ -111,15 +111,13 @@ public class MemberServiceImpl implements MemberService {
         ProfileDTO existingProfile = memberMapper.getProfile(memberId);
         String existingPassword = memberMapper.getPassword(memberId);
 
-        log.info("1111111111111111111111111111" + existingProfile);
-        log.info("22222222222222222222222222" + existingPassword);
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         validateCurrentPassword(updateProfile.getPassword(), existingPassword, passwordEncoder);
+
 
         String updatedPassword = (updateProfile.getNewPassword() != null && !updateProfile.getNewPassword().isEmpty())
                 ? passwordEncoder.encode(updateProfile.getNewPassword())
                 : existingPassword;
-
 
         UpdateProfileDTO updatedProfile = UpdateProfileDTO.builder()
                 .memberId(memberId)
