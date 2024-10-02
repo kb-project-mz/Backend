@@ -27,6 +27,7 @@ public class UploadFileServiceImpl implements UploadFileService {
         if(file.isEmpty()) {
             throw new ApplicationException(ApplicationError.FILE_EMPTY);
         }
+
         String storeFileName = createStoreFileName(file.getOriginalFilename());
         try {
             file.transferTo(new File(getFullPath(storeFileName)));
@@ -50,6 +51,9 @@ public class UploadFileServiceImpl implements UploadFileService {
 
     @Override
     public String getFullPath(String fileName) {
+        log.info("%%%%%%%%%%%%%%%%%%%%%%%%%%" +  fileDir);
+        log.info("%%%%%%%%%%%%%%%%%%%%%%%%%%" +  fileName);
+        log.info("###########################" + fileDir+fileName);
         return fileDir + fileName;
     }
 
