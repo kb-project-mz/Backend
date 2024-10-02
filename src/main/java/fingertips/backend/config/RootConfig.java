@@ -32,6 +32,7 @@ import org.springframework.web.client.RestTemplate;
         "fingertips.backend.home.mapper",
         "fingertips.backend.transaction.mapper",
         "fingertips.backend.member.mapper",
+        "fingertips.backend.home.mapper",
         "fingertips.backend.member.sociallogin.mapper",
         "fingertips.backend.test.mapper"
 })
