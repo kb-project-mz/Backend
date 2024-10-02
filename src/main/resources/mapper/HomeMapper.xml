@@ -12,14 +12,26 @@
     </select>
 
     <select id="getChallengeByMemberIdx" resultType="HomeChallengeDTO">
-        SELECT member_idx, challenge_name, challenge_type, challenge_start_date, challenge_end_date
-        FROM challenge
-        WHERE challenge_end_date >= CURDATE()
-          AND member_idx = #{memberIdx}
+        SELECT c.challenge_idx,
+               c.challenge_limit,
+               c.challenge_name,
+               CASE
+                   WHEN c.challenge_type = "횟수" THEN COALESCE(COUNT(ct.card_transaction_idx), 0)
+                   WHEN c.challenge_type = "금액" THEN COALESCE(SUM(ct.amount), 0)
+                   END AS cardHistoryCount
+        FROM challenge c
+                 LEFT JOIN card_transaction ct
+                           ON ct.card_transaction_date BETWEEN c.challenge_start_date AND c.challenge_end_date
+                               AND ct.card_transaction_description LIKE CONCAT('%', c.detailed_category, '%')
+                               AND ct.category_idx = c.category_idx
+        WHERE c.member_idx = #{memberIdx}
+          AND c.is_delete = 0
           AND is_public = 1
+          AND challenge_end_date >= CURDATE()
           AND challenge_status = '진행'
+        GROUP BY c.challenge_idx, c.challenge_limit, c.challenge_type
         ORDER BY challenge_end_date ASC
-            LIMIT 3
+            LIMIT 3;
     </select>
 
 </mapper>

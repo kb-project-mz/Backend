@@ -14,5 +14,5 @@ public interface HomeService {
     void setMemberIdx(int memberIdx);
 
     // 챌린지 목록 가져오기
-    List<HomeChallengeDTO> getChallengeByMemberIdx(int memberIdx);
+    List<HomeChallengeDTO> getChallengeByMemberIdx(Integer memberIdx);
 }

@@ -11,5 +11,5 @@ public interface HomeMapper {
 
     List<BalanceDTO> getBalanceByMemberIdx(int memberIdx);
 
-    List<HomeChallengeDTO> getChallengeByMemberIdx(int memberIdx);
+    List<HomeChallengeDTO> getChallengeByMemberIdx(Integer memberIdx);
 }
