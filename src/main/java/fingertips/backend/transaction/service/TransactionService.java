@@ -12,4 +12,5 @@ public interface TransactionService {
     List<CardTransactionDTO> getCardTransactionListByPeriod(PeriodDTO period);
     String getMostAndMaximumUsed(PeriodDTO period);
     List<AccountTransactionDTO> getAccountTransactionList(Integer memberId);
+    String getAiRecommendation(PeriodDTO periodDTO);
 }
