@@ -1,7 +1,8 @@
 package fingertips.backend.home.service;
 
 import fingertips.backend.home.dto.BalanceDTO;
-import fingertips.backend.home.mapper.BalanceMapper;
+import fingertips.backend.home.dto.HomeChallengeDTO;
+import fingertips.backend.home.mapper.HomeMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,15 +14,14 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class BalanceServiceImpl implements BalanceService {
+public class HomeServiceImpl implements HomeService {
 
-    private final BalanceMapper balanceMapper;
+    private final HomeMapper homeMapper;
 
     @Autowired
     private final RestTemplate restTemplate;
@@ -39,12 +39,12 @@ public class BalanceServiceImpl implements BalanceService {
 
     @Override
     public List<BalanceDTO> getBalanceByMemberIdx(int memberIdx) {
-        return balanceMapper.getBalanceByMemberIdx(memberIdx);
+        return homeMapper.getBalanceByMemberIdx(memberIdx);
     }
 
     @Scheduled(fixedRate = 1000)
     public void checkForBalanceUpdates() {
-        List<BalanceDTO> currentBalances = balanceMapper.getBalanceByMemberIdx(memberIdx);
+        List<BalanceDTO> currentBalances = homeMapper.getBalanceByMemberIdx(memberIdx);
         // db의 balance가 변화가 있다면 실행
         if (!currentBalances.equals(lastBalances)) {
 
@@ -71,4 +71,12 @@ public class BalanceServiceImpl implements BalanceService {
             System.out.println("No balance changes detected.");
         }
     }
+
+    // 챌린지 받아오기
+    @Override
+    public List<HomeChallengeDTO> getChallengeByMemberIdx(int memberIdx) {
+        return homeMapper.getChallengeByMemberIdx(memberIdx);
+    }
+
+
 }
