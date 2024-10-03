@@ -38,13 +38,22 @@
     </select>
 
     <select id="getCategoryTransactionCount" resultType="CategoryTransactionCountDTO">
-        SELECT cat.category_name, COUNT(ct.card_transaction_idx) AS transaction_count
-        FROM card_transaction ct
-                 JOIN category cat ON ct.category_idx = cat.category_idx
-                 JOIN card c ON ct.card_idx = c.card_idx
-        WHERE c.member_idx = #{memberIdx}
-        GROUP BY cat.category_name
+        SELECT
+            cat.category_name,
+            COUNT(ct.card_transaction_idx) AS transaction_count,
+            DATE(ct.card_transaction_date) AS transaction_date  -- 시간을 제외한 날짜
+        FROM
+            card_transaction ct
+            JOIN
+            category cat ON ct.category_idx = cat.category_idx
+            JOIN
+            card c ON ct.card_idx = c.card_idx
+        WHERE
+            c.member_idx = #{memberIdx}
+        GROUP BY
+            cat.category_name, DATE(ct.card_transaction_date)  -- 그룹화에 날짜 추가
     </select>
+
 
 
 
