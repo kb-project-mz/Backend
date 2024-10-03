@@ -81,9 +81,13 @@ public class EmailServiceImpl implements EmailService {
             MimeMessage message = javaMailSender.createMimeMessage();
             message.setFrom(new InternetAddress(username));
             message.setRecipients(MimeMessage.RecipientType.TO, InternetAddress.parse(email));
-            message.setSubject("이메일 인증 코드");
-            message.setText("인증 코드는 " + verificationCode + "입니다.");
-
+            message.setSubject("[fingertips] 이메일 인증 코드");
+            message.setText("안녕하세요,\n\n"
+                    + "fingertips에 가입해 주셔서 감사합니다.\n"
+                    + "아래 인증 코드를 입력하여 이메일 인증을 완료해 주세요:\n\n"
+                    + "인증 코드: " + verificationCode + "\n\n"
+                    + "감사합니다.\n"
+                    + "fingertips 팀 드림");
             javaMailSender.send(message);
             verificationCodes.put(email, verificationCode);
         } catch (MessagingException e) {
@@ -168,7 +172,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessage message = javaMailSender.createMimeMessage();
             message.setFrom(new InternetAddress(username));
             message.setRecipients(MimeMessage.RecipientType.TO, InternetAddress.parse(email));
-            message.setSubject("비밀번호 재설정");
+            message.setSubject("[fingertips] 임시 비밀번호");
             message.setText("안녕하세요, fingertips입니다.\n\n"
                     + "회원님의 임시 비밀번호가 발급되었습니다. 아래 비밀번호를 사용하여 로그인해 주시고, "
                     + "보안을 위해 로그인 후 반드시 비밀번호를 변경해 주세요.\n\n"

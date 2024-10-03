@@ -10,6 +10,12 @@ import fingertips.backend.exception.dto.JsonResponse;
 import fingertips.backend.member.dto.ProfileDTO;
 import fingertips.backend.member.dto.UpdateProfileDTO;
 import fingertips.backend.member.service.MemberService;
+
+import fingertips.backend.member.service.UploadFileService;
+import fingertips.backend.member.util.UploadFile;
+import fingertips.backend.security.account.dto.AuthDTO;
+
+
 import fingertips.backend.security.util.JwtProcessor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
@@ -21,8 +27,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -36,10 +44,8 @@ import java.util.Map;
 public class MemberController {
 
     private final MemberService memberService;
+    private final UploadFileService uploadFileService;
     private final JwtProcessor jwtProcessor;
-    private final PasswordEncoder passwordEncoder;
-
-    private static final Logger logger = LoggerFactory.getLogger(MemberController.class);
 
 
     @PostMapping("/join")
@@ -170,18 +176,46 @@ public class MemberController {
     */
     @GetMapping("/info")
     public ResponseEntity<JsonResponse<ProfileDTO>> getMemberInfo() {
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String memberId = authentication.getName();
         ProfileDTO profile = memberService.getProfile(memberId);
-
-        log.info("profilllllllllllle" + profile.getJoinDate());
         return ResponseEntity.ok(JsonResponse.success(profile));
     }
 
+//    @PostMapping("/info")
+//    public ResponseEntity<JsonResponse<ProfileDTO>> updateMemberInfo(@RequestBody UpdateProfileDTO updateProfile) {
+//
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        String memberId = authentication.getName();
+//        memberService.updateProfile(memberId, updateProfile);
+//        ProfileDTO updatedProfile = memberService.getProfile(memberId);
+//        return ResponseEntity.ok(JsonResponse.success(updatedProfile));
+//    }
+
     @PostMapping("/info")
-    public ResponseEntity<JsonResponse<ProfileDTO>> updateMemberInfo(@RequestBody UpdateProfileDTO updateProfile) {
+    public ResponseEntity<JsonResponse<ProfileDTO>> updateMemberInfo(
+            @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
+            @RequestParam String password,
+            @RequestParam String newPassword,
+            @RequestParam String email) {
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String memberId = authentication.getName();
+
+        String imageUrl = null;
+        UploadFile uploadFile = uploadFileService.storeFile(profileImage);
+        imageUrl = uploadFile.getStoreFileName();
+
+        log.info("0000000000000000000" + imageUrl);
+        UpdateProfileDTO updateProfile = UpdateProfileDTO.builder()
+                .memberId(memberId)
+                .password(password)
+                .newPassword(newPassword)
+                .imageUrl(imageUrl)
+                .email(email)
+                .build();
+
         memberService.updateProfile(memberId, updateProfile);
 
         ProfileDTO updatedProfile = memberService.getProfile(memberId);

@@ -11,7 +11,8 @@
             c.bank_name AS financeName,
             c.card_name AS prdtName,
             c.card_image AS image,
-            c.connected_status
+            c.connected_status,
+            "0" as balance
         FROM card c
         WHERE c.member_idx = #{memberIdx}
         GROUP BY c.card_idx, financeName, c.card_name, c.card_image
@@ -22,7 +23,8 @@
             a.bank_name AS financeName,
             a.account_name AS prdtName,
             a.account_image AS image,
-            a.connected_status
+            a.connected_status,
+            a.balance
         FROM account a
         WHERE a.member_idx = #{memberIdx}
         GROUP BY a.account_idx, financeName, a.account_name, a.account_image;
