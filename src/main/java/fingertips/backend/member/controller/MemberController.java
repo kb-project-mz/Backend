@@ -2,6 +2,7 @@ package fingertips.backend.member.controller;
 
 import fingertips.backend.exception.dto.JsonResponse;
 import fingertips.backend.member.dto.*;
+import fingertips.backend.member.service.EmailService;
 import fingertips.backend.security.account.dto.AuthDTO;
 import fingertips.backend.member.service.MemberService;
 
@@ -165,44 +166,12 @@ public class MemberController {
     */
     @GetMapping("/info")
     public ResponseEntity<JsonResponse<ProfileDTO>> getMemberInfo() {
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String memberId = authentication.getName();
         ProfileDTO profile = memberService.getProfile(memberId);
         return ResponseEntity.ok(JsonResponse.success(profile));
     }
 
-    @PostMapping("/info")
-    public ResponseEntity<JsonResponse<ProfileDTO>> updateMemberInfo(
-            @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
-            @RequestParam String password,
-            @RequestParam String newPassword,
-            @RequestParam String email) {
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String memberId = authentication.getName();
-
-
-        String imageUrl = null;
-        UploadFile uploadFile = uploadFileService.storeFile(profileImage);
-
-        imageUrl = uploadFile.getStoreFileName();
-
-        UpdateProfileDTO updateProfile = UpdateProfileDTO.builder()
-                .memberId(memberId)
-                .password(password)
-                .newPassword(newPassword)
-                .imageUrl(imageUrl)
-                .email(email)
-                .build();
-
-        memberService.updateProfile(memberId, updateProfile);
-
-        ProfileDTO updatedProfile = memberService.getProfile(memberId);
-        return ResponseEntity.ok(JsonResponse.success(updatedProfile));
-    }
-
-    // OK 돌아감!!!!
     @PostMapping("/verification/password")
     public ResponseEntity<JsonResponse<String>> verifyPassword(@RequestBody VerifyPasswordDTO verifyPassword) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -211,8 +180,7 @@ public class MemberController {
         return ResponseEntity.ok(JsonResponse.success("password verify success"));
     }
 
-    // OK 돌아감!!
-    @PatchMapping ("/password")
+    @PostMapping("/verification/newPassword")
     public ResponseEntity<JsonResponse<String>> changePassword(@RequestBody NewPasswordDTO newPassword) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String memberId = authentication.getName();
@@ -220,5 +188,16 @@ public class MemberController {
         return ResponseEntity.ok(JsonResponse.success("password change success"));
     }
 
+    // 이미지 업로드 여기까ㅓ지 완료
+    @PostMapping("/image")
+    public ResponseEntity<JsonResponse<UploadFileDTO>> updateImage(
+            @RequestParam(value = "profileImage", required = false) MultipartFile profileImage) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String memberId = authentication.getName();
+        UploadFile uploadFile = uploadFileService.storeFile(profileImage);
+        String imageUrl = uploadFile.getStoreFileName();
+        UploadFileDTO uploadImage = memberService.uploadImage(memberId, imageUrl);
+        return ResponseEntity.ok(JsonResponse.success(uploadImage));
+    }
 
 }

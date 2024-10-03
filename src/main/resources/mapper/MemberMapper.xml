@@ -80,6 +80,12 @@
         WHERE member_id = #{memberId}
     </update>
 
+    <update id="saveNewImage" parameterType="UploadFileDTO">
+        UPDATE member
+        SET image_url = #{storeFileName}
+        WHERE member_id = #{memberId}
+    </update>
+
     <update id="clearRefreshToken">
         UPDATE member
         SET refresh_token = NULL

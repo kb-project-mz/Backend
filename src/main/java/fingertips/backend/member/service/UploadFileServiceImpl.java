@@ -3,6 +3,7 @@ package fingertips.backend.member.service;
 
 import fingertips.backend.exception.error.ApplicationError;
 import fingertips.backend.exception.error.ApplicationException;
+import fingertips.backend.member.dto.UploadFileDTO;
 import fingertips.backend.member.util.UploadFile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
@@ -27,7 +28,6 @@ public class UploadFileServiceImpl implements UploadFileService {
         if(file.isEmpty()) {
             throw new ApplicationException(ApplicationError.FILE_EMPTY);
         }
-
         String storeFileName = createStoreFileName(file.getOriginalFilename());
         try {
             file.transferTo(new File(getFullPath(storeFileName)));

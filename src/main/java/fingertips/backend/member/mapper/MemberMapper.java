@@ -25,4 +25,5 @@ public interface MemberMapper {
     int existsMemberName(String memberName);
 
     void saveNewPassword(NewPasswordDTO newPassword);
+    void saveNewImage(UploadFileDTO uploadFile);
 }

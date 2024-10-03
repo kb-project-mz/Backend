@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Log4j
 @RequiredArgsConstructor
@@ -100,30 +101,6 @@ public class MemberServiceImpl implements MemberService {
         return memberMapper.getProfile(memberId);
     }
 
-    @Override
-    public void updateProfile(String memberId, UpdateProfileDTO updateProfile) {
-        ProfileDTO existingProfile = memberMapper.getProfile(memberId);
-        String existingPassword = memberMapper.getPassword(memberId);
-
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        validateCurrentPassword(updateProfile.getPassword(), existingPassword, passwordEncoder);
-
-
-        String updatedPassword = (updateProfile.getNewPassword() != null && !updateProfile.getNewPassword().isEmpty())
-                ? passwordEncoder.encode(updateProfile.getNewPassword())
-                : existingPassword;
-
-        UpdateProfileDTO updatedProfile = UpdateProfileDTO.builder()
-                .memberId(memberId)
-                .password(updatedPassword)
-                .email(updateProfile.getEmail() != null ? updateProfile.getEmail() : existingProfile.getEmail())
-                .imageUrl(updateProfile.getImageUrl() != null ? updateProfile.getImageUrl() : existingProfile.getImageUrl()) //이미지 업데이트
-                .build();
-
-
-        memberMapper.updateProfile(updatedProfile);
-    }
-
     private void validateCurrentPassword (String inputPassword,
                                           String existingPassword,
                                           BCryptPasswordEncoder passwordEncoder) {
@@ -190,7 +167,6 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public void verifyPassword(String memberId, VerifyPasswordDTO verifyPassword) {
-        // 입력한 패스워드랑 현재 memberId의 패스워드랑 같으면 return 1, 아니면 0
         String existingPassword = memberMapper.getPassword(memberId);
         if(!passwordEncoder.matches(verifyPassword.getInputPassword(), existingPassword)){
             throw new ApplicationException(ApplicationError.PASSWORD_MISMATCH);
@@ -201,17 +177,14 @@ public class MemberServiceImpl implements MemberService {
     public void changePassword(String memberId, NewPasswordDTO newPassword) {
         String existingPassword = memberMapper.getPassword(memberId);
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
         if (newPassword.getNewPassword() == null || newPassword.getNewPassword().isEmpty()) {
             throw new ApplicationException(ApplicationError.INVALID_NEW_PASSWORD);
         }
-
         if(passwordEncoder.matches(newPassword.getNewPassword(), existingPassword)){
             throw new ApplicationException(ApplicationError.PASSWORD_CORRESPOND);
         }
         else {
             String updatedPassword = passwordEncoder.encode(newPassword.getNewPassword());
-
             NewPasswordDTO updated = NewPasswordDTO.builder()
                     .memberId(memberId)
                     .newPassword(updatedPassword)
@@ -219,4 +192,17 @@ public class MemberServiceImpl implements MemberService {
             memberMapper.saveNewPassword(updated);
         }
     }
+
+    @Override
+    public UploadFileDTO uploadImage(String memberId, String imageUrl) {
+
+        UploadFileDTO uploadFile = UploadFileDTO.builder()
+                .memberId(memberId)
+                .storeFileName(imageUrl)
+                .build();
+
+        memberMapper.saveNewImage(uploadFile);
+        return uploadFile;
+    }
+
 }
