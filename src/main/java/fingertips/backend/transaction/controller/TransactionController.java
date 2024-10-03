@@ -3,6 +3,7 @@ package fingertips.backend.transaction.controller;
 import fingertips.backend.transaction.dto.AccountTransactionDTO;
 import fingertips.backend.transaction.dto.CardTransactionDTO;
 import fingertips.backend.transaction.dto.PeriodDTO;
+import fingertips.backend.transaction.dto.CategoryTransactionCountDTO;
 import fingertips.backend.transaction.service.TransactionService;
 import fingertips.backend.exception.dto.JsonResponse;
 
@@ -52,6 +53,13 @@ public class TransactionController {
 
         String response = transactionService.getAiRecommendation(period);
         return ResponseEntity.ok().body(JsonResponse.success(response));
+    }
+
+    // 새로운 카테고리별 거래 건수를 반환하는 API
+    @GetMapping("/category-count/{memberIdx}")
+    public ResponseEntity<JsonResponse<List<CategoryTransactionCountDTO>>> getCategoryTransactionCount(@PathVariable int memberIdx) {
+        List<CategoryTransactionCountDTO> transactionCounts = transactionService.getCategoryTransactionCount(memberIdx);
+        return ResponseEntity.ok().body(JsonResponse.success(transactionCounts));
     }
 
     private PeriodDTO makePeriodDTO(@RequestParam Map<String, String> params) {

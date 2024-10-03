@@ -36,4 +36,16 @@
             AND a.connected_status = 1
         ORDER BY account_transaction_date DESC
     </select>
+
+    <select id="getCategoryTransactionCount" resultType="CategoryTransactionCountDTO">
+        SELECT cat.category_name, COUNT(ct.card_transaction_idx) AS transaction_count
+        FROM card_transaction ct
+                 JOIN category cat ON ct.category_idx = cat.category_idx
+                 JOIN card c ON ct.card_idx = c.card_idx
+        WHERE c.member_idx = #{memberIdx}
+        GROUP BY cat.category_name
+    </select>
+
+
+
 </mapper>

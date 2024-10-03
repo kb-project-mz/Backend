@@ -3,6 +3,7 @@ package fingertips.backend.transaction.service;
 import fingertips.backend.transaction.dto.AccountTransactionDTO;
 import fingertips.backend.transaction.dto.CardTransactionDTO;
 import fingertips.backend.transaction.dto.PeriodDTO;
+import fingertips.backend.transaction.dto.CategoryTransactionCountDTO;
 import fingertips.backend.transaction.mapper.TransactionMapper;
 import fingertips.backend.openai.service.OpenAiService;
 
@@ -28,6 +29,25 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public List<CardTransactionDTO> getCardTransactionListByPeriod(PeriodDTO period) {
         return consumptionMapper.getCardTransactionListByPeriod(period);
+    }
+
+    @Override
+    public List<CategoryTransactionCountDTO> getCategoryTransactionCount(int memberIdx) {
+        // 카테고리별 거래 건수를 가져오는 mapper 호출
+        List<CategoryTransactionCountDTO> categoryTransactionCounts = consumptionMapper.getCategoryTransactionCount(memberIdx);
+
+        // 전체 거래 건수를 계산
+        int totalTransactions = categoryTransactionCounts.stream()
+                .mapToInt(CategoryTransactionCountDTO::getTransactionCount)
+                .sum();
+
+        // 각 카테고리별 비율 계산 및 설정
+        categoryTransactionCounts.forEach(transaction -> {
+            double percentage = (double) transaction.getTransactionCount() / totalTransactions * 100;
+            transaction.setPercentage(percentage);
+        });
+
+        return categoryTransactionCounts;
     }
 
     // TODO : 프롬프트 수정
