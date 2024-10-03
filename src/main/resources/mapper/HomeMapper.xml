@@ -9,6 +9,7 @@
         SELECT account_idx, member_idx, bank_name, account_name, balance
         FROM account
         WHERE member_idx = #{memberIdx}
+          AND connected_status = 1
     </select>
 
     <select id="getChallengeByMemberIdx" resultType="HomeChallengeDTO">
