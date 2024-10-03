@@ -51,13 +51,9 @@ public class UploadFileServiceImpl implements UploadFileService {
 
     @Override
     public String getFullPath(String fileName) {
-        log.info("%%%%%%%%%%%%%%%%%%%%%%%%%%" +  fileDir);
-        log.info("%%%%%%%%%%%%%%%%%%%%%%%%%%" +  fileName);
-        log.info("###########################" + fileDir+fileName);
         return fileDir + fileName;
     }
 
-    // 파일의 저장될 이름 저장
     @Override
     public String createStoreFileName(String originalFileName) {
         String ext = extractExt(originalFileName);
@@ -65,7 +61,6 @@ public class UploadFileServiceImpl implements UploadFileService {
         return uuid + "." + ext;
     }
 
-    // 파일의 확장자
     @Override
     public String extractExt(String originalFileName) {
         int pos = originalFileName.lastIndexOf(".");

@@ -1,36 +1,25 @@
 package fingertips.backend.member.controller;
 
 import fingertips.backend.exception.dto.JsonResponse;
-import fingertips.backend.member.dto.MemberDTO;
-import fingertips.backend.member.dto.MemberIdFindDTO;
-import fingertips.backend.member.dto.PasswordFindDTO;
-import fingertips.backend.member.service.EmailService;
+import fingertips.backend.member.dto.*;
 import fingertips.backend.security.account.dto.AuthDTO;
-import fingertips.backend.exception.dto.JsonResponse;
-import fingertips.backend.member.dto.ProfileDTO;
-import fingertips.backend.member.dto.UpdateProfileDTO;
 import fingertips.backend.member.service.MemberService;
 
 import fingertips.backend.member.service.UploadFileService;
 import fingertips.backend.member.util.UploadFile;
-import fingertips.backend.security.account.dto.AuthDTO;
 
 
 import fingertips.backend.security.util.JwtProcessor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -183,16 +172,6 @@ public class MemberController {
         return ResponseEntity.ok(JsonResponse.success(profile));
     }
 
-//    @PostMapping("/info")
-//    public ResponseEntity<JsonResponse<ProfileDTO>> updateMemberInfo(@RequestBody UpdateProfileDTO updateProfile) {
-//
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        String memberId = authentication.getName();
-//        memberService.updateProfile(memberId, updateProfile);
-//        ProfileDTO updatedProfile = memberService.getProfile(memberId);
-//        return ResponseEntity.ok(JsonResponse.success(updatedProfile));
-//    }
-
     @PostMapping("/info")
     public ResponseEntity<JsonResponse<ProfileDTO>> updateMemberInfo(
             @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
@@ -203,11 +182,12 @@ public class MemberController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String memberId = authentication.getName();
 
+
         String imageUrl = null;
         UploadFile uploadFile = uploadFileService.storeFile(profileImage);
+
         imageUrl = uploadFile.getStoreFileName();
 
-        log.info("0000000000000000000" + imageUrl);
         UpdateProfileDTO updateProfile = UpdateProfileDTO.builder()
                 .memberId(memberId)
                 .password(password)
@@ -221,5 +201,24 @@ public class MemberController {
         ProfileDTO updatedProfile = memberService.getProfile(memberId);
         return ResponseEntity.ok(JsonResponse.success(updatedProfile));
     }
+
+    // OK 돌아감!!!!
+    @PostMapping("/verification/password")
+    public ResponseEntity<JsonResponse<String>> verifyPassword(@RequestBody VerifyPasswordDTO verifyPassword) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String memberId = authentication.getName();
+        memberService.verifyPassword(memberId, verifyPassword);
+        return ResponseEntity.ok(JsonResponse.success("password verify success"));
+    }
+
+    // OK 돌아감!!
+    @PatchMapping ("/password")
+    public ResponseEntity<JsonResponse<String>> changePassword(@RequestBody NewPasswordDTO newPassword) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String memberId = authentication.getName();
+        memberService.changePassword(memberId, newPassword);
+        return ResponseEntity.ok(JsonResponse.success("password change success"));
+    }
+
 
 }

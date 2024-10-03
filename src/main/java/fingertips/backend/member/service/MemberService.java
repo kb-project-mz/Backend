@@ -1,13 +1,6 @@
 package fingertips.backend.member.service;
 
-import fingertips.backend.member.dto.MemberDTO;
-import fingertips.backend.member.dto.MemberIdFindDTO;
-import fingertips.backend.member.dto.PasswordFindDTO;
-import fingertips.backend.security.account.dto.LoginDTO;
-import fingertips.backend.member.dto.ProfileDTO;
-import fingertips.backend.member.dto.UpdateProfileDTO;
-import fingertips.backend.member.util.UploadFile;
-import org.springframework.web.multipart.MultipartFile;
+import fingertips.backend.member.dto.*;
 
 public interface MemberService {
 
@@ -26,4 +19,6 @@ public interface MemberService {
     void updatePasswordByEmail(PasswordFindDTO passwordFindDTO);
     PasswordFindDTO processFindPassword(String memberName, String email);
     String processVerifyPassword(PasswordFindDTO passwordFindDTO);
+    void verifyPassword(String memberId, VerifyPasswordDTO verifyPassword);
+    void changePassword(String memberId, NewPasswordDTO newPassword);
 }

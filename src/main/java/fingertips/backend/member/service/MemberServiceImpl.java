@@ -2,20 +2,14 @@ package fingertips.backend.member.service;
 
 import fingertips.backend.exception.error.ApplicationError;
 import fingertips.backend.exception.error.ApplicationException;
-import fingertips.backend.member.dto.MemberDTO;
-import fingertips.backend.member.dto.MemberIdFindDTO;
-import fingertips.backend.member.dto.PasswordFindDTO;
-import fingertips.backend.member.dto.ProfileDTO;
-import fingertips.backend.member.dto.UpdateProfileDTO;
+import fingertips.backend.member.dto.*;
 import fingertips.backend.member.mapper.MemberMapper;
-import fingertips.backend.member.util.UploadFile;
 import fingertips.backend.security.util.JwtProcessor;
 import lombok.extern.log4j.Log4j;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 @Log4j
 @RequiredArgsConstructor
@@ -192,5 +186,37 @@ public class MemberServiceImpl implements MemberService {
         }
 
         return memberId;
+    }
+
+    @Override
+    public void verifyPassword(String memberId, VerifyPasswordDTO verifyPassword) {
+        // 입력한 패스워드랑 현재 memberId의 패스워드랑 같으면 return 1, 아니면 0
+        String existingPassword = memberMapper.getPassword(memberId);
+        if(!passwordEncoder.matches(verifyPassword.getInputPassword(), existingPassword)){
+            throw new ApplicationException(ApplicationError.PASSWORD_MISMATCH);
+        }
+    }
+
+    @Override
+    public void changePassword(String memberId, NewPasswordDTO newPassword) {
+        String existingPassword = memberMapper.getPassword(memberId);
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+        if (newPassword.getNewPassword() == null || newPassword.getNewPassword().isEmpty()) {
+            throw new ApplicationException(ApplicationError.INVALID_NEW_PASSWORD);
+        }
+
+        if(passwordEncoder.matches(newPassword.getNewPassword(), existingPassword)){
+            throw new ApplicationException(ApplicationError.PASSWORD_CORRESPOND);
+        }
+        else {
+            String updatedPassword = passwordEncoder.encode(newPassword.getNewPassword());
+
+            NewPasswordDTO updated = NewPasswordDTO.builder()
+                    .memberId(memberId)
+                    .newPassword(updatedPassword)
+                    .build();
+            memberMapper.saveNewPassword(updated);
+        }
     }
 }

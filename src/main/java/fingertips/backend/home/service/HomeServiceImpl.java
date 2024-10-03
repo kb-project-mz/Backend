@@ -42,35 +42,35 @@ public class HomeServiceImpl implements HomeService {
         return homeMapper.getBalanceByMemberIdx(memberIdx);
     }
 
-    @Scheduled(fixedRate = 1000)
-    public void checkForBalanceUpdates() {
-        List<BalanceDTO> currentBalances = homeMapper.getBalanceByMemberIdx(memberIdx);
-        // db의 balance가 변화가 있다면 실행
-        if (!currentBalances.equals(lastBalances)) {
-
-            // Node.js 서버 url
-            String socketUrl = "http://localhost:3000/update";
-            // Node.js 서버로 업데이트 전송
-            try {
-                //인코딩 후 node.js로 데이터 보내기
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_JSON);
-                headers.set(HttpHeaders.ACCEPT_CHARSET, "UTF-8");
-
-                HttpEntity<List<BalanceDTO>> entity = new HttpEntity<>(currentBalances, headers);
-
-                ResponseEntity<String> response = restTemplate.postForEntity(socketUrl, entity, String.class);
-            } catch (Exception e) {
-                // Node.js로 데이터 보내기 실패
-                System.out.println("Failed to send data to Node.js: " + e.getMessage());
-            }
-
-            lastBalances = currentBalances;
-        } else {
-            // db의 balance가 변화가 없다면 실행
-            System.out.println("No balance changes detected.");
-        }
-    }
+//    @Scheduled(fixedRate = 1000)
+//    public void checkForBalanceUpdates() {
+//        List<BalanceDTO> currentBalances = homeMapper.getBalanceByMemberIdx(memberIdx);
+//        // db의 balance가 변화가 있다면 실행
+//        if (!currentBalances.equals(lastBalances)) {
+//
+//            // Node.js 서버 url
+//            String socketUrl = "http://localhost:3000/update";
+//            // Node.js 서버로 업데이트 전송
+//            try {
+//                //인코딩 후 node.js로 데이터 보내기
+//                HttpHeaders headers = new HttpHeaders();
+//                headers.setContentType(MediaType.APPLICATION_JSON);
+//                headers.set(HttpHeaders.ACCEPT_CHARSET, "UTF-8");
+//
+//                HttpEntity<List<BalanceDTO>> entity = new HttpEntity<>(currentBalances, headers);
+//
+//                ResponseEntity<String> response = restTemplate.postForEntity(socketUrl, entity, String.class);
+//            } catch (Exception e) {
+//                // Node.js로 데이터 보내기 실패
+//                System.out.println("Failed to send data to Node.js: " + e.getMessage());
+//            }
+//
+//            lastBalances = currentBalances;
+//        } else {
+//            // db의 balance가 변화가 없다면 실행
+//            System.out.println("No balance changes detected.");
+//        }
+ //   }
 
     // 챌린지 받아오기
     @Override

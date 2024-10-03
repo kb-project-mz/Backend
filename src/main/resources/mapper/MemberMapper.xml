@@ -74,6 +74,12 @@
         WHERE member_id = #{memberId}
     </select>
 
+    <update id="saveNewPassword" parameterType="NewPasswordDTO">
+        UPDATE member
+        SET password = #{newPassword}
+        WHERE member_id = #{memberId}
+    </update>
+
     <update id="clearRefreshToken">
         UPDATE member
         SET refresh_token = NULL
@@ -103,6 +109,7 @@
         FROM member
         WHERE member_name = #{memberName}
     </select>
+
 
 
 </mapper>
