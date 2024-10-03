@@ -1,4 +1,112 @@
 package fingertips.backend.admin.service;
 
-public class AdminServiceImpl {
+import fingertips.backend.admin.controller.AdminController;
+import fingertips.backend.admin.dto.UserMetricsAggregateDTO;
+import fingertips.backend.admin.dto.UserMetricsDTO;
+import fingertips.backend.admin.mapper.UserMetricsMapper;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@RequiredArgsConstructor
+@Service
+public class AdminServiceImpl implements AdminService {
+
+    @Autowired
+    private UserMetricsMapper userMetricsMapper;
+    private static final Logger logger = LoggerFactory.getLogger(AdminServiceImpl.class);
+
+    public int getTodaySignUpCount() {
+        return userMetricsMapper.getTodaySignUpCount();
+    }
+
+    public int getTodayLoginCount() {
+        return userMetricsMapper.getTodayLoginCount();
+    }
+
+    public int getTodayVisitCount() {
+        return userMetricsMapper.getTodayVisitCount();
+    }
+
+    public int getTodayWithdrawalCount() {
+        return userMetricsMapper.getTodayWithdrawalCount();
+    }
+
+    public void logLogin(int memberIdx, HttpServletRequest request) {
+        String userAgent = request.getHeader("User-Agent");
+        String ipAddress = request.getRemoteAddr();
+
+        UserMetricsDTO loginLogDTO = new UserMetricsDTO();
+        loginLogDTO.setMemberIdx(memberIdx);
+        loginLogDTO.setUserAgent(userAgent);
+        loginLogDTO.setIpAddress(ipAddress);
+
+        userMetricsMapper.insertLoginLog(loginLogDTO);
+    }
+
+    @Override
+    public int getTodayTestLinkVisitCount() {
+        return userMetricsMapper.getTodayTestLinkVisitCount();
+    }
+
+    @Override
+    public int getTodayTestResultClickCount() {
+        return userMetricsMapper.getTodayTestResultClickCount();
+    }
+
+    @Override
+    public int getTodayTestSignUpCount() {
+        return userMetricsMapper.getTodayTestSignUpCount();
+    }
+
+    @Override
+    public Map<String, Integer> getTodayTestMetrics() {
+        Map<String, Integer> testMetrics = new HashMap<>();
+
+        int testLinkVisitCount = getTodayTestLinkVisitCount();
+        int testResultClickCount = getTodayTestResultClickCount();
+        int testSignUpCount = getTodayTestSignUpCount();
+
+        testMetrics.put("testLinkVisitCount", testLinkVisitCount);
+        testMetrics.put("testResultClickCount", testResultClickCount);
+        testMetrics.put("testSignUpCount", testSignUpCount);
+
+        return testMetrics;
+    }
+
+    @Override
+    public Map<String, Integer> getTodayCumulativeMetrics() {
+        Map<String, Integer> cumulativeMetrics = new HashMap<>();
+
+        try {
+            int todaySignUpCount = getTodaySignUpCount(); // 오늘의 회원가입 수
+            int todayWithdrawalCount = getTodayWithdrawalCount(); // 오늘의 탈퇴 수
+            int todayVisitCount = getTodayVisitCount(); // 오늘의 방문자 수
+            int todayLoginCount = getTodayLoginCount(); // 오늘의 로그인 수
+
+            // Map에 메트릭 추가
+            cumulativeMetrics.put("todaySignUpCount", todaySignUpCount);
+            cumulativeMetrics.put("todayWithdrawalCount", todayWithdrawalCount);
+            cumulativeMetrics.put("todayVisitCount", todayVisitCount);
+            cumulativeMetrics.put("todayLoginCount", todayLoginCount);
+        } catch (Exception e) {
+            logger.error("누적 메트릭 조회 중 오류 발생: {}", e.getMessage(), e);
+            throw new RuntimeException("누적 메트릭 조회 중 오류 발생", e); // 예외를 던져서 호출 쪽에서 처리하게 함
+        }
+
+        return cumulativeMetrics;
+    }
+
+    @Override
+    public List<UserMetricsAggregateDTO> getCumulativeMetrics() {
+        return userMetricsMapper.getCumulativeMetrics();
+    }
 }

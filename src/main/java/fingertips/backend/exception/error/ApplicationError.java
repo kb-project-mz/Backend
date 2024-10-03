@@ -51,7 +51,13 @@ public enum ApplicationError {
     FILE_EMPTY(HttpStatus.BAD_REQUEST, "FILE_001", "파일이 비어 있습니다."),
     FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FILE_002", "파일 업로드에 실패하였습니다."),
     FILE_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FILE_003", "파일 삭제에 실패하였습니다."),
-    FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "FILE_004", "파일을 찾을 수 없습니다.");
+    FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "FILE_004", "파일을 찾을 수 없습니다."),
+
+    // 사용자 메트릭 관련 에러
+    USER_METRICS_NOT_FOUND(HttpStatus.NOT_FOUND, "METRICS_001", "사용자 메트릭을 찾을 수 없습니다."),
+    USER_METRICS_INSERT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "METRICS_002", "사용자 메트릭 삽입에 실패하였습니다."),
+    USER_METRICS_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "METRICS_003", "사용자 메트릭 업데이트에 실패하였습니다."),
+    USER_METRICS_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "METRICS_004", "사용자 메트릭 삭제에 실패하였습니다.");
 
     private final HttpStatus status;
     private final String code;

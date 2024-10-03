@@ -112,8 +112,12 @@ dependencies {
   implementation 'org.springframework.security:spring-security-oauth2-client:5.8.13'
   implementation 'org.springframework.security:spring-security-oauth2-jose:5.8.13'
 
-  //  Apache Commons Lang 라이브러리
+  // Apache Commons Lang 라이브러리
   implementation 'org.apache.commons:commons-lang3:3.12.0'
+
+  // Spring Scheduler
+  implementation 'org.springframework:spring-context:5.3.23'
+  implementation 'org.springframework:spring-context-support:5.3.23'
 
 }
 
