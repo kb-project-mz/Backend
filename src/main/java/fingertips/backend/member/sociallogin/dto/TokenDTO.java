@@ -10,5 +10,6 @@ public class TokenDTO {
     private String accessToken;
     private String refreshToken;
     private String memberId;
+    private String memberIdx;
     private String memberName;
 }
