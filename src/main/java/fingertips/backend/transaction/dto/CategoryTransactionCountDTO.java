@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class CategoryTransactionCountDTO {
 
     private String categoryName;
-    private int transactionCount;
+    private int totalSpent;
     private double percentage;
     private String transactionDate;
 

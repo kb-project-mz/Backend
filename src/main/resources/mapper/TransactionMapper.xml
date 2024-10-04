@@ -41,8 +41,8 @@
     <select id="getCategoryTransactionCount" parameterType="Integer" resultType="fingertips.backend.transaction.dto.CategoryTransactionCountDTO">
         SELECT
             cat.category_name,
-            COUNT(ct.card_transaction_idx) AS transaction_count,
-            DATE(ct.card_transaction_date) AS transaction_date
+            COUNT(ct.card_transaction_idx) AS totalSpent,
+            DATE(ct.card_transaction_date) AS transactionDate
         FROM
             card_transaction ct
             JOIN

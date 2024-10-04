@@ -39,12 +39,12 @@ public class TransactionServiceImpl implements TransactionService {
 
         // 전체 거래 건수를 계산
         int totalTransactions = categoryTransactionCounts.stream()
-                .mapToInt(CategoryTransactionCountDTO::getTransactionCount)
+                .mapToInt(CategoryTransactionCountDTO::getTotalSpent)
                 .sum();
 
         // 각 카테고리별 비율 계산 및 설정
         categoryTransactionCounts.forEach(transaction -> {
-            double percentage = (double) transaction.getTransactionCount() / totalTransactions * 100;
+            double percentage = (double) transaction.getTotalSpent()/ totalTransactions * 100;
             transaction.setPercentage(percentage);
         });
 

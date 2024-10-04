@@ -68,31 +68,19 @@ public class TransactionController {
     // 금액 기준으로 가장 많이 지출한 카테고리를 반환하는 엔드포인트
     @GetMapping("/most-spent-category/{memberIdx}")
     public ResponseEntity<JsonResponse<List<MostSpentCategoryDTO>>> getMostSpentCategoryByAmount(@PathVariable int memberIdx) {
-        logger.info("getMostSpentCategoryByAmount 메서드가 호출되었습니다. 입력된 memberIdx: {}", memberIdx);
 
-        // TransactionService에서 가장 많이 지출한 카테고리 정보를 가져오기 전에 로그를 찍습니다.
-        logger.info("가장 많이 지출한 카테고리 정보를 가져옵니다.");
         List<MostSpentCategoryDTO> mostSpentCategories = transactionService.getMostSpentCategoryByAmount(memberIdx);
 
-        // 데이터를 성공적으로 가져온 후 해당 데이터를 로그로 출력합니다.
-        logger.info("가져온 mostSpentCategories 데이터: {}", mostSpentCategories);
-
-        // 정상적으로 데이터를 반환하는지 확인하는 로그입니다.
-        logger.info("가장 많이 지출한 카테고리 정보를 성공적으로 반환합니다.");
         return ResponseEntity.ok(JsonResponse.success(mostSpentCategories));
     }
 
     private PeriodDTO makePeriodDTO(@RequestParam Map<String, String> params) {
-        logger.info("makePeriodDTO 메서드가 호출되었습니다. 입력된 파라미터: {}", params);
 
-        // 파라미터에서 각 값을 추출할 때마다 로그를 찍어 오류 발생 시 어느 부분에서 문제가 생겼는지 확인할 수 있습니다.
         int memberIdx = Integer.parseInt(params.get("memberIdx"));
-        logger.info("memberIdx 값: {}", memberIdx);
 
         int startYear = Integer.parseInt(params.get("startYear"));
         int startMonth = Integer.parseInt(params.get("startMonth"));
         int startDay = Integer.parseInt(params.get("startDay"));
-        logger.info("시작 날짜 정보 - 연도: {}, 월: {}, 일: {}", startYear, startMonth, startDay);
 
         int endYear = Integer.parseInt(params.get("endYear"));
         int endMonth = Integer.parseInt(params.get("endMonth"));
