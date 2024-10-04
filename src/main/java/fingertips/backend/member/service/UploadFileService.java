@@ -8,8 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 public interface UploadFileService {
 
     UploadFile storeFile(MultipartFile file);
-    void deleteFile(UploadFile uploadFile);
-
+    void deleteFile(String memberId, String defaultImage);
     String getFullPath(String fileName);
     String createStoreFileName(String originalFileName);
     String extractExt(String originalFileName);

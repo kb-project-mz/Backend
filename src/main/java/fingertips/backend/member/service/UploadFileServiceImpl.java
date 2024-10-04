@@ -31,6 +31,7 @@ public class UploadFileServiceImpl implements UploadFileService {
         String storeFileName = createStoreFileName(file.getOriginalFilename());
         try {
             file.transferTo(new File(getFullPath(storeFileName)));
+
         } catch (IOException e) {
             throw new ApplicationException(ApplicationError.FILE_UPLOAD_FAILED);
         }
@@ -38,8 +39,9 @@ public class UploadFileServiceImpl implements UploadFileService {
     }
 
     @Override
-    public void deleteFile(UploadFile uploadFile) {
-        File file = new File(getFullPath(uploadFile.getStoreFileName()));
+    public void deleteFile(String memberId, String defaultImage) {
+        File file = new File(getFullPath(defaultImage));
+        log.info("Deleting file at path: " + file.getAbsolutePath());
         if (file.exists()) {
             if (!file.delete()) {
                 throw new ApplicationException(ApplicationError.FILE_DELETE_FAILED);

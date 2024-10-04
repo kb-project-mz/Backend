@@ -188,7 +188,6 @@ public class MemberController {
         return ResponseEntity.ok(JsonResponse.success("password change success"));
     }
 
-    // 이미지 업로드 여기까ㅓ지 완료
     @PostMapping("/image")
     public ResponseEntity<JsonResponse<UploadFileDTO>> updateImage(
             @RequestParam(value = "profileImage", required = false) MultipartFile profileImage) {
@@ -200,4 +199,26 @@ public class MemberController {
         return ResponseEntity.ok(JsonResponse.success(uploadImage));
     }
 
+    @PostMapping("/image/default")
+    public ResponseEntity<JsonResponse<UploadFileDTO>> defalutImage(
+            @RequestParam(value = "profileImage") MultipartFile profileImage) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String memberId = authentication.getName();
+        String imageToDelete = profileImage.getOriginalFilename();
+        uploadFileService.deleteFile(memberId, imageToDelete);
+        String defaultImageUrl = "default.jfif";
+        UploadFileDTO uploadImage = memberService.uploadImage(memberId, defaultImageUrl);
+        return ResponseEntity.ok(JsonResponse.success(uploadImage));
+    }
+
+//    @PostMapping("/email")
+//    public ResponseEntity<JsonResponse<UploadFileDTO>> updateEmail() {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        String memberId = authentication.getName();
+//
+//        // 멤버 아이디로 eamil 찾아와서 기존의 이메일이랑 같은지 체크하고
+//        // 다를때만 업그레이드 해주기
+//
+//        return ResponseEntity.ok(JsonResponse.success(uploadImage));
+//    }
 }
