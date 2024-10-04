@@ -58,4 +58,13 @@
             LIMIT 3;
     </select>
 
+    <update id="updateChallengeStatus">
+        <![CDATA[
+        UPDATE challenge_table
+        SET challenge_status = '진행'
+        WHERE challenge_start_date <= CURDATE()
+          AND challenge_status = '예정'
+        ]]>
+    </update>
+
 </mapper>

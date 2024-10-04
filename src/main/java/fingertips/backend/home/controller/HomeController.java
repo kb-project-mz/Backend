@@ -39,4 +39,5 @@ public class HomeController {
         List<PeerChallengeDTO> peerChallengeList = homeService.getPeerChallenge(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success(peerChallengeList));
     }
+
 }

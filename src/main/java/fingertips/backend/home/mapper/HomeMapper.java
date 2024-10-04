@@ -15,4 +15,6 @@ public interface HomeMapper {
     List<HomeChallengeDTO> getChallengeByMemberIdx(Integer memberIdx);
 
     List<PeerChallengeDTO> getPeerChallenge(Integer memberIdx);
+
+    void updateChallengeStatus();
 }

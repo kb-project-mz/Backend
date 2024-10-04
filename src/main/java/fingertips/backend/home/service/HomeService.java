@@ -19,4 +19,5 @@ public interface HomeService {
 
     // 또래 챌린지 가져오기
     List<PeerChallengeDTO> getPeerChallenge(Integer memberIdx);
+
 }
