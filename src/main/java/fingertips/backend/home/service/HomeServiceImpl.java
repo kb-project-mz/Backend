@@ -45,12 +45,18 @@ public class HomeServiceImpl implements HomeService {
 
     @Scheduled(fixedRate = 1000)
     public void checkForBalanceUpdates() {
+        boolean update_flag = false;
         List<BalanceDTO> currentBalances = homeMapper.getBalanceByMemberIdx(memberIdx);
         // db의 balance가 변화가 있다면 실행
         if (!currentBalances.equals(lastBalances)) {
 
             // Node.js 서버 url
             String socketUrl = "http://localhost:3000/update";
+//  update랑 select를 분리 update
+//  update
+//  select
+//  한명만 update > select
+//  나머지는 그냥 select
             // Node.js 서버로 업데이트 전송
             try {
                 //인코딩 후 node.js로 데이터 보내기
@@ -59,8 +65,9 @@ public class HomeServiceImpl implements HomeService {
                 headers.set(HttpHeaders.ACCEPT_CHARSET, "UTF-8");
 
                 HttpEntity<List<BalanceDTO>> entity = new HttpEntity<>(currentBalances, headers);
-
-                ResponseEntity<String> response = restTemplate.postForEntity(socketUrl, entity, String.class);
+                if(update_flag) {
+                    ResponseEntity<String> response = restTemplate.postForEntity(socketUrl, entity, String.class);
+                }
             } catch (Exception e) {
                 // Node.js로 데이터 보내기 실패
                 System.out.println("Failed to send data to Node.js: " + e.getMessage());
