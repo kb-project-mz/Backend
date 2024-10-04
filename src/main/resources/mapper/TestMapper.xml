@@ -1,12 +1,31 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
 <mapper namespace="fingertips.backend.test.mapper.TestMapper">
+
+<!--    1. 질문 리스트 불러오기-->
+    <select id="getAllQuestions" resultType="TestQuestionDTO">
+        SELECT question_idx, question_text
+        FROM test_question
+        ORDER BY question_idx ASC
+    </select>
+
+    <!-- 2. 선택지 리스트 불러오기 -->
+    <select id="getOptionsByQuestionId" parameterType="int" resultType="TestOptionDTO">
+        SELECT option_idx, question_idx, option_text, score, type_idx
+        FROM test_option
+        WHERE question_idx = #{questionIdx}
+    </select>
+
+    <!-- 3. 결과 테이블에 넣기 -->
+    <insert id="insertTestResult" parameterType="TestResultDTO">
+        INSERT INTO test_result (member_idx, type_idx, total_score)
+        VALUES (#{memberIdx}, #{typeIdx}, #{totalScore})
+    </insert>
+
     <insert id="insertTestLinkClick">
         INSERT INTO test_link_visit_log (member_idx, guest_idx, visit_time)
         VALUES (#{memberIdx}, #{guestIdx}, NOW())
     </insert>
-
 </mapper>
