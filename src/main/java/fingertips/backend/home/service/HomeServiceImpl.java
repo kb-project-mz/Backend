@@ -74,7 +74,7 @@ public class HomeServiceImpl implements HomeService {
 
     // 챌린지 받아오기
     @Override
-    public List<HomeChallengeDTO> getChallengeByMemberIdx(int memberIdx) {
+    public List<HomeChallengeDTO> getChallengeByMemberIdx(Integer memberIdx) {
         return homeMapper.getChallengeByMemberIdx(memberIdx);
     }
 

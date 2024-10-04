@@ -28,7 +28,7 @@ public class HomeController {
     }
 
     @GetMapping("/challenge/{memberIdx}")
-    public ResponseEntity<JsonResponse<List<HomeChallengeDTO>>> getChallengeByMemberIdx(@PathVariable int memberIdx) {
+    public ResponseEntity<JsonResponse<List<HomeChallengeDTO>>> getChallengeByMemberIdx(@PathVariable Integer memberIdx) {
         List<HomeChallengeDTO> challengeByMemberIdx = homeService.getChallengeByMemberIdx(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success(challengeByMemberIdx));
     }
