@@ -2,7 +2,8 @@ package fingertips.backend.home.controller;
 
 import fingertips.backend.exception.dto.JsonResponse;
 import fingertips.backend.home.dto.BalanceDTO;
-import fingertips.backend.home.service.BalanceService;
+import fingertips.backend.home.dto.HomeChallengeDTO;
+import fingertips.backend.home.service.HomeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -16,14 +17,20 @@ import java.util.List;
 @Slf4j
 public class HomeController {
 
-    private final BalanceService balanceService;
+    private final HomeService homeService;
 
     @PostMapping("/balance/{memberIdx}")
     public ResponseEntity<JsonResponse<List<BalanceDTO>>> getBalanceByMemberIdx(@PathVariable int memberIdx) {
 
-        balanceService.setMemberIdx(memberIdx);
-        List<BalanceDTO> balanceByMemberIdx = balanceService.getBalanceByMemberIdx(memberIdx);
+        homeService.setMemberIdx(memberIdx);
+        List<BalanceDTO> balanceByMemberIdx = homeService.getBalanceByMemberIdx(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success(balanceByMemberIdx));
+    }
+
+    @GetMapping("/challenge/{memberIdx}")
+    public ResponseEntity<JsonResponse<List<HomeChallengeDTO>>> getChallengeByMemberIdx(@PathVariable Integer memberIdx) {
+        List<HomeChallengeDTO> challengeByMemberIdx = homeService.getChallengeByMemberIdx(memberIdx);
+        return ResponseEntity.ok().body(JsonResponse.success(challengeByMemberIdx));
     }
 
 }

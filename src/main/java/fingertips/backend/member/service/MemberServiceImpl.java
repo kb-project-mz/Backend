@@ -4,18 +4,18 @@ import fingertips.backend.exception.error.ApplicationError;
 import fingertips.backend.exception.error.ApplicationException;
 import fingertips.backend.member.dto.MemberDTO;
 import fingertips.backend.member.dto.MemberIdFindDTO;
+import fingertips.backend.member.dto.PasswordFindDTO;
 import fingertips.backend.member.dto.ProfileDTO;
 import fingertips.backend.member.dto.UpdateProfileDTO;
 import fingertips.backend.member.mapper.MemberMapper;
+import fingertips.backend.member.util.UploadFile;
 import fingertips.backend.security.util.JwtProcessor;
 import lombok.extern.log4j.Log4j;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
+import org.springframework.web.multipart.MultipartFile;
 
 @Log4j
 @RequiredArgsConstructor
@@ -25,6 +25,8 @@ public class MemberServiceImpl implements MemberService {
     private final MemberMapper memberMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtProcessor jwtProcessor;
+    private final UploadFileService uploadFileService;
+
 
     public String authenticate(String username, String password) {
         MemberDTO memberDTO = memberMapper.getMemberByMemberId(username);
@@ -61,6 +63,16 @@ public class MemberServiceImpl implements MemberService {
     public boolean existsMemberId(String memberId) {
 
         return memberMapper.existsMemberId(memberId) != 0;
+    }
+
+    @Override
+    public boolean existsMemberName(String memberName) {
+        return memberMapper.existsMemberName(memberName) != 0;
+    }
+
+    public boolean checkEmailDuplicate(String email) {
+        System.out.println("입력된 이메일: " + email);
+        return memberMapper.checkEmailDuplicate(email) > 0;
     }
 
     @Override
@@ -103,6 +115,7 @@ public class MemberServiceImpl implements MemberService {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         validateCurrentPassword(updateProfile.getPassword(), existingPassword, passwordEncoder);
 
+
         String updatedPassword = (updateProfile.getNewPassword() != null && !updateProfile.getNewPassword().isEmpty())
                 ? passwordEncoder.encode(updateProfile.getNewPassword())
                 : existingPassword;
@@ -111,8 +124,9 @@ public class MemberServiceImpl implements MemberService {
                 .memberId(memberId)
                 .password(updatedPassword)
                 .email(updateProfile.getEmail() != null ? updateProfile.getEmail() : existingProfile.getEmail())
-                .imageUrl(updateProfile.getImageUrl() != null ? updateProfile.getImageUrl() : existingProfile.getImageUrl())
+                .imageUrl(updateProfile.getImageUrl() != null ? updateProfile.getImageUrl() : existingProfile.getImageUrl()) //이미지 업데이트
                 .build();
+
 
         memberMapper.updateProfile(updatedProfile);
     }
@@ -127,6 +141,57 @@ public class MemberServiceImpl implements MemberService {
     
     @Override
     public void withdrawMember(String memberId) {
+
         memberMapper.withdrawMember(memberId);
+    }
+
+    @Override
+    public void updatePasswordByEmail(PasswordFindDTO passwordFindDTO) {
+
+        String encryptedPassword = passwordEncoder.encode(passwordFindDTO.getNewPassword());
+
+        passwordFindDTO.setNewPassword(encryptedPassword);
+
+        try {
+            memberMapper.updatePasswordByEmail(passwordFindDTO);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    public PasswordFindDTO processFindPassword(String memberName, String email) {
+        String memberId = findByNameAndEmail(memberName, email);
+        if (memberId == null) {
+            throw new ApplicationException(ApplicationError.MEMBER_NOT_FOUND);
+        }
+        return PasswordFindDTO.builder()
+                .memberName(memberName)
+                .email(email)
+                .memberId(memberId)
+                .newPassword(null)
+                .build();
+    }
+
+    public String processVerifyPassword(PasswordFindDTO passwordFindDTO) {
+        String memberId = findByNameAndEmail(passwordFindDTO.getMemberName(), passwordFindDTO.getEmail());
+        if (memberId == null) {
+            throw new ApplicationException(ApplicationError.MEMBER_NOT_FOUND);
+        }
+
+        MemberDTO memberDTO = getMemberByMemberId(memberId);
+        if (memberDTO == null) {
+            throw new ApplicationException(ApplicationError.MEMBER_NOT_FOUND);
+        }
+
+        if (passwordFindDTO.getNewPassword() == null) {
+            throw new ApplicationException(ApplicationError.PASSWORD_INVALID);
+        }
+
+        boolean isPasswordMatching = passwordEncoder.matches(passwordFindDTO.getNewPassword(), memberDTO.getPassword());
+        if (!isPasswordMatching) {
+            throw new ApplicationException(ApplicationError.PASSWORD_INVALID);
+        }
+
+        return memberId;
     }
 }

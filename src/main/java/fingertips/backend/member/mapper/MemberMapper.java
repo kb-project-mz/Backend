@@ -2,10 +2,12 @@ package fingertips.backend.member.mapper;
 
 import fingertips.backend.member.dto.MemberDTO;
 import fingertips.backend.member.dto.MemberIdFindDTO;
+import fingertips.backend.member.dto.PasswordFindDTO;
 import fingertips.backend.member.dto.ProfileDTO;
 import fingertips.backend.member.dto.UpdateProfileDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.web.multipart.MultipartFile;
 
 @Mapper
 public interface MemberMapper {
@@ -13,7 +15,6 @@ public interface MemberMapper {
     MemberDTO getMemberByMemberId(String memberId);
     void insertMember(MemberDTO memberDTO);
     void updateLockStatus(MemberDTO memberDTO);
-    void deleteMember(String username);
     void setRefreshToken(MemberDTO memberDTO);
     String findByNameAndEmail(MemberIdFindDTO memberIdFindDTO);
     int existsMemberId(String memberId);
@@ -22,4 +23,9 @@ public interface MemberMapper {
     String getPassword(String memberId);
     void clearRefreshToken(String memberId);
     void withdrawMember(String memberId);
+
+    void updatePasswordByEmail(PasswordFindDTO passwordFindDTO);
+    int checkEmailDuplicate(String email);
+    int existsMemberName(String memberName);
+
 }

@@ -37,7 +37,7 @@ public class TransactionServiceImpl implements TransactionService {
         List<CardTransactionDTO> cardTransactionListByPeriod = getCardTransactionListByPeriod(period);
         String data = formatConsumptionListAsTable(cardTransactionListByPeriod);
 
-        String prompt = data.concat("이 테이블의 content 테이블은 돈을 쓴 사용처야. " +
+        String prompt = data.concat("이 테이블의 cardTransactionDescription 컬럼은 돈을 쓴 사용처야. " +
                 "동일한 브랜드에 속하는 상호명을 인식하여 하나의 브랜드로 통일해줘. " +
                 "예를 들어, '스타벅스 대화역점'과 '스타벅스 어린이대공원'은 '스타벅스'로 인식하고 통일해. " +
                 "공백, 특수문자, 지점명(예: 'OO점', '역', '어린이대공원', '_34') 같은 불필요한 부분은 제거하고, 핵심 브랜드명만 추출해줘. " +
@@ -57,6 +57,21 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public List<AccountTransactionDTO> getAccountTransactionList(Integer memberId) {
         return consumptionMapper.getAccountTransactionList(memberId);
+    }
+
+    @Override
+    public String getAiRecommendation(PeriodDTO period) {
+
+        List<CardTransactionDTO> cardTransactionListByPeriod = getCardTransactionListByPeriod(period);
+        String data = formatConsumptionListAsTable(cardTransactionListByPeriod);
+
+        String prompt = data.concat("이 테이블의 cardTransactionDescription 컬럼은 한 달 동안 돈을 쓴 사용처야. " +
+                "이 소비 내역을 보고 이 사람이 다음 달에 어떤 식으로 소비를 하면 얼마나 소비를 줄일 수 있을 지 간단하게 " +
+                "이번 달에 어떤 곳에 소비를 많이 했네요. 다음 달에 이런 식으로, 여기에서 소비를 줄이면 얼마를 절약할 수 있을 것 같아요. " +
+                "다음 달에는 이렇게 하면 어떨까요? 이런 식으로 세 줄로 간단하게 조언 한 개만 해줘. 꼭 Description 뿐만 아니라 " +
+                "특정 카테고리에 너무 많이 사용하고 있거나 하는 등의 소비 패턴을 분석해서 조언해줘.");
+
+        return openAiService.askOpenAi(prompt);
     }
 
     public String formatConsumptionListAsTable(List<CardTransactionDTO> cardConsumption) {

@@ -48,10 +48,17 @@ public class GoogleController {
     public RedirectView googleCallback(@RequestParam("code") String code) {
         TokenDTO token = socialLoginService.googleCallback(code);
 
-        return new RedirectView("http://localhost:5173/google-callback?access_token=" + token.getAccessToken()
-                + "&refresh_token=" + token.getRefreshToken()
-                + "&member_id=" + token.getMemberId()
-                + "&member_name=" + URLEncoder.encode(token.getMemberName(), Charset.defaultCharset()));
+        String baseUrl = "http://localhost:5173/google-callback";
+
+        String accessToken = URLEncoder.encode(token.getAccessToken(), StandardCharsets.UTF_8);
+        String refreshToken = URLEncoder.encode(token.getRefreshToken(), StandardCharsets.UTF_8);
+        String memberId = URLEncoder.encode(token.getMemberId(), StandardCharsets.UTF_8);
+        String memberName = URLEncoder.encode(token.getMemberName(), StandardCharsets.UTF_8);
+
+        String redirectUrl = String.format("%s?access_token=%s&refresh_token=%s&member_id=%s&member_name=%s",
+                baseUrl, accessToken, refreshToken, memberId, memberName);
+
+        return new RedirectView(redirectUrl);
     }
 
     @PostMapping("/tokens")

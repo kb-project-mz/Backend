@@ -24,7 +24,7 @@
         <mapper resource="mapper/ChallengeMapper.xml" />
         <mapper resource="mapper/TransactionMapper.xml" />
         <mapper resource="mapper/MemberMapper.xml" />
-        <mapper resource="mapper/BalanceMapper.xml" />
+        <mapper resource="mapper/HomeMapper.xml" />
         <mapper resource="mapper/SocialLoginMapper.xml" />
         <mapper resource="mapper/EmailMapper.xml" />
         <mapper resource="mapper/TestMapper.xml" />
