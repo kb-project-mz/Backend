@@ -200,13 +200,15 @@ public class MemberController {
     }
 
     @PostMapping("/image/default")
-    public ResponseEntity<JsonResponse<UploadFileDTO>> defalutImage(
+    public ResponseEntity<JsonResponse<UploadFileDTO>> defaultImage(
             @RequestParam(value = "profileImage") MultipartFile profileImage) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String memberId = authentication.getName();
+
         String imageToDelete = profileImage.getOriginalFilename();
         uploadFileService.deleteFile(memberId, imageToDelete);
         String defaultImageUrl = "default.jfif";
+
         UploadFileDTO uploadImage = memberService.uploadImage(memberId, defaultImageUrl);
         return ResponseEntity.ok(JsonResponse.success(uploadImage));
     }
