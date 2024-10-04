@@ -1,9 +1,6 @@
 package fingertips.backend.transaction.controller;
 
-import fingertips.backend.transaction.dto.AccountTransactionDTO;
-import fingertips.backend.transaction.dto.CardTransactionDTO;
-import fingertips.backend.transaction.dto.PeriodDTO;
-import fingertips.backend.transaction.dto.CategoryTransactionCountDTO;
+import fingertips.backend.transaction.dto.*;
 import fingertips.backend.transaction.service.TransactionService;
 import fingertips.backend.exception.dto.JsonResponse;
 
@@ -60,6 +57,15 @@ public class TransactionController {
     public ResponseEntity<JsonResponse<List<CategoryTransactionCountDTO>>> getCategoryTransactionCount(@PathVariable int memberIdx) {
         List<CategoryTransactionCountDTO> transactionCounts = transactionService.getCategoryTransactionCount(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success(transactionCounts));
+    }
+
+
+
+    // 금액 기준으로 가장 많이 지출한 카테고리를 반환하는 엔드포인트
+    @GetMapping("/most-spent-category/{memberIdx}")
+    public ResponseEntity<JsonResponse<List<MostSpentCategoryDTO>>> getMostSpentCategoryByAmount(@PathVariable int memberIdx) {
+        List<MostSpentCategoryDTO> mostSpentCategories = transactionService.getMostSpentCategoryByAmount(memberIdx);
+        return ResponseEntity.ok(JsonResponse.success(mostSpentCategories));
     }
 
     private PeriodDTO makePeriodDTO(@RequestParam Map<String, String> params) {

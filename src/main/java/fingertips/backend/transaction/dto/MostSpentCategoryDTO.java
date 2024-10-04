@@ -6,15 +6,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryTransactionCountDTO {
-
+public class MostSpentCategoryDTO {
     private String categoryName;
-    private int transactionCount;
-    private double percentage;
+    private Integer totalSpent;
     private String transactionDate;
-
 }

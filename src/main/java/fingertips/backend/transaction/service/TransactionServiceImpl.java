@@ -1,15 +1,16 @@
 package fingertips.backend.transaction.service;
 
-import fingertips.backend.transaction.dto.AccountTransactionDTO;
-import fingertips.backend.transaction.dto.CardTransactionDTO;
-import fingertips.backend.transaction.dto.PeriodDTO;
-import fingertips.backend.transaction.dto.CategoryTransactionCountDTO;
+import fingertips.backend.exception.dto.JsonResponse;
+import fingertips.backend.transaction.dto.*;
 import fingertips.backend.transaction.mapper.TransactionMapper;
 import fingertips.backend.openai.service.OpenAiService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
@@ -18,23 +19,23 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TransactionServiceImpl implements TransactionService {
 
-    private final TransactionMapper consumptionMapper;
+    private final TransactionMapper transactionMapper;
     private final OpenAiService openAiService;
 
     @Override
     public List<CardTransactionDTO> getCardTransactionList(Integer memberId) {
-        return consumptionMapper.getCardTransactionList(memberId);
+        return transactionMapper.getCardTransactionList(memberId);
     }
 
     @Override
     public List<CardTransactionDTO> getCardTransactionListByPeriod(PeriodDTO period) {
-        return consumptionMapper.getCardTransactionListByPeriod(period);
+        return transactionMapper.getCardTransactionListByPeriod(period);
     }
 
     @Override
     public List<CategoryTransactionCountDTO> getCategoryTransactionCount(int memberIdx) {
-        // 카테고리별 거래 건수를 가져오는 mapper 호출
-        List<CategoryTransactionCountDTO> categoryTransactionCounts = consumptionMapper.getCategoryTransactionCount(memberIdx);
+        // 카테고리별 거래 건수와 지출 금액을 가져오는 mapper 호출
+        List<CategoryTransactionCountDTO> categoryTransactionCounts = transactionMapper.getCategoryTransactionCount(memberIdx);
 
         // 전체 거래 건수를 계산
         int totalTransactions = categoryTransactionCounts.stream()
@@ -49,6 +50,18 @@ public class TransactionServiceImpl implements TransactionService {
 
         return categoryTransactionCounts;
     }
+
+    @Override
+    public List<MostSpentCategoryDTO> getMostSpentCategoryByAmount(int memberIdx) {
+        return transactionMapper.getMostSpentCategoryByAmount(memberIdx);
+    }
+
+
+    @Override
+    public List<AccountTransactionDTO> getAccountTransactionList(Integer memberId) {
+        return transactionMapper.getAccountTransactionList(memberId);
+    }
+
 
     // TODO : 프롬프트 수정
     @Override
@@ -74,10 +87,6 @@ public class TransactionServiceImpl implements TransactionService {
         return openAiService.askOpenAi(prompt);
     }
 
-    @Override
-    public List<AccountTransactionDTO> getAccountTransactionList(Integer memberId) {
-        return consumptionMapper.getAccountTransactionList(memberId);
-    }
 
     @Override
     public String getAiRecommendation(PeriodDTO period) {
