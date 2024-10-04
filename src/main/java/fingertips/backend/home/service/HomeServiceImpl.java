@@ -2,6 +2,7 @@ package fingertips.backend.home.service;
 
 import fingertips.backend.home.dto.BalanceDTO;
 import fingertips.backend.home.dto.HomeChallengeDTO;
+import fingertips.backend.home.dto.PeerChallengeDTO;
 import fingertips.backend.home.mapper.HomeMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -78,5 +79,10 @@ public class HomeServiceImpl implements HomeService {
         return homeMapper.getChallengeByMemberIdx(memberIdx);
     }
 
+    // 또래 챌린지 가져오기
+    @Override
+    public List<PeerChallengeDTO> getPeerChallenge(Integer memberIdx) {
+        return homeMapper.getPeerChallenge(memberIdx);
+    }
 
 }

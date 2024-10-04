@@ -3,6 +3,7 @@ package fingertips.backend.home.controller;
 import fingertips.backend.exception.dto.JsonResponse;
 import fingertips.backend.home.dto.BalanceDTO;
 import fingertips.backend.home.dto.HomeChallengeDTO;
+import fingertips.backend.home.dto.PeerChallengeDTO;
 import fingertips.backend.home.service.HomeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,4 +34,9 @@ public class HomeController {
         return ResponseEntity.ok().body(JsonResponse.success(challengeByMemberIdx));
     }
 
+    @GetMapping("/peerChallenge/{memberIdx}")
+    public ResponseEntity<JsonResponse<List<PeerChallengeDTO>>> getPeerChallenge(@PathVariable Integer memberIdx) {
+        List<PeerChallengeDTO> peerChallengeList = homeService.getPeerChallenge(memberIdx);
+        return ResponseEntity.ok().body(JsonResponse.success(peerChallengeList));
+    }
 }

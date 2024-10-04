@@ -2,6 +2,7 @@ package fingertips.backend.home.service;
 
 import fingertips.backend.home.dto.BalanceDTO;
 import fingertips.backend.home.dto.HomeChallengeDTO;
+import fingertips.backend.home.dto.PeerChallengeDTO;
 
 import java.util.List;
 
@@ -15,4 +16,7 @@ public interface HomeService {
 
     // 챌린지 목록 가져오기
     List<HomeChallengeDTO> getChallengeByMemberIdx(Integer memberIdx);
+
+    // 또래 챌린지 가져오기
+    List<PeerChallengeDTO> getPeerChallenge(Integer memberIdx);
 }
