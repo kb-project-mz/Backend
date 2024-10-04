@@ -25,4 +25,13 @@
         WHERE email = #{email}
     </update>
 
+    <select id="getMemberByGoogleId" resultType="SocialLoginDTO">
+        SELECT google_id, email, member_name, google_access_token, google_id_token,
+               google_refresh_token, expires_in, social_type, member_id, member_idx
+        FROM member
+        WHERE google_id = #{googleId}
+    </select>
+
+
+
 </mapper>
