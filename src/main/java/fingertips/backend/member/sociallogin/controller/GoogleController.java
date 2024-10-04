@@ -60,8 +60,9 @@ public class GoogleController {
         String accessToken = URLEncoder.encode(token.getAccessToken(), StandardCharsets.UTF_8);
         String refreshToken = URLEncoder.encode(token.getRefreshToken(), StandardCharsets.UTF_8);
         String memberId = URLEncoder.encode(token.getMemberId(), StandardCharsets.UTF_8);
-        String memberName = URLEncoder.encode(token.getMemberName(), StandardCharsets.UTF_8);
         String memberIdx = URLEncoder.encode(String.valueOf(token.getMemberIdx()), StandardCharsets.UTF_8);
+        String memberName = URLEncoder.encode(token.getMemberName(), StandardCharsets.UTF_8);
+
 
         String redirectUrl = String.format("%s?access_token=%s&refresh_token=%s&member_id=%s&member_idx=%s&member_name=%s",
                 baseUrl, accessToken, refreshToken, memberId, memberIdx, memberName);
