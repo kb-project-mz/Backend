@@ -11,9 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
@@ -109,17 +107,68 @@ public class AdminController {
         }
     }
 
-    // 누적 데이터를 가져오는 API
-    @GetMapping("/total")
-    public ResponseEntity<JsonResponse<List<UserMetricsAggregateDTO>>> getCumulativeMetrics(HttpServletResponse response) throws IOException {
-        logger.info("getCumulativeMetrics API 호출됨");
-        try {
-            List<UserMetricsAggregateDTO> cumulativeMetrics = adminService.getCumulativeMetrics();
+    // 오늘의 누적 통계를 반환하는 API
+    @GetMapping("/metrics/today")
+    public ResponseEntity<UserMetricsAggregateDTO> getTodayMetrics() {
+        UserMetricsAggregateDTO todayMetrics = adminService.getTodayMetrics();
+        return ResponseEntity.ok(todayMetrics);
+    }
 
-            logger.info("누적 지표 데이터 성공적으로 조회됨: {}", cumulativeMetrics);
-            return ResponseEntity.ok().body(JsonResponse.success(cumulativeMetrics));
-        } catch (RuntimeException e) {
-            logger.error("누적 지표 데이터 조회 중 오류 발생: {}", e.getMessage(), e);
+    // 회원가입 수를 누적 업데이트하는 API
+    @GetMapping("/total/sign-up")
+    public ResponseEntity<JsonResponse<Void>> updateCumulativeSignUpCount(@RequestParam int dailySignUpCount, HttpServletResponse response) throws IOException {
+        logger.info("updateCumulativeSignUpCount API 호출됨");
+        try {
+            adminService.updateCumulativeSignUpCount();
+            logger.info("오늘의 회원가입 수 누적 업데이트 성공");
+            return ResponseEntity.ok().body(JsonResponse.success(null));
+        } catch (Exception e) {
+            logger.error("회원가입 수 누적 업데이트 중 오류 발생: {}", e.getMessage(), e);
+            JsonResponse.sendError(response, ApplicationError.INTERNAL_SERVER_ERROR);
+            return null;
+        }
+    }
+
+    // 로그인 수를 누적 업데이트하는 API
+    @GetMapping("/total/login")
+    public ResponseEntity<JsonResponse<Void>> updateCumulativeLoginCount(@RequestParam int dailyLoginCount, HttpServletResponse response) throws IOException {
+        logger.info("updateCumulativeLoginCount API 호출됨");
+        try {
+            adminService.updateCumulativeLoginCount();
+            logger.info("오늘의 로그인 수 누적 업데이트 성공: {}");
+            return ResponseEntity.ok().body(JsonResponse.success(null));
+        } catch (Exception e) {
+            logger.error("로그인 수 누적 업데이트 중 오류 발생: {}", e.getMessage(), e);
+            JsonResponse.sendError(response, ApplicationError.INTERNAL_SERVER_ERROR);
+            return null;
+        }
+    }
+
+    // 방문자 수를 누적 업데이트하는 API
+    @GetMapping("/total/visit")
+    public ResponseEntity<JsonResponse<Void>> updateCumulativeVisitCount(@RequestParam int dailyVisitCount, HttpServletResponse response) throws IOException {
+        logger.info("updateCumulativeVisitCount API 호출됨: {}");
+        try {
+            adminService.updateCumulativeVisitCount();
+            logger.info("오늘의 방문자 수 누적 업데이트 성공: {}");
+            return ResponseEntity.ok().body(JsonResponse.success(null));
+        } catch (Exception e) {
+            logger.error("방문자 수 누적 업데이트 중 오류 발생: {}", e.getMessage(), e);
+            JsonResponse.sendError(response, ApplicationError.INTERNAL_SERVER_ERROR);
+            return null;
+        }
+    }
+
+    // 탈퇴 수를 누적 업데이트하는 API
+    @GetMapping("/total/withdrawal")
+    public ResponseEntity<JsonResponse<Void>> updateCumulativeWithdrawalCount(@RequestParam int dailyWithdrawalCount, HttpServletResponse response) throws IOException {
+        logger.info("updateCumulativeWithdrawalCount API 호출됨: {}");
+        try {
+            adminService.updateCumulativeWithdrawalCount();
+            logger.info("오늘의 탈퇴 수 누적 업데이트 성공: {}");
+            return ResponseEntity.ok().body(JsonResponse.success(null));
+        } catch (Exception e) {
+            logger.error("탈퇴 수 누적 업데이트 중 오류 발생: {}", e.getMessage(), e);
             JsonResponse.sendError(response, ApplicationError.INTERNAL_SERVER_ERROR);
             return null;
         }

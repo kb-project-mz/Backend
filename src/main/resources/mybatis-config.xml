@@ -28,7 +28,6 @@
         <mapper resource="mapper/HomeMapper.xml" />
         <mapper resource="mapper/SocialLoginMapper.xml" />
         <mapper resource="mapper/EmailMapper.xml" />
-        <mapper resource="mapper/UserMetricsMapper.xml" />
         <mapper resource="mapper/TestMapper.xml" />
     </mappers>
 </configuration>

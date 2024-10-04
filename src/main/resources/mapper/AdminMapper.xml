@@ -5,4 +5,200 @@
 
 <mapper namespace="fingertips.backend.admin.mapper.AdminMapper">
 
+    <!-- 오늘의 회원가입 수 -->
+    <select id="getTodaySignUpCount" resultType="int">
+        SELECT COUNT(*)
+        FROM member
+        WHERE DATE(join_date) = CURDATE()
+    </select>
+
+    <!-- 오늘의 로그인 수 -->
+    <select id="getTodayLoginCount" resultType="int">
+        SELECT COUNT(*)
+        FROM login_log
+        WHERE DATE(login_time) = CURDATE()
+    </select>
+
+    <!-- 로그인 로그를 기록하는 쿼리 -->
+    <insert id="insertLoginLog">
+        INSERT INTO login_log (member_idx, user_agent, ip_address)
+        VALUES (#{memberIdx}, #{userAgent}, #{ipAddress})
+    </insert>
+
+    <!-- 오늘의 방문자 수 -->
+    <select id="getTodayVisitCount" resultType="int">
+        SELECT COUNT(DISTINCT member_idx)
+        FROM login_log
+        WHERE DATE(login_time) = CURDATE()
+    </select>
+
+    <!-- 오늘의 탈퇴 수 -->
+    <select id="getTodayWithdrawalCount" resultType="int">
+        SELECT COUNT(*)
+        FROM member
+        WHERE is_active = 0
+          AND DATE(withdraw_date) = CURDATE()
+    </select>
+
+    <!-- 오늘의 테스트 링크 방문자 수 (테스트 기록을 추적해야 함) -->
+    <select id="getTodayTestLinkVisitCount" resultType="int">
+        SELECT COUNT(*)
+        FROM test_link_visit_log
+        WHERE DATE(visit_time) = CURDATE()
+    </select>
+
+    <!-- 오늘의 테스트 결과 보기 클릭 수 -->
+    <select id="getTodayTestResultClickCount" resultType="int">
+        SELECT COUNT(*)
+        FROM test_result_click_log
+        WHERE DATE(click_time) = CURDATE()
+    </select>
+
+    <!-- 오늘의 테스트 후 가입한 사용자 수 -->
+    <select id="getTodayTestSignUpCount" resultType="int">
+        SELECT COUNT(DISTINCT member_idx)
+        FROM member_test_result
+        WHERE EXISTS (
+            SELECT 1 FROM test_result
+            WHERE test_result.result_idx = member_test_result.result_idx
+              AND DATE(test_result.create_date) = CURDATE()
+        )
+          AND EXISTS (
+            SELECT 1 FROM member
+            WHERE member.member_idx = member_test_result.member_idx
+              AND DATE(member.join_date) = CURDATE()
+        )
+    </select>
+
+    <!-- 오늘의 통계 데이터 가져오기 -->
+    <select id="selectTodayMetrics" resultType="UserMetricsAggregateDTO">
+        SELECT
+            total_sign_up_count AS totalSignUpCount,
+            total_withdrawal_count AS totalWithdrawalCount,
+            total_visit_count AS totalVisitCount,
+            total_login_count AS totalLoginCount
+        FROM user_metrics_aggregate
+        WHERE metric_date = CURDATE()
+    </select>
+
+    <!-- 사용자 메트릭 데이터 삽입 -->
+    <insert id="insertUserMetrics" parameterType="UserMetricsDTO">
+        INSERT INTO user_metrics (guest_idx, member_idx, today_sign_up_count, today_withdrawal_count, today_visit_count, today_login_count, today_test_link_visit_count, today_test_result_click_count, today_test_sign_up_count, metric_date)
+        VALUES (#{guestIdx}, #{memberIdx}, #{todaySignUpCount}, #{todayWithdrawalCount}, #{todayVisitCount}, #{todayLoginCount}, #{todayTestLinkVisitCount}, #{todayTestResultClickCount}, #{todayTestSignUpCount}, #{metricDate})
+    </insert>
+
+    <!-- 특정 ID로 사용자 메트릭 데이터 조회 -->
+    <select id="getUserMetricsById" parameterType="Long" resultType="UserMetricsDTO">
+        SELECT * FROM user_metrics WHERE metric_idx = #{metricIdx}
+    </select>
+
+    <!-- 특정 날짜로 사용자 메트릭 데이터 조회 -->
+    <select id="getUserMetricsByDate" parameterType="String" resultType="UserMetricsDTO">
+        SELECT * FROM user_metrics WHERE metric_date = #{metricDate}
+    </select>
+
+    <!-- 사용자 메트릭 데이터 업데이트 -->
+    <update id="updateUserMetrics" parameterType="UserMetricsDTO">
+        UPDATE user_metrics
+        SET guest_idx = #{guestIdx},
+            member_idx = #{memberIdx},
+            today_sign_up_count = #{todaySignUpCount},
+            today_withdrawal_count = #{todayWithdrawalCount},
+            today_visit_count = #{todayVisitCount},
+            today_login_count = #{todayLoginCount},
+            today_test_link_visit_count = #{todayTestLinkVisitCount},
+            today_test_result_click_count = #{todayTestResultClickCount},
+            today_test_sign_up_count = #{todayTestSignUpCount},
+            create_date = CURRENT_TIMESTAMP
+        WHERE metric_idx = #{metricIdx}
+    </update>
+
+    <!-- 사용자 메트릭 데이터 삭제 -->
+    <delete id="deleteUserMetrics" parameterType="Long">
+        DELETE FROM user_metrics WHERE metric_idx = #{metricIdx}
+    </delete>
+
+    <!-- 사용자 메트릭 집계 데이터 삽입 -->
+    <insert id="insertUserMetricsAggregate" parameterType="UserMetricsAggregateDTO">
+        INSERT INTO user_metrics_aggregate (metric_date, total_sign_up_count, total_withdrawal_count, total_visit_count, total_login_count, total_test_link_visit_count, total_test_result_click_count, total_test_sign_up_count)
+        VALUES (#{metricDate}, #{totalSignUpCount}, #{totalWithdrawalCount}, #{totalVisitCount}, #{totalLoginCount}, #{totalTestLinkVisitCount}, #{totalTestResultClickCount}, #{totalTestSignUpCount});
+    </insert>
+
+    <!-- 특정 날짜로 사용자 메트릭 집계 데이터 조회 -->
+    <select id="getUserMetricsAggregateByDate" parameterType="String" resultType="UserMetricsAggregateDTO">
+        SELECT * FROM user_metrics_aggregate WHERE metric_date = #{metricDate}
+    </select>
+
+    <!-- 모든 사용자 메트릭 집계 데이터 조회 -->
+    <select id="getAllUserMetricsAggregates" resultType="UserMetricsAggregateDTO">
+        SELECT * FROM user_metrics_aggregate
+    </select>
+
+    <!-- 전체 회원가입 수 누적 업데이트 -->
+    <update id="updateCumulativeSignUpCount" parameterType="int">
+        UPDATE user_metrics_aggregate
+        SET total_sign_up_count = total_sign_up_count + (SELECT COUNT(*) FROM member WHERE DATE(join_date) = CURDATE()),
+        WHERE metric_date = CURDATE()
+    </update>
+
+    <!-- 전체 탈퇴 수 누적 업데이트 -->
+    <update id="updateCumulativeWithdrawalCount" parameterType="int">
+        UPDATE user_metrics_aggregate
+        SET total_withdrawal_count = total_withdrawal_count + #{dailyWithdrawalCount}
+        WHERE metric_date = CURDATE()
+    </update>
+
+    <!-- 전체 방문자 수 누적 업데이트 -->
+    <update id="updateCumulativeVisitCount" parameterType="int">
+        UPDATE user_metrics_aggregate
+        SET total_visit_count = total_visit_count + (SELECT COUNT(DISTINCT member_idx) FROM login_log WHERE DATE(login_time) = CURDATE()),
+        WHERE metric_date = CURDATE()
+    </update>
+
+    <!-- 전체 로그인 수 누적 업데이트 -->
+    <update id="updateCumulativeLoginCount" parameterType="int">
+        UPDATE user_metrics_aggregate
+        SET total_login_count = total_login_count + (SELECT COUNT(*) FROM login_log WHERE DATE(login_time) = CURDATE()),
+        WHERE metric_date = CURDATE()
+    </update>
+
+    <!-- 전체 테스트 링크 방문 수 누적 업데이트 -->
+    <update id="updateCumulativeTestLinkVisitCount" parameterType="int">
+        UPDATE user_metrics_aggregate
+        SET total_test_link_visit_count = total_test_link_visit_count + (SELECT COUNT(*) FROM member WHERE is_active = 0 AND DATE(withdraw_date) = CURDATE())
+        WHERE metric_date = CURDATE()
+    </update>
+
+    <!-- 전체 테스트 결과 클릭 수 누적 업데이트 -->
+    <update id="updateCumulativeTestResultClickCount" parameterType="int">
+        UPDATE user_metrics_aggregate
+        SET total_test_result_click_count = total_test_result_click_count + #{dailyTestResultClickCount}
+        WHERE metric_date = CURDATE()
+    </update>
+
+    <!-- 전체 테스트 회원가입 수 누적 업데이트 -->
+    <update id="updateCumulativeTestSignUpCount" parameterType="int">
+        UPDATE user_metrics_aggregate
+        SET total_test_sign_up_count = total_test_sign_up_count + #{dailyTestSignUpCount}
+        WHERE metric_date = CURDATE()
+    </update>
+
+    <!-- 사용자 메트릭 집계 데이터 업데이트 -->
+    <update id="updateUserMetricsAggregate" parameterType="UserMetricsAggregateDTO">
+        UPDATE user_metrics_aggregate
+        SET total_sign_up_count = total_sign_up_count + #{totalSignUpCount},
+            total_withdrawal_count = total_withdrawal_count + #{totalWithdrawalCount},
+            total_visit_count = total_visit_count + #{totalVisitCount},
+            total_login_count = total_login_count + #{totalLoginCount},
+            total_test_link_visit_count = total_test_link_visit_count + #{totalTestLinkVisitCount},
+            total_test_result_click_count = total_test_result_click_count + #{totalTestResultClickCount},
+            total_test_sign_up_count = total_test_sign_up_count + #{totalTestSignUpCount}
+        WHERE aggregate_idx = #{aggregateIdx}
+    </update>
+
+    <!-- 사용자 메트릭 집계 데이터 삭제 -->
+    <delete id="deleteUserMetricsAggregate" parameterType="Long">
+        DELETE FROM user_metrics_aggregate WHERE aggregate_idx = #{aggregateIdx}
+    </delete>
+
 </mapper>

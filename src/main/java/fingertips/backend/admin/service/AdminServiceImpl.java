@@ -1,9 +1,8 @@
 package fingertips.backend.admin.service;
 
-import fingertips.backend.admin.controller.AdminController;
 import fingertips.backend.admin.dto.UserMetricsAggregateDTO;
 import fingertips.backend.admin.dto.UserMetricsDTO;
-import fingertips.backend.admin.mapper.UserMetricsMapper;
+import fingertips.backend.admin.mapper.AdminMapper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,23 +19,23 @@ import java.util.Map;
 public class AdminServiceImpl implements AdminService {
 
     @Autowired
-    private UserMetricsMapper userMetricsMapper;
+    private AdminMapper adminMapper;
     private static final Logger logger = LoggerFactory.getLogger(AdminServiceImpl.class);
 
     public int getTodaySignUpCount() {
-        return userMetricsMapper.getTodaySignUpCount();
+        return adminMapper.getTodaySignUpCount();
     }
 
     public int getTodayLoginCount() {
-        return userMetricsMapper.getTodayLoginCount();
+        return adminMapper.getTodayLoginCount();
     }
 
     public int getTodayVisitCount() {
-        return userMetricsMapper.getTodayVisitCount();
+        return adminMapper.getTodayVisitCount();
     }
 
     public int getTodayWithdrawalCount() {
-        return userMetricsMapper.getTodayWithdrawalCount();
+        return adminMapper.getTodayWithdrawalCount();
     }
 
     public void logLogin(int memberIdx, HttpServletRequest request) {
@@ -49,22 +47,22 @@ public class AdminServiceImpl implements AdminService {
         loginLogDTO.setUserAgent(userAgent);
         loginLogDTO.setIpAddress(ipAddress);
 
-        userMetricsMapper.insertLoginLog(loginLogDTO);
+        adminMapper.insertLoginLog(loginLogDTO);
     }
 
     @Override
     public int getTodayTestLinkVisitCount() {
-        return userMetricsMapper.getTodayTestLinkVisitCount();
+        return adminMapper.getTodayTestLinkVisitCount();
     }
 
     @Override
     public int getTodayTestResultClickCount() {
-        return userMetricsMapper.getTodayTestResultClickCount();
+        return adminMapper.getTodayTestResultClickCount();
     }
 
     @Override
     public int getTodayTestSignUpCount() {
-        return userMetricsMapper.getTodayTestSignUpCount();
+        return adminMapper.getTodayTestSignUpCount();
     }
 
     @Override
@@ -82,7 +80,6 @@ public class AdminServiceImpl implements AdminService {
         return testMetrics;
     }
 
-    @Override
     public Map<String, Integer> getTodayCumulativeMetrics() {
         Map<String, Integer> cumulativeMetrics = new HashMap<>();
 
@@ -106,7 +103,27 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public List<UserMetricsAggregateDTO> getCumulativeMetrics() {
-        return userMetricsMapper.getCumulativeMetrics();
+    public void updateCumulativeSignUpCount() {
+        adminMapper.updateCumulativeSignUpCount();
+    }
+
+    @Override
+    public void updateCumulativeLoginCount() {
+        adminMapper.updateCumulativeLoginCount();
+    }
+
+    @Override
+    public void updateCumulativeVisitCount() {
+        adminMapper.updateCumulativeVisitCount();
+    }
+
+    @Override
+    public void updateCumulativeWithdrawalCount() {
+        adminMapper.updateCumulativeWithdrawalCount();
+    }
+
+    @Override
+    public UserMetricsAggregateDTO getTodayMetrics() {
+        return adminMapper.selectTodayMetrics();
     }
 }

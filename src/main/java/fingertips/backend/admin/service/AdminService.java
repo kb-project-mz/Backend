@@ -16,8 +16,11 @@ public interface AdminService {
     int getTodayTestLinkVisitCount();
     int getTodayTestResultClickCount();
     int getTodayTestSignUpCount();
+    void updateCumulativeSignUpCount();
+    void updateCumulativeLoginCount();
+    void updateCumulativeVisitCount();
+    void updateCumulativeWithdrawalCount();
+    UserMetricsAggregateDTO getTodayMetrics();
     Map<String, Integer> getTodayTestMetrics();
-    Map<String, Integer> getTodayCumulativeMetrics();
-
-    List<UserMetricsAggregateDTO> getCumulativeMetrics();
+;
 }
