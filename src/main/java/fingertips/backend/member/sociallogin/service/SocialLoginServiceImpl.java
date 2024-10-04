@@ -12,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -35,6 +37,7 @@ public class SocialLoginServiceImpl implements SocialLoginService {
     private final RestTemplate restTemplate;
     private final SocialLoginMapper socialLoginMapper;
     private final JwtProcessor jwtProcessor;
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String googleClientId;
@@ -145,8 +148,8 @@ public class SocialLoginServiceImpl implements SocialLoginService {
             updateMemberTokens(memberInfo);
         }
 
-        String jwtToken = jwtProcessor.generateAccessToken(memberInfo.getEmail(), "ROLE_USER");
-        String jwtRefreshToken = jwtProcessor.generateRefreshToken(memberInfo.getEmail());
+        String jwtToken = jwtProcessor.generateAccessToken(memberInfo.getMemberId(), "ROLE_USER");
+        String jwtRefreshToken = jwtProcessor.generateRefreshToken(memberInfo.getMemberId());
 
         logger.info("JWT 액세스 토큰: {}", jwtToken);
         logger.info("JWT 리프레시 토큰: {}", jwtRefreshToken);
@@ -240,8 +243,15 @@ public class SocialLoginServiceImpl implements SocialLoginService {
                 String memberId = generateUniqueMemberId(googleId);
                 memberInfo.setMemberId(memberId);
 
+                BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+                String password = generateUniqueMemberId(googleId);
+                String encodedPassword = passwordEncoder.encode(password);
+                memberInfo.setPassword(encodedPassword);
+
                 // 새로운 사용자 DB에 저장
                 socialLoginMapper.insertMember(memberInfo);
+                SocialLoginDTO memberByGoogleId = socialLoginMapper.getMemberByGoogleId(googleId);
+                memberInfo.setMemberIdx(memberByGoogleId.getMemberIdx());
                 logger.info("새로운 회원 등록: {}", memberInfo);
             } else {
                 // 기존 사용자의 memberId, memberIdx 가져오기
