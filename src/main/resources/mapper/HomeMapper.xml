@@ -58,6 +58,12 @@
             LIMIT 3;
     </select>
 
+    <select id="getAuth" resultType="CompareAuthDTO">
+        SELECT member_idx, member_id, member_name
+        FROM member
+        WHERE member_idx = #{memberIdx};
+    </select>
+
     <update id="updateChallengeStatus">
         <![CDATA[
         UPDATE challenge_table
