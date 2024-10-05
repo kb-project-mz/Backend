@@ -179,8 +179,7 @@ public class HomeServiceImpl implements HomeService {
         return homeMapper.getPeerChallenge(memberIdx);
     }
 
-//    @Scheduled(cron = "0 0 0 * * ?")
-    @Scheduled(fixedRate = 1000)
+    @Scheduled(cron = "0 0 0 * * ?")
     public void updateChallengeStatus() {
         homeMapper.updateChallengeStatus();
     }
