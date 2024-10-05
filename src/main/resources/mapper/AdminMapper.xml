@@ -5,81 +5,109 @@
 
 <mapper namespace="fingertips.backend.admin.mapper.AdminMapper">
 
-    <!-- 오늘의 회원가입 수 -->
+    <!-- 오늘의 회원가입 수 (00:00 ~ 23:59) -->
     <select id="getTodaySignUpCount" resultType="int">
         SELECT COUNT(*)
         FROM member
-        WHERE DATE(join_date) = CURDATE()
+        WHERE join_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 1 DAY) - INTERVAL 1 SECOND
     </select>
 
-    <!-- 오늘의 로그인 수 -->
+    <!-- 오늘의 로그인 수 (00:00 ~ 23:59) -->
     <select id="getTodayLoginCount" resultType="int">
         SELECT COUNT(*)
         FROM login_log
-        WHERE DATE(login_time) = CURDATE()
+        WHERE login_time BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 1 DAY) - INTERVAL 1 SECOND
     </select>
 
-    <!-- 로그인 로그를 기록하는 쿼리 -->
+    <!-- 로그인 로그를 기록하는 쿼리 (수정하지 않음) -->
     <insert id="insertLoginLog">
         INSERT INTO login_log (member_idx, user_agent, ip_address)
         VALUES (#{memberIdx}, #{userAgent}, #{ipAddress})
     </insert>
 
-    <!-- 오늘의 방문자 수 -->
+    <!-- 오늘의 방문자 수 (00:00 ~ 23:59) -->
     <select id="getTodayVisitCount" resultType="int">
         SELECT COUNT(DISTINCT member_idx)
         FROM login_log
-        WHERE DATE(login_time) = CURDATE()
+        WHERE login_time BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 1 DAY) - INTERVAL 1 SECOND
     </select>
 
-    <!-- 오늘의 탈퇴 수 -->
+    <!-- 오늘의 탈퇴 수 (00:00 ~ 23:59) -->
     <select id="getTodayWithdrawalCount" resultType="int">
         SELECT COUNT(*)
         FROM member
         WHERE is_active = 0
-          AND DATE(withdraw_date) = CURDATE()
+          AND withdraw_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 1 DAY) - INTERVAL 1 SECOND
     </select>
 
-    <!-- 오늘의 테스트 링크 방문자 수 (테스트 기록을 추적해야 함) -->
+    <!-- 오늘의 테스트 링크 방문자 수 (00:00 ~ 23:59) -->
     <select id="getTodayTestLinkVisitCount" resultType="int">
         SELECT COUNT(*)
         FROM test_link_visit_log
-        WHERE DATE(visit_time) = CURDATE()
+        WHERE visit_time BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 1 DAY) - INTERVAL 1 SECOND
     </select>
 
-    <!-- 오늘의 테스트 결과 보기 클릭 수 -->
+    <!-- 오늘의 테스트 결과 보기 클릭 수 (00:00 ~ 23:59) -->
     <select id="getTodayTestResultClickCount" resultType="int">
         SELECT COUNT(*)
         FROM test_result_click_log
-        WHERE DATE(click_time) = CURDATE()
+        WHERE click_time BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 1 DAY) - INTERVAL 1 SECOND
+          AND EXISTS (
+            SELECT 1 FROM test_result
+            WHERE test_result.result_idx = test_result_click_log.result_idx
+            )
     </select>
 
-    <!-- 오늘의 테스트 후 가입한 사용자 수 -->
+    <!-- 오늘의 테스트 후 가입한 사용자 수 (00:00 ~ 23:59) -->
     <select id="getTodayTestSignUpCount" resultType="int">
         SELECT COUNT(DISTINCT member_idx)
         FROM member_test_result
         WHERE EXISTS (
             SELECT 1 FROM test_result
             WHERE test_result.result_idx = member_test_result.result_idx
-              AND DATE(test_result.create_date) = CURDATE()
+              AND test_result.create_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 1 DAY) - INTERVAL 1 SECOND
         )
           AND EXISTS (
             SELECT 1 FROM member
             WHERE member.member_idx = member_test_result.member_idx
-              AND DATE(member.join_date) = CURDATE()
+              AND join_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 1 DAY) - INTERVAL 1 SECOND
         )
     </select>
 
-    <!-- 오늘의 통계 데이터 가져오기 -->
-    <select id="selectTodayMetrics" resultType="UserMetricsAggregateDTO">
+    <!-- 전체 통계 데이터를 일별로 가져오기 -->
+    <select id="selectDailyMetrics" resultType="UserMetricsDTO">
         SELECT
-            total_sign_up_count AS totalSignUpCount,
-            total_withdrawal_count AS totalWithdrawalCount,
-            total_visit_count AS totalVisitCount,
-            total_login_count AS totalLoginCount
-        FROM user_metrics_aggregate
-        WHERE metric_date = CURDATE()
+            metric_date AS metricDate,
+            today_sign_up_count AS todaySignUpCount,
+            today_withdrawal_count AS todayWithdrawalCount,
+            today_visit_count AS todayVisitCount,
+            today_login_count AS todayLoginCount
+        FROM user_metrics
+        ORDER BY metric_date ASC
     </select>
+
+    <insert id="insertUserMetricsAggregate" parameterType="UserMetricsAggregateDTO">
+        INSERT INTO user_metrics_aggregate (
+            metric_date,
+            total_sign_up_count,
+            total_withdrawal_count,
+            total_visit_count,
+            total_login_count,
+            total_test_link_visit_count,
+            total_test_result_click_count,
+            total_test_sign_up_count
+        )
+        VALUES (
+                   CURDATE(),
+                   #{totalSignUpCount},
+                   #{totalWithdrawalCount},
+                   #{totalVisitCount},
+                   #{totalLoginCount},
+                   #{totalTestLinkVisitCount},
+                   #{totalTestResultClickCount},
+                   #{totalTestSignUpCount}
+               )
+    </insert>
 
     <!-- 사용자 메트릭 데이터 삽입 -->
     <insert id="insertUserMetrics" parameterType="UserMetricsDTO">
@@ -98,31 +126,26 @@
     </select>
 
     <!-- 사용자 메트릭 데이터 업데이트 -->
-    <update id="updateUserMetrics" parameterType="UserMetricsDTO">
-        UPDATE user_metrics
-        SET guest_idx = #{guestIdx},
-            member_idx = #{memberIdx},
+    <update id="updateUserMetrics">
+        UPDATE user_metrics_aggregate
+        SET total_sign_up_count = #{cumulativeSignUpCount},
+            total_login_count = #{cumulativeLoginCount},
+            total_visit_count = #{cumulativeVisitCount},
+            total_withdrawal_count = #{cumulativeWithdrawalCount},
             today_sign_up_count = #{todaySignUpCount},
-            today_withdrawal_count = #{todayWithdrawalCount},
-            today_visit_count = #{todayVisitCount},
             today_login_count = #{todayLoginCount},
+            today_visit_count = #{todayVisitCount},
+            today_withdrawal_count = #{todayWithdrawalCount},
             today_test_link_visit_count = #{todayTestLinkVisitCount},
             today_test_result_click_count = #{todayTestResultClickCount},
-            today_test_sign_up_count = #{todayTestSignUpCount},
-            create_date = CURRENT_TIMESTAMP
-        WHERE metric_idx = #{metricIdx}
+            today_test_sign_up_count = #{todayTestSignUpCount}
+        WHERE metric_date = CURDATE();
     </update>
 
     <!-- 사용자 메트릭 데이터 삭제 -->
     <delete id="deleteUserMetrics" parameterType="Long">
         DELETE FROM user_metrics WHERE metric_idx = #{metricIdx}
     </delete>
-
-    <!-- 사용자 메트릭 집계 데이터 삽입 -->
-    <insert id="insertUserMetricsAggregate" parameterType="UserMetricsAggregateDTO">
-        INSERT INTO user_metrics_aggregate (metric_date, total_sign_up_count, total_withdrawal_count, total_visit_count, total_login_count, total_test_link_visit_count, total_test_result_click_count, total_test_sign_up_count)
-        VALUES (#{metricDate}, #{totalSignUpCount}, #{totalWithdrawalCount}, #{totalVisitCount}, #{totalLoginCount}, #{totalTestLinkVisitCount}, #{totalTestResultClickCount}, #{totalTestSignUpCount});
-    </insert>
 
     <!-- 특정 날짜로 사용자 메트릭 집계 데이터 조회 -->
     <select id="getUserMetricsAggregateByDate" parameterType="String" resultType="UserMetricsAggregateDTO">
@@ -134,65 +157,119 @@
         SELECT * FROM user_metrics_aggregate
     </select>
 
+    <!-- 회원가입 수 누적 조회 쿼리 -->
+    <select id="getCumulativeSignUpCount" resultType="int">
+        SELECT
+            (COALESCE(SUM(total_sign_up_count), 0) +
+             (SELECT COUNT(*) FROM member WHERE DATE(join_date) = CURDATE())) AS cumulative_sign_up_count
+        FROM user_metrics_aggregate
+        WHERE metric_date &lt; CURDATE();
+    </select>
+
+    <!-- 로그인 수 누적 조회 쿼리 -->
+    <select id="getCumulativeLoginCount" resultType="int">
+        SELECT
+            (COALESCE(SUM(total_login_count), 0) +
+             (SELECT COUNT(*) FROM login_log WHERE DATE(login_time) = CURDATE())) AS cumulative_login_count
+        FROM user_metrics_aggregate
+        WHERE metric_date &lt; CURDATE();
+    </select>
+
+    <!-- 방문자 수 누적 조회 쿼리 -->
+    <select id="getCumulativeVisitCount" resultType="int">
+        SELECT
+            (COALESCE(SUM(total_visit_count), 0) +
+             (SELECT COUNT(DISTINCT member_idx) FROM login_log WHERE DATE(login_time) = CURDATE())) AS cumulative_visit_count
+        FROM user_metrics_aggregate
+        WHERE metric_date &lt; CURDATE();
+    </select>
+
+    <!-- 탈퇴 수 누적 조회 쿼리 -->
+    <select id="getCumulativeWithdrawalCount" resultType="int">
+        SELECT
+            (COALESCE(SUM(total_withdrawal_count), 0) +
+             (SELECT COUNT(*) FROM member WHERE is_active = 0 AND DATE(withdraw_date) = CURDATE())) AS cumulative_withdrawal_count
+        FROM user_metrics_aggregate
+        WHERE metric_date &lt; CURDATE();
+    </select>
+
     <!-- 전체 회원가입 수 누적 업데이트 -->
     <update id="updateCumulativeSignUpCount" parameterType="int">
         UPDATE user_metrics_aggregate
-        SET total_sign_up_count = total_sign_up_count + (SELECT COUNT(*) FROM member WHERE DATE(join_date) = CURDATE()),
-        WHERE metric_date = CURDATE()
+        SET total_sign_up_count = total_sign_up_count + (SELECT COUNT(*) FROM member WHERE DATE(join_date) = CURDATE())
+        WHERE metric_date = CURDATE();
     </update>
 
     <!-- 전체 탈퇴 수 누적 업데이트 -->
     <update id="updateCumulativeWithdrawalCount" parameterType="int">
         UPDATE user_metrics_aggregate
-        SET total_withdrawal_count = total_withdrawal_count + #{dailyWithdrawalCount}
-        WHERE metric_date = CURDATE()
+        SET total_withdrawal_count = total_withdrawal_count + (SELECT COUNT(*) FROM member WHERE is_active = 0 AND DATE(withdraw_date) = CURDATE())
+        WHERE metric_date = CURDATE();
     </update>
 
     <!-- 전체 방문자 수 누적 업데이트 -->
     <update id="updateCumulativeVisitCount" parameterType="int">
         UPDATE user_metrics_aggregate
-        SET total_visit_count = total_visit_count + (SELECT COUNT(DISTINCT member_idx) FROM login_log WHERE DATE(login_time) = CURDATE()),
-        WHERE metric_date = CURDATE()
+        SET total_visit_count = total_visit_count + (SELECT COUNT(DISTINCT member_idx) FROM login_log WHERE DATE(login_time) = CURDATE())
+        WHERE metric_date = CURDATE();
     </update>
 
     <!-- 전체 로그인 수 누적 업데이트 -->
     <update id="updateCumulativeLoginCount" parameterType="int">
         UPDATE user_metrics_aggregate
-        SET total_login_count = total_login_count + (SELECT COUNT(*) FROM login_log WHERE DATE(login_time) = CURDATE()),
-        WHERE metric_date = CURDATE()
+        SET total_login_count = total_login_count + (SELECT COUNT(*) FROM login_log WHERE DATE(login_time) = CURDATE())
+        WHERE metric_date = CURDATE();
     </update>
 
     <!-- 전체 테스트 링크 방문 수 누적 업데이트 -->
     <update id="updateCumulativeTestLinkVisitCount" parameterType="int">
         UPDATE user_metrics_aggregate
-        SET total_test_link_visit_count = total_test_link_visit_count + (SELECT COUNT(*) FROM member WHERE is_active = 0 AND DATE(withdraw_date) = CURDATE())
-        WHERE metric_date = CURDATE()
+        SET total_test_link_visit_count = total_test_link_visit_count + (SELECT COUNT(*) FROM test_link_visit_log WHERE DATE(visit_time) = CURDATE())
+        WHERE metric_date = CURDATE();
     </update>
 
     <!-- 전체 테스트 결과 클릭 수 누적 업데이트 -->
     <update id="updateCumulativeTestResultClickCount" parameterType="int">
         UPDATE user_metrics_aggregate
-        SET total_test_result_click_count = total_test_result_click_count + #{dailyTestResultClickCount}
-        WHERE metric_date = CURDATE()
+        SET total_test_result_click_count = total_test_result_click_count + (SELECT COUNT(*) FROM test_result_click_log WHERE DATE(click_time) = CURDATE())
+        WHERE metric_date = CURDATE();
     </update>
 
     <!-- 전체 테스트 회원가입 수 누적 업데이트 -->
     <update id="updateCumulativeTestSignUpCount" parameterType="int">
         UPDATE user_metrics_aggregate
-        SET total_test_sign_up_count = total_test_sign_up_count + #{dailyTestSignUpCount}
-        WHERE metric_date = CURDATE()
+        SET total_test_sign_up_count = total_test_sign_up_count + (
+            SELECT COUNT(DISTINCT member_idx)
+            FROM member_test_result
+            WHERE EXISTS (
+                SELECT 1 FROM test_result
+                WHERE test_result.result_idx = member_test_result.result_idx
+                  AND DATE(test_result.create_date) = CURDATE()
+            )
+              AND EXISTS (
+                SELECT 1 FROM member
+                WHERE member.member_idx = member_test_result.member_idx
+                  AND DATE(member.join_date) = CURDATE()
+            )
+        )
+        WHERE metric_date = CURDATE();
     </update>
 
     <!-- 사용자 메트릭 집계 데이터 업데이트 -->
-    <update id="updateUserMetricsAggregate" parameterType="UserMetricsAggregateDTO">
+    <update id="updateUserMetricsAggregate">
         UPDATE user_metrics_aggregate
-        SET total_sign_up_count = total_sign_up_count + #{totalSignUpCount},
-            total_withdrawal_count = total_withdrawal_count + #{totalWithdrawalCount},
-            total_visit_count = total_visit_count + #{totalVisitCount},
-            total_login_count = total_login_count + #{totalLoginCount},
-            total_test_link_visit_count = total_test_link_visit_count + #{totalTestLinkVisitCount},
-            total_test_result_click_count = total_test_result_click_count + #{totalTestResultClickCount},
-            total_test_sign_up_count = total_test_sign_up_count + #{totalTestSignUpCount}
+        SET total_sign_up_count = (SELECT COUNT(*) FROM member),
+            total_withdrawal_count = (SELECT COUNT(*) FROM member WHERE is_active = 0),
+            total_visit_count = (SELECT COUNT(DISTINCT member_idx) FROM login_log),
+            total_login_count = (SELECT COUNT(*) FROM login_log),
+            total_test_link_visit_count = (SELECT COUNT(*) FROM test_link_visit_log),
+            total_test_result_click_count = (SELECT COUNT(*) FROM test_result_click_log),
+            total_test_sign_up_count = (SELECT COUNT(DISTINCT member_idx)
+                                        FROM member_test_result
+                                        WHERE EXISTS (
+                                            SELECT 1 FROM test_result
+                                            WHERE test_result.result_idx = member_test_result.result_idx
+                                        ))
         WHERE aggregate_idx = #{aggregateIdx}
     </update>
 
@@ -200,5 +277,107 @@
     <delete id="deleteUserMetricsAggregate" parameterType="Long">
         DELETE FROM user_metrics_aggregate WHERE aggregate_idx = #{aggregateIdx}
     </delete>
+
+    <!-- 어제의 누적 회원가입 수 가져오기 -->
+    <select id="getYesterdayCumulativeSignUpCount" resultType="int">
+        SELECT
+            (COALESCE(SUM(total_sign_up_count), 0)) AS cumulative_sign_up_count
+        FROM user_metrics_aggregate
+        WHERE metric_date &lt; DATE_SUB(CURDATE(), INTERVAL 1 DAY);
+    </select>
+
+    <!-- 오늘과 어제의 회원가입 수 비교 쿼리 -->
+    <select id="getSignUpGrowthPercentage" resultType="float">
+        SELECT
+            IF(yesterday.cumulative_sign_up_count &gt; 0,
+               ((today.cumulative_sign_up_count - yesterday.cumulative_sign_up_count) / yesterday.cumulative_sign_up_count) * 100,
+               0) AS growth_percentage
+        FROM
+            (SELECT COALESCE(SUM(total_sign_up_count), 0) AS cumulative_sign_up_count
+             FROM user_metrics_aggregate
+             WHERE metric_date &lt; CURDATE()) AS today,
+            (SELECT COALESCE(SUM(total_sign_up_count), 0) AS cumulative_sign_up_count
+             FROM user_metrics_aggregate
+             WHERE metric_date &lt; DATE_SUB(CURDATE(), INTERVAL 1 DAY)) AS yesterday;
+    </select>
+
+    <!-- 어제의 누적 로그인 수 가져오기 -->
+    <select id="getYesterdayCumulativeLoginCount" resultType="int">
+        SELECT
+            (COALESCE(SUM(total_login_count), 0)) AS cumulative_login_count
+        FROM user_metrics_aggregate
+        WHERE metric_date &lt; DATE_SUB(CURDATE(), INTERVAL 1 DAY);
+    </select>
+
+    <!-- 오늘과 어제의 로그인 수 증가율 계산 -->
+    <select id="getLoginGrowthPercentage" resultType="float">
+        SELECT
+            IF(yesterday.cumulative_login_count &gt; 0,
+               ((today.cumulative_login_count - yesterday.cumulative_login_count) / yesterday.cumulative_login_count) * 100,
+               0) AS growth_percentage
+        FROM
+            (SELECT COALESCE(SUM(total_login_count), 0) AS cumulative_login_count
+             FROM user_metrics_aggregate
+             WHERE metric_date &lt; CURDATE()) AS today,
+            (SELECT COALESCE(SUM(total_login_count), 0) AS cumulative_login_count
+             FROM user_metrics_aggregate
+             WHERE metric_date &lt; DATE_SUB(CURDATE(), INTERVAL 1 DAY)) AS yesterday;
+    </select>
+
+    <!-- 어제의 누적 방문자 수 가져오기 -->
+    <select id="getYesterdayCumulativeVisitCount" resultType="int">
+        SELECT
+            (COALESCE(SUM(total_visit_count), 0)) AS cumulative_visit_count
+        FROM user_metrics_aggregate
+        WHERE metric_date &lt; DATE_SUB(CURDATE(), INTERVAL 1 DAY);
+    </select>
+
+    <!-- 오늘과 어제의 방문자 수 증가율 계산 -->
+    <select id="getVisitGrowthPercentage" resultType="float">
+        SELECT
+            IF(yesterday.cumulative_visit_count &gt; 0,
+               ((today.cumulative_visit_count - yesterday.cumulative_visit_count) / yesterday.cumulative_visit_count) * 100,
+               0) AS growth_percentage
+        FROM
+            (SELECT COALESCE(SUM(total_visit_count), 0) AS cumulative_visit_count
+             FROM user_metrics_aggregate
+             WHERE metric_date &lt; CURDATE()) AS today,
+            (SELECT COALESCE(SUM(total_visit_count), 0) AS cumulative_visit_count
+             FROM user_metrics_aggregate
+             WHERE metric_date &lt; DATE_SUB(CURDATE(), INTERVAL 1 DAY)) AS yesterday;
+    </select>
+
+    <!-- 어제의 누적 탈퇴 수 가져오기 -->
+    <select id="getYesterdayCumulativeWithdrawalCount" resultType="int">
+        SELECT
+            (COALESCE(SUM(total_withdrawal_count), 0)) AS cumulative_withdrawal_count
+        FROM user_metrics_aggregate
+        WHERE metric_date &lt; DATE_SUB(CURDATE(), INTERVAL 1 DAY);
+    </select>
+
+    <!-- 오늘과 어제의 탈퇴 수 증가율 계산 -->
+    <select id="getWithdrawalGrowthPercentage" resultType="float">
+        SELECT
+            IF(yesterday.cumulative_withdrawal_count &gt; 0,
+               ((today.cumulative_withdrawal_count - yesterday.cumulative_withdrawal_count) / yesterday.cumulative_withdrawal_count) * 100,
+               0) AS growth_percentage
+        FROM
+            (SELECT COALESCE(SUM(total_withdrawal_count), 0) AS cumulative_withdrawal_count
+             FROM user_metrics_aggregate
+             WHERE metric_date &lt; CURDATE()) AS today,
+            (SELECT COALESCE(SUM(total_withdrawal_count), 0) AS cumulative_withdrawal_count
+             FROM user_metrics_aggregate
+             WHERE metric_date &lt; DATE_SUB(CURDATE(), INTERVAL 1 DAY)) AS yesterday;
+    </select>
+
+    <!-- 증가율을 업데이트하는 쿼리 -->
+    <update id="updateGrowthRates" parameterType="map">
+        UPDATE user_metrics_aggregate
+        SET sign_up_growth_percentage = #{signUpGrowth},
+            withdrawal_growth_percentage = #{withdrawalGrowth},
+            visit_growth_percentage = #{visitGrowth},
+            login_growth_percentage = #{loginGrowth}
+        WHERE metric_date = #{metricDate};
+    </update>
 
 </mapper>

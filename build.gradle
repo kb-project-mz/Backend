@@ -25,6 +25,14 @@ tasks.withType(JavaCompile) {
   options.encoding = 'UTF-8'
 }
 
+test {
+  useJUnitPlatform()
+  testLogging {
+    events "passed", "skipped", "failed"
+  }
+}
+
+
 dependencies {
   // 스프링
   implementation("org.springframework:spring-context:${springVersion}") { exclude group: 'commons-logging', module: 'commons-logging' }
@@ -119,6 +127,12 @@ dependencies {
   implementation 'org.springframework:spring-context:5.3.23'
   implementation 'org.springframework:spring-context-support:5.3.23'
 
+  // JUnit 4 의존성 추가
+  testImplementation 'junit:junit:4.13.2'
+  testImplementation 'org.junit.vintage:junit-vintage-engine:5.9.2'
+
+  // Mockito 의존성 추가
+  testImplementation 'org.mockito:mockito-core:3.11.2'
 }
 
 

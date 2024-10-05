@@ -9,18 +9,14 @@ import java.util.List;
 import java.util.Map;
 
 public interface AdminService {
-    int getTodaySignUpCount();
-    int getTodayLoginCount();
-    int getTodayVisitCount();
-    int getTodayWithdrawalCount();
-    int getTodayTestLinkVisitCount();
-    int getTodayTestResultClickCount();
-    int getTodayTestSignUpCount();
+    int getCumulativeSignUpCount();
+    int getCumulativeLoginCount();
+    int getCumulativeVisitCount();
+    int getCumulativeWithdrawalCount();
     void updateCumulativeSignUpCount();
     void updateCumulativeLoginCount();
     void updateCumulativeVisitCount();
     void updateCumulativeWithdrawalCount();
-    UserMetricsAggregateDTO getTodayMetrics();
-    Map<String, Integer> getTodayTestMetrics();
-;
+    List<UserMetricsAggregateDTO> getDailyMetrics();
+    Map<String, Float> getAllGrowthMetrics();
 }
