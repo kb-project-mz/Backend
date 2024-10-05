@@ -10,7 +10,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class SocialLoginDTO {
+    private String memberIdx;
     private String memberId;
+    private String password;
     private String email;
     private String memberName;
     private String googleId;

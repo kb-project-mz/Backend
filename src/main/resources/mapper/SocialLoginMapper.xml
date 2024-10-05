@@ -12,8 +12,8 @@
     </select>
 
     <insert id="insertMember" parameterType="SocialLoginDTO">
-        INSERT INTO member (member_id, email, member_name, google_id, social_type, google_access_token, google_id_token, google_refresh_token, expires_in)
-        VALUES (#{memberId}, #{email}, #{memberName}, #{googleId}, #{socialType}, #{googleAccessToken}, #{googleIdToken}, #{googleRefreshToken}, #{expiresIn})
+        INSERT INTO member (member_id, password, email, member_name, google_id, social_type, google_access_token, google_id_token, google_refresh_token, expires_in)
+        VALUES (#{memberId}, #{password}, #{email}, #{memberName}, #{googleId}, #{socialType}, #{googleAccessToken}, #{googleIdToken}, #{googleRefreshToken}, #{expiresIn})
     </insert>
 
     <update id="updateMemberTokens" parameterType="SocialLoginDTO">
@@ -24,5 +24,14 @@
         expires_in = #{expiresIn}
         WHERE email = #{email}
     </update>
+
+    <select id="getMemberByGoogleId" resultType="SocialLoginDTO">
+        SELECT google_id, email, member_name, google_access_token, google_id_token,
+               google_refresh_token, expires_in, social_type, member_id, member_idx
+        FROM member
+        WHERE google_id = #{googleId}
+    </select>
+
+
 
 </mapper>
