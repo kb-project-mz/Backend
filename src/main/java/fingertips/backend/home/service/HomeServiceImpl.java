@@ -56,116 +56,48 @@ public class HomeServiceImpl implements HomeService {
         List<BalanceDTO> currentBalances = homeMapper.getBalanceByMemberIdx(memberIdx);
         CompareAuthDTO auth = homeMapper.getAuth(memberIdx);
 
-        // Node.js 서버 url
-        String socketUrl = "http://localhost:3000/update";
+        // db의 balance가 변화가 있다면 실행
+        if (!currentBalances.equals(lastBalances)) {
 
-        // balance가 변화가 있는 경우에만 balance 전송 플래그 설정
-        boolean balanceUpdated = !currentBalances.equals(lastBalances);
+            // balance 정보 전송을 위한 Node.js 서버 url
+            String balanceUrl = "http://localhost:3000/updateBalance";
 
-        // Node.js 서버로 balance와 auth 전송
+            // Node.js 서버로 balance 정보 전송
+            try {
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                headers.set(HttpHeaders.ACCEPT_CHARSET, "UTF-8");
+
+                HttpEntity<List<BalanceDTO>> entity = new HttpEntity<>(currentBalances, headers);
+                restTemplate.postForEntity(balanceUrl, entity, String.class);
+
+            } catch (Exception e) {
+                System.out.println("Failed to send balance data to Node.js: " + e.getMessage());
+            }
+
+            // 마지막 balance 업데이트
+            lastBalances = currentBalances;
+        } else {
+            System.out.println("No balance changes detected.");
+        }
+
+        // auth 정보 전송을 위한 Node.js 서버 url
+        String authUrl = "http://localhost:3000/updateAuth";
+
+        // auth 정보는 1초마다 항상 전송
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set(HttpHeaders.ACCEPT_CHARSET, "UTF-8");
 
-            // Balance와 Auth를 같은 요청에 필드로 포함
-            Map<String, Object> payload = new HashMap<>();
-            payload.put("balance", balanceUpdated ? currentBalances : lastBalances); // balance가 변화가 있을 때만 포함
-            payload.put("auth", auth); // auth는 항상 포함
+            HttpEntity<CompareAuthDTO> authEntity = new HttpEntity<>(auth, headers);
+            restTemplate.postForEntity(authUrl, authEntity, String.class);
 
-            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload, headers);
-            restTemplate.postForEntity(socketUrl, entity, String.class);
-
-            // balance 변화가 있을 경우 마지막 balance 업데이트
-            if (balanceUpdated) {
-                lastBalances = currentBalances;
-            }
         } catch (Exception e) {
-            System.out.println("Failed to send data to Node.js: " + e.getMessage());
+            System.out.println("Failed to send auth data to Node.js: " + e.getMessage());
         }
     }
 
-
-//    @Scheduled(fixedRate = 1000)
-//    public void checkForBalanceAndAuthUpdates() {
-//        // 1. Balance 체크 (DB 변경 감지)
-//        List<BalanceDTO> currentBalances = homeMapper.getBalanceByMemberIdx(memberIdx);
-//
-//        if (!currentBalances.equals(lastBalances)) {
-//            // balance에 변화가 있을 때만 전송
-//            String balanceUrl = "http://localhost:3000/updateBalance";
-//
-//            try {
-//                HttpHeaders headers = new HttpHeaders();
-//                headers.setContentType(MediaType.APPLICATION_JSON);
-//                headers.set(HttpHeaders.ACCEPT_CHARSET, "UTF-8");
-//
-//                // BalanceDTO 전송
-//                HttpEntity<List<BalanceDTO>> balanceEntity = new HttpEntity<>(currentBalances, headers);
-//                restTemplate.postForEntity(balanceUrl, balanceEntity, String.class);
-//
-//                // 마지막 balance 업데이트
-//                lastBalances = currentBalances;
-//            } catch (Exception e) {
-//                System.out.println("Failed to send balance data to Node.js: " + e.getMessage());
-//            }
-//        }
-//
-//        // 2. Auth 정보는 항상 전송
-//        CompareAuthDTO auth = homeMapper.getAuth(memberIdx);
-//        String authUrl = "http://localhost:3000/updateAuth";
-//
-//        try {
-//            HttpHeaders headers = new HttpHeaders();
-//            headers.setContentType(MediaType.APPLICATION_JSON);
-//            headers.set(HttpHeaders.ACCEPT_CHARSET, "UTF-8");
-//
-//            // CompareAuthDTO 전송
-//            HttpEntity<CompareAuthDTO> authEntity = new HttpEntity<>(auth, headers);
-//            restTemplate.postForEntity(authUrl, authEntity, String.class);
-//        } catch (Exception e) {
-//            System.out.println("Failed to send auth data to Node.js: " + e.getMessage());
-//        }
-//    }
-
-//    @Scheduled(fixedRate = 1000)
-//    public void checkForBalanceUpdates() {
-////        boolean update_flag = false;
-//        List<BalanceDTO> currentBalances = homeMapper.getBalanceByMemberIdx(memberIdx);
-//        CompareAuthDTO auth = homeMapper.getAuth(memberIdx);
-//        // db의 balance가 변화가 있다면 실행
-//        if (!currentBalances.equals(lastBalances)) {
-//
-//            // Node.js 서버 url
-//            String socketUrl = "http://localhost:3000/update";
-////  update랑 select를 분리 update
-////  update
-////  select
-////  한명만 update > select
-////  나머지는 그냥 select
-//            // Node.js 서버로 업데이트 전송
-//            try {
-//                //인코딩 후 node.js로 데이터 보내기
-//                HttpHeaders headers = new HttpHeaders();
-//                headers.setContentType(MediaType.APPLICATION_JSON);
-//                headers.set(HttpHeaders.ACCEPT_CHARSET, "UTF-8");
-//
-//                HttpEntity<List<BalanceDTO>> entity = new HttpEntity<>(currentBalances, headers);
-//                ResponseEntity<String> response = restTemplate.postForEntity(socketUrl, entity, String.class);
-////                if(update_flag) {
-////                    ResponseEntity<String> response = restTemplate.postForEntity(socketUrl, entity, String.class);
-////                }
-//            } catch (Exception e) {
-//                // Node.js로 데이터 보내기 실패
-//                System.out.println("Failed to send data to Node.js: " + e.getMessage());
-//            }
-//
-//            lastBalances = currentBalances;
-//        } else {
-//            // db의 balance가 변화가 없다면 실행
-//            System.out.println("No balance changes detected.");
-//        }
-//    }
 
     // 챌린지 받아오기
     @Override
