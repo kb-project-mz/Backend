@@ -216,14 +216,18 @@ public class MemberController {
 
     // 파일 업로드
     @PostMapping("/image")
-    public ResponseEntity<JsonResponse<String>> uploadFile(@RequestParam("file") MultipartFile file) {
-
+    public ResponseEntity<JsonResponse<UploadFileDTO>> uploadFile(
+            @RequestPart(value = "file", required = false) MultipartFile file) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String memberId = authentication.getName();
-        log.info("00000000000000000000000000" + memberId);
-        String uploadedUrl = s3uploaderService.saveFile(file);
-        log.info("1111111111111111111111111111");
-        return ResponseEntity.ok(JsonResponse.success(uploadedUrl));
+
+        // s3 서버에 파일 저장
+        UploadFile uploadFile = s3uploaderService.uploadFile(file);
+        String imageUrl = uploadFile.getStoreFileName();
+
+        // s3 서버에 저장된 URL을 우리 DB에 저장
+        UploadFileDTO uploadImage = memberService.uploadImage(memberId, imageUrl);
+        return ResponseEntity.ok(JsonResponse.success(uploadImage));
     }
 
     // 파일 삭제
@@ -232,6 +236,7 @@ public class MemberController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String memberId = authentication.getName();
         s3uploaderService.deleteFile(fileUrl);
+
         return ResponseEntity.ok(JsonResponse.success(fileUrl));
     }
 

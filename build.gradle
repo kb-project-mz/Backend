@@ -118,6 +118,9 @@ dependencies {
   // S3
   implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
+  // AWS SDK
+  implementation 'com.amazonaws:aws-java-sdk-s3:1.12.300' // 최신 버전 확인 후 사용
+  implementation 'com.amazonaws:aws-java-sdk-core:1.12.300' // S3와 연결하기 위한 core 라이브러리
 }
 
 

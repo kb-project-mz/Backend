@@ -51,9 +51,9 @@ public class RootConfig {
     @Value("${jdbc.url}") String url;
     @Value("${jdbc.username}") String username;
     @Value("${jdbc.password}") String password;
-    @Value("${spring.cloud.aws.credentials.accessKey}") private String accessKey;
-    @Value("${spring.cloud.aws.credentials.secretKey}") private String secretKey;
-    @Value("${spring.cloud.aws.region.static}") private String region;
+    @Value("${cloud.aws.credentials.accessKey}") private String accessKey;
+    @Value("${cloud.aws.credentials.secretKey}") private String secretKey;
+    @Value("${cloud.aws.region.static}") private String region;
 
 
     @Bean
@@ -102,7 +102,7 @@ public class RootConfig {
 
     @Bean
     public AmazonS3 amazonS3Client() {
-        AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
+        BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
 
         return AmazonS3ClientBuilder
                 .standard()
