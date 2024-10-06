@@ -2,7 +2,7 @@ package fingertips.backend.member.controller;
 
 import fingertips.backend.exception.dto.JsonResponse;
 import fingertips.backend.member.dto.*;
-import fingertips.backend.member.service.EmailService;
+import fingertips.backend.member.service.S3uploaderService;
 import fingertips.backend.security.account.dto.AuthDTO;
 import fingertips.backend.member.service.MemberService;
 
@@ -36,6 +36,7 @@ public class MemberController {
     private final MemberService memberService;
     private final UploadFileService uploadFileService;
     private final JwtProcessor jwtProcessor;
+    private final S3uploaderService s3uploaderService;
 
 
     @PostMapping("/join")
@@ -188,30 +189,57 @@ public class MemberController {
         return ResponseEntity.ok(JsonResponse.success("password change success"));
     }
 
+//    @PostMapping("/image")
+//    public ResponseEntity<JsonResponse<UploadFileDTO>> updateImage(
+//            @RequestParam(value = "profileImage", required = false) MultipartFile profileImage) {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        String memberId = authentication.getName();
+//        UploadFile uploadFile = uploadFileService.storeFile(profileImage);
+//        String imageUrl = uploadFile.getStoreFileName();
+//        UploadFileDTO uploadImage = memberService.uploadImage(memberId, imageUrl);
+//        return ResponseEntity.ok(JsonResponse.success(uploadImage));
+//    }
+//
+//    @PostMapping("/image/default")
+//    public ResponseEntity<JsonResponse<UploadFileDTO>> defaultImage(
+//            @RequestParam(value = "profileImage") MultipartFile profileImage) {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        String memberId = authentication.getName();
+//
+//        String imageToDelete = profileImage.getOriginalFilename();
+//        uploadFileService.deleteFile(memberId, imageToDelete);
+//        String defaultImageUrl = "default.jfif";
+//
+//        UploadFileDTO uploadImage = memberService.uploadImage(memberId, defaultImageUrl);
+//        return ResponseEntity.ok(JsonResponse.success(uploadImage));
+//    }
+
+    // 파일 업로드
     @PostMapping("/image")
-    public ResponseEntity<JsonResponse<UploadFileDTO>> updateImage(
-            @RequestParam(value = "profileImage", required = false) MultipartFile profileImage) {
+    public ResponseEntity<JsonResponse<String>> uploadFile(@RequestParam("file") MultipartFile file) {
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String memberId = authentication.getName();
-        UploadFile uploadFile = uploadFileService.storeFile(profileImage);
-        String imageUrl = uploadFile.getStoreFileName();
-        UploadFileDTO uploadImage = memberService.uploadImage(memberId, imageUrl);
-        return ResponseEntity.ok(JsonResponse.success(uploadImage));
+        log.info("00000000000000000000000000" + memberId);
+        String uploadedUrl = s3uploaderService.saveFile(file);
+        log.info("1111111111111111111111111111");
+        return ResponseEntity.ok(JsonResponse.success(uploadedUrl));
     }
 
-    @PostMapping("/image/default")
-    public ResponseEntity<JsonResponse<UploadFileDTO>> defaultImage(
-            @RequestParam(value = "profileImage") MultipartFile profileImage) {
+    // 파일 삭제
+    @DeleteMapping("/image")
+    public ResponseEntity<JsonResponse<String>> deleteFile(@RequestParam("fileUrl") String fileUrl) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String memberId = authentication.getName();
-
-        String imageToDelete = profileImage.getOriginalFilename();
-        uploadFileService.deleteFile(memberId, imageToDelete);
-        String defaultImageUrl = "default.jfif";
-
-        UploadFileDTO uploadImage = memberService.uploadImage(memberId, defaultImageUrl);
-        return ResponseEntity.ok(JsonResponse.success(uploadImage));
+        s3uploaderService.deleteFile(fileUrl);
+        return ResponseEntity.ok(JsonResponse.success(fileUrl));
     }
+
+//    @PostMapping("/imagee")
+//    public ResponseEntity<JsonResponse<String>> testAPI(@RequestParam("fileUrl") String fileUrl) {
+//        log.info("jwttttttttttttttttttttttaaaaaaaaaaaaaaaa");
+//        return ResponseEntity.ok(JsonResponse.success(fileUrl));
+//    }
 
 //    @PostMapping("/email")
 //    public ResponseEntity<JsonResponse<UploadFileDTO>> updateEmail() {

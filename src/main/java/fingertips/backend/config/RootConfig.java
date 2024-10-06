@@ -1,5 +1,10 @@
 package fingertips.backend.config;
 
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +51,10 @@ public class RootConfig {
     @Value("${jdbc.url}") String url;
     @Value("${jdbc.username}") String username;
     @Value("${jdbc.password}") String password;
+    @Value("${spring.cloud.aws.credentials.accessKey}") private String accessKey;
+    @Value("${spring.cloud.aws.credentials.secretKey}") private String secretKey;
+    @Value("${spring.cloud.aws.region.static}") private String region;
+
 
     @Bean
     public DataSource dataSource() {
@@ -89,5 +98,16 @@ public class RootConfig {
         ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
         taskScheduler.setPoolSize(10);  // 풀 크기 설정
         return taskScheduler;
+    }
+
+    @Bean
+    public AmazonS3 amazonS3Client() {
+        AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
+
+        return AmazonS3ClientBuilder
+                .standard()
+                .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                .withRegion(region)
+                .build();
     }
 }
