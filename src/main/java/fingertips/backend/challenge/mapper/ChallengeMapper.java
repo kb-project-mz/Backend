@@ -15,5 +15,5 @@ public interface ChallengeMapper {
     void deleteChallenge(Integer challengeId);
     List<String> getCardHistoryContentByCategory(CardTransactionFilterDTO cardHistoryFilterDTO);
     List<ProgressDTO> getChallengeStatus(Integer memberId);
-    List<ChallengeDTO> getAllChallengeList();
+    List<ChallengeDTO> getPeerChallengeList(Integer memberIdx);
 }

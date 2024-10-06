@@ -66,8 +66,8 @@ public class ChallengeServiceImpl implements ChallengeService {
     }
 
     @Override
-    public List<ChallengeDTO> getAllChallengeList() {
-        return challengeMapper.getAllChallengeList();
+    public List<ChallengeDTO> getPeerChallengeList(Integer memberIdx) {
+        return challengeMapper.getPeerChallengeList(memberIdx);
     }
 
     public String formatConsumptionListAsTable(List<String> cardHistory) {

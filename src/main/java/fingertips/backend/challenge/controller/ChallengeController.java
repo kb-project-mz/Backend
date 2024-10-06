@@ -60,10 +60,10 @@ public class ChallengeController {
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 
-    @GetMapping("")
-    public ResponseEntity<JsonResponse<List<ChallengeDTO>>> getAllChallengeList() {
+    @GetMapping("/peer/{memberIdx}")
+    public ResponseEntity<JsonResponse<List<ChallengeDTO>>> getPeerChallengeList(@PathVariable Integer memberIdx) {
 
-        List<ChallengeDTO> response = challengeService.getAllChallengeList();
+        List<ChallengeDTO> response = challengeService.getPeerChallengeList(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 }

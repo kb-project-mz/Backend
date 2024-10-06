@@ -50,11 +50,19 @@
         GROUP BY c.challenge_idx, c.challenge_limit, c.challenge_type
     </select>
 
-    <select id="getAllChallengeList" parameterType="String" resultType="ChallengeDTO">
-        SELECT ch.challenge_idx, ch.challenge_name, ch.challenge_type, ch.challenge_limit, ch.category_idx, ch.detailed_category,
-               ch.challenge_status, ca.category_name
-        FROM challenge ch
-            JOIN category ca ON ca.category_idx = ch.category_idx
-        WHERE is_public = 1 AND is_delete = 0
+    <select id="getPeerChallengeList" parameterType="Integer" resultType="ChallengeDTO">
+        SELECT c.detailed_category, c.challenge_type, c.challenge_limit, c.challenge_end_date, c.challenge_start_date,
+            c.challenge_end_date - c.challenge_start_date AS challenge_duration
+        FROM challenge c JOIN member m ON c.member_idx = m.member_idx
+        WHERE c.is_public = 1 AND c.is_delete = 0
+            AND c.detailed_category IN (
+                SELECT detailed_category
+                FROM challenge
+                GROUP BY detailed_category
+                HAVING COUNT(category_idx) >= 3
+            )
+            AND ABS((SELECT YEAR(m.birthday) FROM member m WHERE m.member_idx = 1)
+                - (SELECT YEAR(m.birthday) FROM member m WHERE m.member_idx = c.member_idx)) &lt; 4
+
     </select>
 </mapper>
