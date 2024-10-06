@@ -18,6 +18,22 @@
         WHERE question_idx = #{questionIdx}
     </select>
 
+    <select id="getQuestionsWithOptions" resultType="TestAllDTO">
+        SELECT
+            q.question_idx AS questionIdx,
+            q.question_text AS questionText,
+            o.option_idx AS optionIdx,
+            o.option_text AS optionText,
+            o.score,
+            o.type_idx AS type
+        FROM
+            test_question q
+                LEFT JOIN
+            test_option o ON q.question_idx = o.question_idx
+        ORDER BY
+            q.question_idx ASC
+    </select>
+
     <!-- 3. 결과 테이블에 넣기 -->
     <insert id="insertTestResult" parameterType="TestResultDTO">
         INSERT INTO test_result (member_idx, type_idx, total_score)

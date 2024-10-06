@@ -1,6 +1,7 @@
 package fingertips.backend.test.service;
 
 
+import fingertips.backend.test.dto.TestAllDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import fingertips.backend.test.dto.TestQuestionDTO;
@@ -29,5 +30,10 @@ public class TestServiceImpl implements TestService {
     @Override
     public void saveTestResult(TestResultDTO testResultDTO) {
         testMapper.insertTestResult(testResultDTO);
+    }
+
+    @Override
+    public List<TestAllDTO> getAllQustionOptions() {
+        return testMapper.getQuestionsWithOptions();
     }
 }
