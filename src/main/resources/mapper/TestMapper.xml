@@ -4,40 +4,21 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="fingertips.backend.test.mapper.TestMapper">
 
-<!--    1. 질문 리스트 불러오기-->
     <select id="getAllQuestions" resultType="TestQuestionDTO">
         SELECT question_idx, question_text
         FROM test_question
         ORDER BY question_idx ASC
     </select>
 
-    <!-- 2. 선택지 리스트 불러오기 -->
     <select id="getOptionsByQuestionId" parameterType="int" resultType="TestOptionDTO">
         SELECT option_idx, question_idx, option_text, score, type_idx
         FROM test_option
         WHERE question_idx = #{questionIdx}
     </select>
 
-    <select id="getQuestionsWithOptions" resultType="TestAllDTO">
-        SELECT
-            q.question_idx AS questionIdx,
-            q.question_text AS questionText,
-            o.option_idx AS optionIdx,
-            o.option_text AS optionText,
-            o.score,
-            o.type_idx AS type
-        FROM
-            test_question q
-                LEFT JOIN
-            test_option o ON q.question_idx = o.question_idx
-        ORDER BY
-            q.question_idx ASC
-    </select>
-
-    <!-- 3. 결과 테이블에 넣기 -->
     <insert id="insertTestResult" parameterType="TestResultDTO">
-        INSERT INTO test_result (member_idx, type_idx, total_score)
-        VALUES (#{memberIdx}, #{typeIdx}, #{totalScore})
+        INSERT INTO test_result (member_idx, type_idx)
+        VALUES (#{memberIdx}, #{typeIdx})
     </insert>
 
 

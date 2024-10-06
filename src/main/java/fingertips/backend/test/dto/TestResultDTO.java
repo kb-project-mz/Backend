@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 public class TestResultDTO {
 
-    private int memberIdx;
-    private int typeIdx;
-    private int totalScore;
+    private Integer memberIdx;
+    private Integer typeIdx;
+
 }
