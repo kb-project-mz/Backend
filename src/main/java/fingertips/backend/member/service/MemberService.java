@@ -13,11 +13,12 @@ public interface MemberService {
     boolean checkEmailDuplicate(String email);
     boolean existsMemberName(String memberName);
 
+    // 마이페이지 업데이트 관련
     ProfileDTO getProfile(String memberId);
     UploadFileDTO uploadImage(String memberId, String imageUrl);
-    //void updateProfile(String memberId, UpdateProfileDTO updateProfile);
     void verifyPassword(String memberId, VerifyPasswordDTO verifyPassword);
     void changePassword(String memberId, NewPasswordDTO newPassword);
+    void changeEmail(String memberId, NewEmailDTO newEmail);
 
     void clearRefreshToken(String memberId);
     String findByNameAndEmail(String memberName, String email);

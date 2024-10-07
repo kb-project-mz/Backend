@@ -51,8 +51,8 @@ public class RootConfig {
     @Value("${jdbc.url}") String url;
     @Value("${jdbc.username}") String username;
     @Value("${jdbc.password}") String password;
-    @Value("${cloud.aws.credentials.accessKey}") private String accessKey;
-    @Value("${cloud.aws.credentials.secretKey}") private String secretKey;
+    @Value("${cloud.credentials.access-key}") private String accessKey;
+    @Value("${cloud.credentials.secret-key}") private String secretKey;
     @Value("${cloud.aws.region.static}") private String region;
 
 

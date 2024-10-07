@@ -116,6 +116,10 @@
         WHERE member_name = #{memberName}
     </select>
 
-
+    <update id="saveNewEmail" parameterType="NewEmailDTO">
+        UPDATE member
+        SET email = #{newEmail}
+        WHERE member_id = #{memberId}
+    </update>
 
 </mapper>

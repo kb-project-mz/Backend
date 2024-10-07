@@ -20,8 +20,7 @@ public class MemberServiceImpl implements MemberService {
     private final MemberMapper memberMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtProcessor jwtProcessor;
-    private final UploadFileService uploadFileService;
-
+    private final EmailService emailService;
 
     public String authenticate(String username, String password) {
         MemberDTO memberDTO = memberMapper.getMemberByMemberId(username);
@@ -190,6 +189,19 @@ public class MemberServiceImpl implements MemberService {
                     .newPassword(updatedPassword)
                     .build();
             memberMapper.saveNewPassword(updated);
+        }
+    }
+
+    @Override
+    public void changeEmail(String memberId, NewEmailDTO newEmail) {
+        if(emailService.isEmailTaken(newEmail.getNewEmail())){
+            throw new ApplicationException(ApplicationError.EMAIL_DUPLICATED);
+        } else {
+            NewEmailDTO updated = NewEmailDTO.builder()
+                    .memberId(memberId)
+                    .newEmail(newEmail.getNewEmail())
+                    .build();
+            memberMapper.saveNewEmail(updated);
         }
     }
 

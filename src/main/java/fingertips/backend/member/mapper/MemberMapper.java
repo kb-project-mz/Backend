@@ -26,4 +26,5 @@ public interface MemberMapper {
 
     void saveNewPassword(NewPasswordDTO newPassword);
     void saveNewImage(UploadFileDTO uploadFile);
+    void saveNewEmail(NewEmailDTO newEmail);
 }
