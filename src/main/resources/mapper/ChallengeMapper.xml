@@ -54,14 +54,14 @@
         SELECT c.detailed_category, COUNT(challenge_idx) AS challenge_count
         FROM challenge c JOIN member m ON c.member_idx = m.member_idx
         WHERE c.is_public = 1 AND c.is_delete = 0 AND c.challenge_status = "진행"
-        AND c.detailed_category IN (
-        SELECT detailed_category
-        FROM challenge
-        GROUP BY detailed_category
-        HAVING COUNT(category_idx) >= 10
-        )
-        AND ABS((SELECT YEAR(m.birthday) FROM member m WHERE m.member_idx = #{memberIdx})
-        - (SELECT YEAR(m.birthday) FROM member m WHERE m.member_idx = c.member_idx)) &lt; 6
+            AND c.detailed_category IN (
+                SELECT detailed_category
+                FROM challenge
+                GROUP BY detailed_category
+                HAVING COUNT(category_idx) >= 10
+            )
+            AND ABS((SELECT YEAR(m.birthday) FROM member m WHERE m.member_idx = #{memberIdx})
+                - (SELECT YEAR(m.birthday) FROM member m WHERE m.member_idx = c.member_idx)) &lt; 6
         GROUP BY detailed_category
         ORDER BY COUNT(challenge_idx)
         LIMIT 5;
