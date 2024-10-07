@@ -7,7 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,6 +30,15 @@ public class AdminController {
     public String createAdmin() {
         adminService.createAdmin();
         return "Admin created successfully";
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<?> getAdminDashboard(Authentication authentication) {
+        if (authentication.getAuthorities().stream()
+                .noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"))) {
+            return new ResponseEntity<>("403 Forbidden - 관리자 권한이 없습니다.", HttpStatus.FORBIDDEN);
+        }
+        return new ResponseEntity<>("Admin Dashboard", HttpStatus.OK);
     }
 
     // 일별 전체 통계를 반환하는 API

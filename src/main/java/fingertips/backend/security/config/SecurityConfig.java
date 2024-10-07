@@ -103,6 +103,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS).permitAll()
                 .antMatchers("/admin/**").hasRole("ADMIN")
+                .antMatchers("/memberHomePage").authenticated()
                 .antMatchers(HttpMethod.POST,"/api/v1/test/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/v1/member/join").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/v1/member/login").permitAll()

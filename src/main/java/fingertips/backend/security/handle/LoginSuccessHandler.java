@@ -66,9 +66,5 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         memberDTO.setIsLoginLocked(0);
         memberDTO.setLoginLockTime(0L);
         memberMapper.updateLockStatus(memberDTO);
-
-        if ("ROLE_ADMIN".equals(memberDTO.getRole())) {
-            response.sendRedirect("http://localhost:5173/admin");
-        }
     }
 }
