@@ -48,11 +48,12 @@ public class HomeServiceImpl implements HomeService {
         return homeMapper.getBalanceByMemberIdx(memberIdx);
     }
 
+
     @Override
     public CompareAuthDTO getAuth(Integer memberIdx) { return homeMapper.getAuth(memberIdx); }
 
     @Scheduled(fixedRate = 1000)
-    public void checkForBalanceAndAuthUpdates() {
+    public void checkForBalanceUpdates() {
         List<BalanceDTO> currentBalances = homeMapper.getBalanceByMemberIdx(memberIdx);
         CompareAuthDTO auth = homeMapper.getAuth(memberIdx);
 
@@ -97,8 +98,7 @@ public class HomeServiceImpl implements HomeService {
             System.out.println("Failed to send auth data to Node.js: " + e.getMessage());
         }
     }
-
-
+  
     // 챌린지 받아오기
     @Override
     public List<HomeChallengeDTO> getChallengeByMemberIdx(Integer memberIdx) {
