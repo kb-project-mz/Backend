@@ -2,13 +2,11 @@ package fingertips.backend.member.controller;
 
 import fingertips.backend.exception.dto.JsonResponse;
 import fingertips.backend.member.dto.*;
-import fingertips.backend.member.service.EmailService;
 import fingertips.backend.member.service.S3uploaderService;
 import fingertips.backend.security.account.dto.AuthDTO;
 import fingertips.backend.member.service.MemberService;
 
 import fingertips.backend.member.util.UploadFile;
-
 
 import fingertips.backend.security.util.JwtProcessor;
 import lombok.RequiredArgsConstructor;
@@ -213,11 +211,7 @@ public class MemberController {
     public ResponseEntity<JsonResponse<String>> updateEmail(@RequestBody NewEmailDTO newEmail) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String memberId = authentication.getName();
-
         memberService.changeEmail(memberId, newEmail);
-        // 멤버 아이디로 eamil 찾아와서 기존의 이메일이랑 같은지 체크하고
-        // 다를때만 업그레이드 해주기
-
         return ResponseEntity.ok(JsonResponse.success("Email changed successfully"));
     }
 }

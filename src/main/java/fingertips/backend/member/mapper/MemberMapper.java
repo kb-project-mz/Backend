@@ -15,7 +15,6 @@ public interface MemberMapper {
     String findByNameAndEmail(MemberIdFindDTO memberIdFindDTO);
     int existsMemberId(String memberId);
     ProfileDTO getProfile(String memberId);
-    void updateProfile(UpdateProfileDTO updateProfile);
     String getPassword(String memberId);
     void clearRefreshToken(String memberId);
     void withdrawMember(String memberId);
