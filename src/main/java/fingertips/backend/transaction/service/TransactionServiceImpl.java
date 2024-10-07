@@ -12,7 +12,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -56,12 +59,10 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionMapper.getMostSpentCategoryByAmount(memberIdx);
     }
 
-
     @Override
     public List<AccountTransactionDTO> getAccountTransactionList(Integer memberId) {
         return transactionMapper.getAccountTransactionList(memberId);
     }
-
 
     // TODO : 프롬프트 수정
     @Override
@@ -101,6 +102,36 @@ public class TransactionServiceImpl implements TransactionService {
                 "특정 카테고리에 너무 많이 사용하고 있거나 하는 등의 소비 패턴을 분석해서 조언해줘.");
 
         return openAiService.askOpenAi(prompt);
+    }
+
+    @Override
+    public List<String> getFixedExpense(Integer memberIdx) {
+
+        List<String> recurringExpense = new ArrayList<>();
+
+        List<CardTransactionDTO> transactionLastThreeMonths = getCardTransactionLastFourMonths(memberIdx);
+        Map<String, Set<String>> transactionGroupedByDescription = transactionLastThreeMonths.stream()
+                .collect(Collectors.groupingBy(
+                        CardTransactionDTO::getCardTransactionDescription,
+                        Collectors.mapping(CardTransactionDTO::getCardTransactionDate, Collectors.toSet())
+                ));
+
+        for (Map.Entry<String, Set<String>> transaction : transactionGroupedByDescription.entrySet()) {
+            if (transaction.getValue().size() >= 3) {
+
+                log.info("{} {}", transaction.getKey(), transaction.getValue());
+                
+            }
+        }
+
+        log.info(recurringExpense.toString());
+        return recurringExpense;
+    }
+
+    @Override
+    public List<CardTransactionDTO> getCardTransactionLastFourMonths(Integer memberIdx) {
+
+        return transactionMapper.getCardTransactionLastFourMonths(memberIdx);
     }
 
     public String formatConsumptionListAsTable(List<CardTransactionDTO> cardConsumption) {
