@@ -2,6 +2,7 @@ package fingertips.backend.test.controller;
 
 
 import fingertips.backend.exception.dto.JsonResponse;
+import fingertips.backend.test.dto.TestResultDTO;
 import fingertips.backend.test.service.TestService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import fingertips.backend.test.dto.TestQuestionDTO;
 import fingertips.backend.test.dto.TestOptionDTO;
-import fingertips.backend.test.dto.TestResultDTO;
+import fingertips.backend.test.dto.TestTypeDTO;
 
 
 import java.util.*;
@@ -38,11 +39,27 @@ public class TestController {
         return ResponseEntity.ok(JsonResponse.success(options));
     }
 
+    // 3. 테스트 유형 불러오기
+    @GetMapping("/result")
+    public ResponseEntity<JsonResponse<List<TestTypeDTO>>> getResultsByMemberId() {
+        List<TestTypeDTO> results = testService.getResultsByMemberId();
+        return ResponseEntity.ok(JsonResponse.success(results));
+    }
+
+
     // 3. 테스트 결과 저장하기
-    @PostMapping("/results")
+    @PostMapping("/saveResult")
     public ResponseEntity<JsonResponse<String>> saveTestResult(@RequestBody TestResultDTO testResultDTO) {
         testService.saveTestResult(testResultDTO);
         return ResponseEntity.ok(JsonResponse.success("Result"));
     }
+
+    // !!!!!!!!!!!!!!!!!!지우 보시오 !!!!!!!!!!
+//    @GetMapping("/result}")
+//    public ResponseEntity<JsonResponse<List<TestResultDTO>>> getResultsByMemberId(int memberIdx) {
+//        List<TestResultDTO> results = testService.getResultsByMemberId(memberIdx);
+//        return ResponseEntity.ok(JsonResponse.success(results));
+//    }
+
 
 }
