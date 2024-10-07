@@ -5,34 +5,44 @@
 
 <mapper namespace="fingertips.backend.admin.mapper.AdminMapper">
 
-    <!-- 오늘의 회원가입 수 (00:00 ~ 23:59) -->
+    <insert id="insertDailyMetrics">
+        INSERT INTO user_metrics (today_sign_up_count, today_login_count, today_visit_count,
+                                   today_withdrawal_count, today_test_link_visit_count, today_test_result_click_count,
+                                   today_test_sign_up_count, metric_date)
+        VALUES
+            (#{todaySignUpCount}, #{todayLoginCount}, #{todayVisitCount},
+             #{todayWithdrawalCount}, #{todayTestLinkVisitCount},
+             #{todayTestResultClickCount}, #{todayTestSignUpCount}, CURDATE())
+    </insert>
+
+    <!-- 오늘의 회원가입 수 -->
     <select id="getTodaySignUpCount" resultType="int">
         SELECT COUNT(*)
         FROM member
         WHERE join_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 1 DAY) - INTERVAL 1 SECOND
     </select>
 
-    <!-- 오늘의 로그인 수 (00:00 ~ 23:59) -->
+    <!-- 오늘의 로그인 수-->
     <select id="getTodayLoginCount" resultType="int">
         SELECT COUNT(*)
         FROM login_log
         WHERE login_time BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 1 DAY) - INTERVAL 1 SECOND
     </select>
 
-    <!-- 로그인 로그를 기록하는 쿼리 (수정하지 않음) -->
+    <!-- 로그인 로그를 기록하는 쿼리 -->
     <insert id="insertLoginLog">
         INSERT INTO login_log (member_idx, user_agent, ip_address)
         VALUES (#{memberIdx}, #{userAgent}, #{ipAddress})
     </insert>
 
-    <!-- 오늘의 방문자 수 (00:00 ~ 23:59) -->
+    <!-- 오늘의 방문자 수 -->
     <select id="getTodayVisitCount" resultType="int">
         SELECT COUNT(DISTINCT member_idx)
         FROM login_log
         WHERE login_time BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 1 DAY) - INTERVAL 1 SECOND
     </select>
 
-    <!-- 오늘의 탈퇴 수 (00:00 ~ 23:59) -->
+    <!-- 오늘의 탈퇴 수 -->
     <select id="getTodayWithdrawalCount" resultType="int">
         SELECT COUNT(*)
         FROM member
@@ -40,14 +50,14 @@
           AND withdraw_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 1 DAY) - INTERVAL 1 SECOND
     </select>
 
-    <!-- 오늘의 테스트 링크 방문자 수 (00:00 ~ 23:59) -->
+    <!-- 오늘의 테스트 링크 방문자 수 -->
     <select id="getTodayTestLinkVisitCount" resultType="int">
         SELECT COUNT(*)
         FROM test_link_visit_log
         WHERE visit_time BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 1 DAY) - INTERVAL 1 SECOND
     </select>
 
-    <!-- 오늘의 테스트 결과 보기 클릭 수 (00:00 ~ 23:59) -->
+    <!-- 오늘의 테스트 결과 보기 클릭 수 -->
     <select id="getTodayTestResultClickCount" resultType="int">
         SELECT COUNT(*)
         FROM test_result_click_log
@@ -58,7 +68,7 @@
             )
     </select>
 
-    <!-- 오늘의 테스트 후 가입한 사용자 수 (00:00 ~ 23:59) -->
+    <!-- 오늘의 테스트 후 가입한 사용자 수 -->
     <select id="getTodayTestSignUpCount" resultType="int">
         SELECT COUNT(DISTINCT member_idx)
         FROM member_test_result
@@ -86,6 +96,22 @@
         ORDER BY metric_date ASC
     </select>
 
+    <!-- 사용자 메트릭 데이터 삽입 -->
+    <insert id="insertUserMetrics" parameterType="UserMetricsDTO">
+        INSERT INTO user_metrics (guest_idx, member_idx, today_sign_up_count, today_withdrawal_count, today_visit_count, today_login_count, today_test_link_visit_count, today_test_result_click_count, today_test_sign_up_count, metric_date)
+        VALUES (#{guestIdx}, #{memberIdx}, #{todaySignUpCount}, #{todayWithdrawalCount}, #{todayVisitCount}, #{todayLoginCount}, #{todayTestLinkVisitCount}, #{todayTestResultClickCount}, #{todayTestSignUpCount}, #{metricDate})
+    </insert>
+
+    <!-- 특정 ID로 사용자 메트릭 데이터 조회 -->
+    <select id="getUserMetricsById" parameterType="Long" resultType="UserMetricsDTO">
+        SELECT * FROM user_metrics WHERE metric_idx = #{metricIdx}
+    </select>
+
+    <!-- 특정 날짜로 사용자 메트릭 데이터 조회 -->
+    <select id="getUserMetricsByDate" parameterType="String" resultType="UserMetricsDTO">
+        SELECT * FROM user_metrics WHERE metric_date = #{metricDate}
+    </select>
+
     <insert id="insertUserMetricsAggregate" parameterType="UserMetricsAggregateDTO">
         INSERT INTO user_metrics_aggregate (
             metric_date,
@@ -108,22 +134,6 @@
                    #{totalTestSignUpCount}
                )
     </insert>
-
-    <!-- 사용자 메트릭 데이터 삽입 -->
-    <insert id="insertUserMetrics" parameterType="UserMetricsDTO">
-        INSERT INTO user_metrics (guest_idx, member_idx, today_sign_up_count, today_withdrawal_count, today_visit_count, today_login_count, today_test_link_visit_count, today_test_result_click_count, today_test_sign_up_count, metric_date)
-        VALUES (#{guestIdx}, #{memberIdx}, #{todaySignUpCount}, #{todayWithdrawalCount}, #{todayVisitCount}, #{todayLoginCount}, #{todayTestLinkVisitCount}, #{todayTestResultClickCount}, #{todayTestSignUpCount}, #{metricDate})
-    </insert>
-
-    <!-- 특정 ID로 사용자 메트릭 데이터 조회 -->
-    <select id="getUserMetricsById" parameterType="Long" resultType="UserMetricsDTO">
-        SELECT * FROM user_metrics WHERE metric_idx = #{metricIdx}
-    </select>
-
-    <!-- 특정 날짜로 사용자 메트릭 데이터 조회 -->
-    <select id="getUserMetricsByDate" parameterType="String" resultType="UserMetricsDTO">
-        SELECT * FROM user_metrics WHERE metric_date = #{metricDate}
-    </select>
 
     <!-- 사용자 메트릭 데이터 업데이트 -->
     <update id="updateUserMetrics">

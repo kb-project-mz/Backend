@@ -3,12 +3,14 @@ package fingertips.backend.admin.service;
 
 import fingertips.backend.admin.dto.UserMetricsAggregateDTO;
 import fingertips.backend.admin.dto.UserMetricsDTO;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 
 public interface AdminService {
+
+    void createAdmin();
+
     int getCumulativeSignUpCount();
     int getCumulativeLoginCount();
     int getCumulativeVisitCount();
@@ -19,4 +21,12 @@ public interface AdminService {
     void updateCumulativeWithdrawalCount();
     List<UserMetricsAggregateDTO> getDailyMetrics();
     Map<String, Float> getAllGrowthMetrics();
+    void insertDailyMetrics(UserMetricsDTO metrics);
+    int getTodaySignUpCount();
+    int getTodayLoginCount();
+    int getTodayVisitCount();
+    int getTodayWithdrawalCount();
+    int getTodayTestLinkVisitCount();
+    int getTodayTestResultClickCount();
+    int getTodayTestSignUpCount();
 }

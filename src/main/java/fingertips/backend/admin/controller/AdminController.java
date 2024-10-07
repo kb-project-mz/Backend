@@ -24,6 +24,12 @@ public class AdminController {
     @Autowired
     private AdminService adminService;
 
+    @PostMapping("/create")
+    public String createAdmin() {
+        adminService.createAdmin();
+        return "Admin created successfully";
+    }
+
     // 일별 전체 통계를 반환하는 API
     @GetMapping("/daily-metrics")
     public ResponseEntity<JsonResponse<List<UserMetricsAggregateDTO>>> getAllMetrics() throws IOException {

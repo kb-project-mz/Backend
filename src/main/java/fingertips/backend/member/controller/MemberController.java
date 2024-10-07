@@ -178,6 +178,7 @@ public class MemberController {
     public ResponseEntity<JsonResponse<ProfileDTO>> getMemberInfo() {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println(authentication.getAuthorities());
         String memberId = authentication.getName();
         ProfileDTO profile = memberService.getProfile(memberId);
         return ResponseEntity.ok(JsonResponse.success(profile));

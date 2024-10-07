@@ -33,4 +33,5 @@ public interface AdminMapper {
     int getTodayTestLinkVisitCount();
     int getTodayTestResultClickCount();
     int getTodayTestSignUpCount();
+    void insertDailyMetrics(UserMetricsDTO metrics);
 }

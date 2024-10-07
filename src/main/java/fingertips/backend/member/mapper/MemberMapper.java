@@ -28,4 +28,5 @@ public interface MemberMapper {
     int checkEmailDuplicate(String email);
     int existsMemberName(String memberName);
 
+    void insertAdmin(MemberDTO admin);
 }

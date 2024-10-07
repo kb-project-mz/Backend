@@ -1,13 +1,18 @@
 package fingertips.backend.admin.service;
 
+
 import fingertips.backend.admin.dto.UserMetricsAggregateDTO;
 import fingertips.backend.admin.dto.UserMetricsDTO;
 import fingertips.backend.admin.mapper.AdminMapper;
+import fingertips.backend.member.dto.MemberDTO;
+import fingertips.backend.member.mapper.MemberMapper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +27,21 @@ public class AdminServiceImpl implements AdminService {
     @Autowired
     private AdminMapper adminMapper;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private MemberMapper memberMapper;
+
+    public void createAdmin() {
+        MemberDTO admin = new MemberDTO();
+        admin.setMemberId("admin");
+        admin.setPassword(passwordEncoder.encode("1234"));
+        admin.setRole("ROLE_ADMIN");
+        admin.setMemberName("admin");
+        memberMapper.insertAdmin(admin);
+    }
+
     public void logLogin(int memberIdx, HttpServletRequest request) {
         String userAgent = request.getHeader("User-Agent");
         String ipAddress = request.getRemoteAddr();
@@ -33,6 +53,7 @@ public class AdminServiceImpl implements AdminService {
 
         adminMapper.insertLoginLog(loginLogDTO);
     }
+
 
     @Override
     public List<UserMetricsAggregateDTO> getDailyMetrics() {
@@ -137,5 +158,45 @@ public class AdminServiceImpl implements AdminService {
             throw new RuntimeException("증가율 데이터를 가져오는 중 오류 발생", e);
         }
         return growthMetrics;
+    }
+
+    @Override
+    public void insertDailyMetrics(UserMetricsDTO metrics) {
+        adminMapper.insertDailyMetrics(metrics);
+    }
+
+    @Override
+    public int getTodaySignUpCount() {
+        return adminMapper.getTodaySignUpCount();
+    }
+
+    @Override
+    public int getTodayLoginCount() {
+        return adminMapper.getTodayLoginCount();
+    }
+
+    @Override
+    public int getTodayVisitCount() {
+        return adminMapper.getTodayVisitCount();
+    }
+
+    @Override
+    public int getTodayWithdrawalCount() {
+        return adminMapper.getTodayWithdrawalCount();
+    }
+
+    @Override
+    public int getTodayTestLinkVisitCount() {
+        return adminMapper.getTodayTestLinkVisitCount();
+    }
+
+    @Override
+    public int getTodayTestResultClickCount() {
+        return adminMapper.getTodayTestResultClickCount();
+    }
+
+    @Override
+    public int getTodayTestSignUpCount() {
+        return adminMapper.getTodayTestSignUpCount();
     }
 }

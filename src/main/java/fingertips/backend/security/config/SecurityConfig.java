@@ -102,6 +102,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS).permitAll()
+                .antMatchers("/admin/**").hasRole("ADMIN")
                 .antMatchers(HttpMethod.POST,"/api/v1/test/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/v1/member/join").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/v1/member/login").permitAll()
@@ -123,9 +124,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/v1/challenge/**").authenticated()
                 .antMatchers("/api/v1/member/**").authenticated()
                 .antMatchers("/api/v1/consumption/**").authenticated()
-                .antMatchers("/api/v1/member/**").authenticated()
-
-
                 .anyRequest().permitAll();
 
         http.httpBasic().disable()
