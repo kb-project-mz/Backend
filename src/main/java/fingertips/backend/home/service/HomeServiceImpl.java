@@ -42,7 +42,7 @@ public class HomeServiceImpl implements HomeService {
         return homeMapper.getBalanceByMemberIdx(memberIdx);
     }
 
-    @Scheduled(fixedRate = 1000)
+//    @Scheduled(fixedRate = 1000)
     public void checkForBalanceUpdates() {
         List<BalanceDTO> currentBalances = homeMapper.getBalanceByMemberIdx(memberIdx);
         // db의 balance가 변화가 있다면 실행

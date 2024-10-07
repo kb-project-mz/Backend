@@ -36,4 +36,45 @@
             AND a.connected_status = 1
         ORDER BY account_transaction_date DESC
     </select>
+
+    <!-- 카테고리별 거래 건수와 총 지출 금액을 가져오는 쿼리 -->
+    <select id="getCategoryTransactionCount" parameterType="Integer" resultType="fingertips.backend.transaction.dto.CategoryTransactionCountDTO">
+        SELECT
+            cat.category_name,
+            COUNT(ct.card_transaction_idx) AS totalSpent,
+            DATE(ct.card_transaction_date) AS transactionDate
+        FROM
+            card_transaction ct
+            JOIN
+            category cat ON ct.category_idx = cat.category_idx
+            JOIN
+            card c ON ct.card_idx = c.card_idx
+        WHERE
+            c.member_idx = #{memberIdx}
+        GROUP BY
+            cat.category_name, DATE(ct.card_transaction_date)  -- 그룹화에 날짜 추가
+    </select>
+
+    <!-- 카테고리별 총 지출 금액이 가장 큰 카테고리를 가져오는 쿼리 -->
+    <select id="getMostSpentCategoryByAmount" parameterType="Integer" resultType="fingertips.backend.transaction.dto.MostSpentCategoryDTO">
+        SELECT
+            cat.category_name AS categoryName,
+            SUM(ct.amount) AS totalSpent,
+            ct.card_transaction_date AS transactionDate
+        FROM card_transaction ct
+                 JOIN card c ON ct.card_idx = c.card_idx
+                 JOIN category cat ON ct.category_idx = cat.category_idx
+        WHERE c.member_idx = #{memberIdx}
+        GROUP BY cat.category_name, ct.card_transaction_date
+        ORDER BY totalSpent DESC
+    </select>
+
+
+
+
+
+
+
+
+
 </mapper>
