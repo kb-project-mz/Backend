@@ -1,6 +1,5 @@
 package fingertips.backend.test.dto;
 
-
 import lombok.*;
 
 @Data
@@ -8,8 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TestResultDTO {
+    private Integer memberIdx;
+    private Integer typeIdx;
 
-    private int memberIdx;
-    private int typeIdx;
-    private int totalScore;
 }

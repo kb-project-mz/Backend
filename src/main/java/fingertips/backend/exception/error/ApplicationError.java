@@ -22,7 +22,6 @@ public enum ApplicationError {
     // 회원가입
     MEMBER_ID_DUPLICATED(HttpStatus.BAD_REQUEST, "MEMBER_005", "이미 존재하는 아이디입니다."),
     EMAIL_DUPLICATED(HttpStatus.BAD_REQUEST, "MEMBER_006", "이미 존재하는 이메일입니다."),
-
     // 이메일 인증
     INVALID_VERIFICATION_CODE(HttpStatus.BAD_REQUEST, "EMAIL_001", "유효하지 않은 인증 코드입니다."),
     VERIFICATION_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "EMAIL_002", "인증 코드가 만료되었습니다."),
@@ -30,6 +29,10 @@ public enum ApplicationError {
 
     // 비밀번호 불일치
     PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "MEMBER_007", "비밀번호가 일치하지 않습니다."),
+    // 이전 비밀번호와 일치
+    PASSWORD_CORRESPOND(HttpStatus.BAD_REQUEST, "MEMBER_008", "이전과 같은 비밀번호는 사용하실 수 없습니다."),
+    // 비밀번호를 입력해주십시오
+    INVALID_NEW_PASSWORD(HttpStatus.BAD_REQUEST, "MEMBER_009", "비밀번호가 입력되지 않았습니다."),
     // 소셜 로그인
     INVALID_ID_TOKEN(HttpStatus.UNAUTHORIZED, "SOCIAL_001", "유효하지 않은 ID 토큰입니다."),
     TOKEN_VERIFICATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "SOCIAL_002", "토큰 검증에 실패하였습니다."),

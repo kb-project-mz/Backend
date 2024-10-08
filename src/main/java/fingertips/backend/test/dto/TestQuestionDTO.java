@@ -9,6 +9,6 @@ import lombok.*;
 @AllArgsConstructor
 public class TestQuestionDTO {
 
-    private int questionIdx;
+    private Integer questionIdx;
     private String questionText;
 }
