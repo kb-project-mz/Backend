@@ -1,36 +1,24 @@
 package fingertips.backend.member.controller;
 
 import fingertips.backend.exception.dto.JsonResponse;
-import fingertips.backend.member.dto.MemberDTO;
-import fingertips.backend.member.dto.MemberIdFindDTO;
-import fingertips.backend.member.dto.PasswordFindDTO;
-import fingertips.backend.member.service.EmailService;
+import fingertips.backend.member.dto.*;
+import fingertips.backend.member.service.S3uploaderService;
 import fingertips.backend.security.account.dto.AuthDTO;
-import fingertips.backend.exception.dto.JsonResponse;
-import fingertips.backend.member.dto.ProfileDTO;
-import fingertips.backend.member.dto.UpdateProfileDTO;
 import fingertips.backend.member.service.MemberService;
 
-import fingertips.backend.member.service.UploadFileService;
 import fingertips.backend.member.util.UploadFile;
-import fingertips.backend.security.account.dto.AuthDTO;
-
 
 import fingertips.backend.security.util.JwtProcessor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -44,9 +32,8 @@ import java.util.Map;
 public class MemberController {
 
     private final MemberService memberService;
-    private final UploadFileService uploadFileService;
     private final JwtProcessor jwtProcessor;
-
+    private final S3uploaderService s3uploaderService;
 
     @PostMapping("/join")
     public ResponseEntity<JsonResponse<String>> join(@RequestBody MemberDTO memberDTO) {
@@ -176,50 +163,55 @@ public class MemberController {
     */
     @GetMapping("/info")
     public ResponseEntity<JsonResponse<ProfileDTO>> getMemberInfo() {
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String memberId = authentication.getName();
         ProfileDTO profile = memberService.getProfile(memberId);
         return ResponseEntity.ok(JsonResponse.success(profile));
     }
 
-//    @PostMapping("/info")
-//    public ResponseEntity<JsonResponse<ProfileDTO>> updateMemberInfo(@RequestBody UpdateProfileDTO updateProfile) {
-//
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        String memberId = authentication.getName();
-//        memberService.updateProfile(memberId, updateProfile);
-//        ProfileDTO updatedProfile = memberService.getProfile(memberId);
-//        return ResponseEntity.ok(JsonResponse.success(updatedProfile));
-//    }
+    @PostMapping("/verification/password")
+    public ResponseEntity<JsonResponse<String>> verifyPassword(@RequestBody VerifyPasswordDTO verifyPassword) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String memberId = authentication.getName();
+        memberService.verifyPassword(memberId, verifyPassword);
+        return ResponseEntity.ok(JsonResponse.success("password verify success"));
+    }
 
-    @PostMapping("/info")
-    public ResponseEntity<JsonResponse<ProfileDTO>> updateMemberInfo(
-            @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
-            @RequestParam String password,
-            @RequestParam String newPassword,
-            @RequestParam String email) {
+    @PostMapping("/verification/newPassword")
+    public ResponseEntity<JsonResponse<String>> changePassword(@RequestBody NewPasswordDTO newPassword) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String memberId = authentication.getName();
+        memberService.changePassword(memberId, newPassword);
+        return ResponseEntity.ok(JsonResponse.success("password change success"));
+    }
 
+    @PostMapping("/image")
+    public ResponseEntity<JsonResponse<UploadFileDTO>> uploadFile(
+            @RequestPart MultipartFile file) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String memberId = authentication.getName();
+        UploadFile uploadFile = s3uploaderService.uploadFile(file);
+        String imageUrl = uploadFile.getStoreFileName();
+        UploadFileDTO uploadImage = memberService.uploadImage(memberId, imageUrl);
+        return ResponseEntity.ok(JsonResponse.success(uploadImage));
+    }
+
+    @DeleteMapping("/image")
+    public ResponseEntity<JsonResponse<UploadFileDTO>> deleteFile(@RequestParam("fileUrl") String fileUrl) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String memberId = authentication.getName();
 
-        String imageUrl = null;
-        UploadFile uploadFile = uploadFileService.storeFile(profileImage);
-        imageUrl = uploadFile.getStoreFileName();
-
-        log.info("0000000000000000000" + imageUrl);
-        UpdateProfileDTO updateProfile = UpdateProfileDTO.builder()
-                .memberId(memberId)
-                .password(password)
-                .newPassword(newPassword)
-                .imageUrl(imageUrl)
-                .email(email)
-                .build();
-
-        memberService.updateProfile(memberId, updateProfile);
-
-        ProfileDTO updatedProfile = memberService.getProfile(memberId);
-        return ResponseEntity.ok(JsonResponse.success(updatedProfile));
+        s3uploaderService.deleteFile(fileUrl);
+        String imageUrl = "basic.jpg";
+        UploadFileDTO uploadImage = memberService.uploadImage(memberId, imageUrl);
+        return ResponseEntity.ok(JsonResponse.success(uploadImage));
     }
 
+    @PostMapping("/email")
+    public ResponseEntity<JsonResponse<String>> updateEmail(@RequestBody NewEmailDTO newEmail) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String memberId = authentication.getName();
+        memberService.changeEmail(memberId, newEmail);
+        return ResponseEntity.ok(JsonResponse.success("Email changed successfully"));
+    }
 }

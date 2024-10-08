@@ -14,4 +14,5 @@ public interface TransactionMapper {
     List<AccountTransactionDTO> getAccountTransactionList(Integer memberIdx);
     List<CategoryTransactionCountDTO> getCategoryTransactionCount(Integer memberIdx);
     List<MostSpentCategoryDTO> getMostSpentCategoryByAmount(int memberIdx);
+    List<CardTransactionDTO> getCardTransactionLastFourMonths(Integer memberIdx);
 }

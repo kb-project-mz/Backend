@@ -63,8 +63,6 @@ public class TransactionController {
         return ResponseEntity.ok().body(JsonResponse.success(transactionCounts));
     }
 
-
-
     // 금액 기준으로 가장 많이 지출한 카테고리를 반환하는 엔드포인트
     @GetMapping("/most-spent-category/{memberIdx}")
     public ResponseEntity<JsonResponse<List<MostSpentCategoryDTO>>> getMostSpentCategoryByAmount(@PathVariable int memberIdx) {
@@ -72,6 +70,13 @@ public class TransactionController {
         List<MostSpentCategoryDTO> mostSpentCategories = transactionService.getMostSpentCategoryByAmount(memberIdx);
 
         return ResponseEntity.ok(JsonResponse.success(mostSpentCategories));
+    }
+
+    @GetMapping("/fixed/{memberIdx}")
+    public ResponseEntity<JsonResponse<List<String>>> getFixedExpense(@PathVariable Integer memberIdx) {
+
+        List<String> response = transactionService.getFixedExpense(memberIdx);
+        return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 
     private PeriodDTO makePeriodDTO(@RequestParam Map<String, String> params) {

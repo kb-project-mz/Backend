@@ -13,5 +13,5 @@ public interface ChallengeService {
     List<String> getCardHistoryContentByCategory(CardTransactionFilterDTO cardHistoryFilterDTO);
     List<ProgressDTO> getChallengeStatus(Integer memberIdx);
     List<String> getDetailedCategories(CardTransactionFilterDTO cardHistoryFilterDTO);
-    List<ChallengeDTO> getAllChallengeList();
+    List<ChallengeDTO> getPeerChallengeList(Integer memberIdx);
 }

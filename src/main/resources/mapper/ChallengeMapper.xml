@@ -50,11 +50,20 @@
         GROUP BY c.challenge_idx, c.challenge_limit, c.challenge_type
     </select>
 
-    <select id="getAllChallengeList" parameterType="String" resultType="ChallengeDTO">
-        SELECT ch.challenge_idx, ch.challenge_name, ch.challenge_type, ch.challenge_limit, ch.category_idx, ch.detailed_category,
-               ch.challenge_status, ca.category_name
-        FROM challenge ch
-            JOIN category ca ON ca.category_idx = ch.category_idx
-        WHERE is_public = 1 AND is_delete = 0
+    <select id="getPeerChallengeList" parameterType="Integer" resultType="ChallengeDTO">
+        SELECT c.detailed_category, COUNT(challenge_idx) AS challenge_count
+        FROM challenge c JOIN member m ON c.member_idx = m.member_idx
+        WHERE c.is_public = 1 AND c.is_delete = 0 AND c.challenge_status = "진행"
+            AND c.detailed_category IN (
+                SELECT detailed_category
+                FROM challenge
+                GROUP BY detailed_category
+                HAVING COUNT(category_idx) >= 10
+            )
+            AND ABS((SELECT YEAR(m.birthday) FROM member m WHERE m.member_idx = #{memberIdx})
+                - (SELECT YEAR(m.birthday) FROM member m WHERE m.member_idx = c.member_idx)) &lt; 6
+        GROUP BY detailed_category
+        ORDER BY COUNT(challenge_idx)
+        LIMIT 5;
     </select>
 </mapper>
