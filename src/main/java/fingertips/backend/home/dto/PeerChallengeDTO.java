@@ -11,9 +11,11 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class HomeChallengeDTO {
-    private Integer challengeIdx;
-    private Integer challengeLimit;
+public class PeerChallengeDTO {
     private String challengeName;
-    private Integer cardHistoryCount;
+    private String challengeType;
+    private int challengeLimit;
+    private String detailedCategory;
+    private Date challengeStartDate;
+    private Date challengeEndDate;
 }

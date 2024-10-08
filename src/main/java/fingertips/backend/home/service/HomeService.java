@@ -1,7 +1,9 @@
 package fingertips.backend.home.service;
 
 import fingertips.backend.home.dto.BalanceDTO;
+import fingertips.backend.home.dto.CompareAuthDTO;
 import fingertips.backend.home.dto.HomeChallengeDTO;
+import fingertips.backend.home.dto.PeerChallengeDTO;
 
 import java.util.List;
 
@@ -14,5 +16,12 @@ public interface HomeService {
     void setMemberIdx(int memberIdx);
 
     // 챌린지 목록 가져오기
-    List<HomeChallengeDTO> getChallengeByMemberIdx(int memberIdx);
+    List<HomeChallengeDTO> getChallengeByMemberIdx(Integer memberIdx);
+
+    // 또래 챌린지 가져오기
+    List<PeerChallengeDTO> getPeerChallenge(Integer memberIdx);
+
+    // 로그인한 사용자와 DB 비교
+    CompareAuthDTO getAuth(Integer memberIdx);
+
 }

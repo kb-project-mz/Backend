@@ -25,8 +25,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.client.RestTemplate;
 
@@ -36,15 +34,16 @@ import org.springframework.web.client.RestTemplate;
         "fingertips.backend.admin.mapper",
         "fingertips.backend.asset.mapper",
         "fingertips.backend.challenge.mapper",
+        "fingertips.backend.home.mapper",
         "fingertips.backend.transaction.mapper",
         "fingertips.backend.member.mapper",
         "fingertips.backend.home.mapper",
-        "fingertips.backend.member.sociallogin.mapper"
+        "fingertips.backend.member.sociallogin.mapper",
+        "fingertips.backend.test.mapper"
 })
 @ComponentScan(basePackages = {"fingertips.backend"})
 @Slf4j
 @EnableTransactionManagement
-@EnableScheduling
 public class RootConfig {
 
     @Value("${jdbc.driver}") String driver;

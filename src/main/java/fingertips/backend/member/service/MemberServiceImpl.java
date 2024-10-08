@@ -55,6 +55,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public boolean existsMemberId(String memberId) {
+
         return memberMapper.existsMemberId(memberId) != 0;
     }
 
