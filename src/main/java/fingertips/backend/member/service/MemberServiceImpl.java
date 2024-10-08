@@ -208,12 +208,10 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public UploadFileDTO uploadImage(String memberId, String imageUrl) {
-
         UploadFileDTO uploadFile = UploadFileDTO.builder()
                 .memberId(memberId)
                 .storeFileName(imageUrl)
                 .build();
-
         memberMapper.saveNewImage(uploadFile);
         return uploadFile;
     }
