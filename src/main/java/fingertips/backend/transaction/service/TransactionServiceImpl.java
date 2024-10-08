@@ -12,7 +12,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -56,12 +60,10 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionMapper.getMostSpentCategoryByAmount(memberIdx);
     }
 
-
     @Override
     public List<AccountTransactionDTO> getAccountTransactionList(Integer memberId) {
         return transactionMapper.getAccountTransactionList(memberId);
     }
-
 
     // TODO : 프롬프트 수정
     @Override
@@ -101,6 +103,49 @@ public class TransactionServiceImpl implements TransactionService {
                 "특정 카테고리에 너무 많이 사용하고 있거나 하는 등의 소비 패턴을 분석해서 조언해줘.");
 
         return openAiService.askOpenAi(prompt);
+    }
+
+    @Override
+    public List<String> getFixedExpense(Integer memberIdx) {
+
+        List<String> recurringExpense = new ArrayList<>();
+
+        List<CardTransactionDTO> transactionLastThreeMonths = getCardTransactionLastFourMonths(memberIdx);
+        Map<String, Set<String>> transactionGroupedByDescription = transactionLastThreeMonths.stream()
+                .collect(Collectors.groupingBy(
+                        transaction -> transaction.getCardTransactionDescription().toUpperCase(),
+                        Collectors.mapping(CardTransactionDTO::getCardTransactionDate, Collectors.toSet())
+                ));
+
+
+        for (Map.Entry<String, Set<String>> transaction : transactionGroupedByDescription.entrySet()) {
+            if (transaction.getValue().size() >= 3) {
+                List<LocalDate> sortedDates = transaction.getValue().stream()
+                        .map(LocalDate::parse).sorted().toList();
+
+                boolean allWithinRange = true;
+
+                for (int i = 1; i < sortedDates.size(); i++) {
+                    long daysBetween = ChronoUnit.DAYS.between(sortedDates.get(i - 1), sortedDates.get(i));
+                    if (daysBetween < 27 || daysBetween > 33) {
+                        allWithinRange = false;
+                        break;
+                    }
+                }
+
+                if (allWithinRange) {
+                    recurringExpense.add(transaction.getKey());
+                }
+            }
+        }
+
+        return recurringExpense;
+    }
+
+    @Override
+    public List<CardTransactionDTO> getCardTransactionLastFourMonths(Integer memberIdx) {
+
+        return transactionMapper.getCardTransactionLastFourMonths(memberIdx);
     }
 
     public String formatConsumptionListAsTable(List<CardTransactionDTO> cardConsumption) {

@@ -13,5 +13,5 @@ public class TestOptionDTO {
     private Integer questionIdx;
     private String optionText;
     private Integer score;
-    private String type;
+    private Integer typeIdx;
 }

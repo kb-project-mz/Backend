@@ -1,11 +1,12 @@
 package fingertips.backend.test.service;
 
 
+import fingertips.backend.test.dto.TestResultDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import fingertips.backend.test.dto.TestQuestionDTO;
 import fingertips.backend.test.dto.TestOptionDTO;
-import fingertips.backend.test.dto.TestResultDTO;
+import fingertips.backend.test.dto.TestTypeDTO;
 import fingertips.backend.test.mapper.TestMapper;
 
 import java.util.List;
@@ -27,7 +28,14 @@ public class TestServiceImpl implements TestService {
     }
 
     @Override
+    public List<TestTypeDTO> getResultsByMemberId(){
+        return testMapper.getResultsByMemberId();
+    };
+
+    @Override
     public void saveTestResult(TestResultDTO testResultDTO) {
-        testMapper.insertTestResult(testResultDTO);
+        testMapper.saveTestResult(testResultDTO);
     }
+
+
 }
