@@ -74,6 +74,5 @@
         FROM card_transaction ct JOIN card c ON ct.card_idx = c.card_idx
         WHERE c.member_idx = #{memberIdx} AND c.connected_status = 1
             AND card_transaction_date >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 4 MONTH), '%Y-%m-01')
-        ORDER BY ct.card_transaction_description;
     </select>
 </mapper>
