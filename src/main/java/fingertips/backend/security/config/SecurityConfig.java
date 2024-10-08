@@ -121,7 +121,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/api/v1/member/refresh").authenticated()
                 .antMatchers("/api/v1/asset/**").authenticated()
                 .antMatchers("/api/v1/challenge/**").authenticated()
-                .antMatchers("/api/v1/member/**").authenticated()
                 .antMatchers("/api/v1/consumption/**").authenticated()
                 .antMatchers("/api/v1/member/**").authenticated()
 

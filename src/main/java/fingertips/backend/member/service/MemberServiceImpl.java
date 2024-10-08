@@ -2,13 +2,8 @@ package fingertips.backend.member.service;
 
 import fingertips.backend.exception.error.ApplicationError;
 import fingertips.backend.exception.error.ApplicationException;
-import fingertips.backend.member.dto.MemberDTO;
-import fingertips.backend.member.dto.MemberIdFindDTO;
-import fingertips.backend.member.dto.PasswordFindDTO;
-import fingertips.backend.member.dto.ProfileDTO;
-import fingertips.backend.member.dto.UpdateProfileDTO;
+import fingertips.backend.member.dto.*;
 import fingertips.backend.member.mapper.MemberMapper;
-import fingertips.backend.member.util.UploadFile;
 import fingertips.backend.security.util.JwtProcessor;
 import lombok.extern.log4j.Log4j;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +20,7 @@ public class MemberServiceImpl implements MemberService {
     private final MemberMapper memberMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtProcessor jwtProcessor;
-    private final UploadFileService uploadFileService;
-
+    private final EmailService emailService;
 
     public String authenticate(String username, String password) {
         MemberDTO memberDTO = memberMapper.getMemberByMemberId(username);
@@ -107,30 +101,6 @@ public class MemberServiceImpl implements MemberService {
         return memberMapper.getProfile(memberId);
     }
 
-    @Override
-    public void updateProfile(String memberId, UpdateProfileDTO updateProfile) {
-        ProfileDTO existingProfile = memberMapper.getProfile(memberId);
-        String existingPassword = memberMapper.getPassword(memberId);
-
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        validateCurrentPassword(updateProfile.getPassword(), existingPassword, passwordEncoder);
-
-
-        String updatedPassword = (updateProfile.getNewPassword() != null && !updateProfile.getNewPassword().isEmpty())
-                ? passwordEncoder.encode(updateProfile.getNewPassword())
-                : existingPassword;
-
-        UpdateProfileDTO updatedProfile = UpdateProfileDTO.builder()
-                .memberId(memberId)
-                .password(updatedPassword)
-                .email(updateProfile.getEmail() != null ? updateProfile.getEmail() : existingProfile.getEmail())
-                .imageUrl(updateProfile.getImageUrl() != null ? updateProfile.getImageUrl() : existingProfile.getImageUrl()) //이미지 업데이트
-                .build();
-
-
-        memberMapper.updateProfile(updatedProfile);
-    }
-
     private void validateCurrentPassword (String inputPassword,
                                           String existingPassword,
                                           BCryptPasswordEncoder passwordEncoder) {
@@ -194,4 +164,58 @@ public class MemberServiceImpl implements MemberService {
 
         return memberId;
     }
+
+    @Override
+    public void verifyPassword(String memberId, VerifyPasswordDTO verifyPassword) {
+        String existingPassword = memberMapper.getPassword(memberId);
+        if(!passwordEncoder.matches(verifyPassword.getInputPassword(), existingPassword)){
+            throw new ApplicationException(ApplicationError.PASSWORD_MISMATCH);
+        }
+    }
+
+    @Override
+    public void changePassword(String memberId, NewPasswordDTO newPassword) {
+        String existingPassword = memberMapper.getPassword(memberId);
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        if (newPassword.getNewPassword() == null || newPassword.getNewPassword().isEmpty()) {
+            throw new ApplicationException(ApplicationError.INVALID_NEW_PASSWORD);
+        }
+        if(passwordEncoder.matches(newPassword.getNewPassword(), existingPassword)){
+            throw new ApplicationException(ApplicationError.PASSWORD_CORRESPOND);
+        }
+        else {
+            String updatedPassword = passwordEncoder.encode(newPassword.getNewPassword());
+            NewPasswordDTO updated = NewPasswordDTO.builder()
+                    .memberId(memberId)
+                    .newPassword(updatedPassword)
+                    .build();
+            memberMapper.saveNewPassword(updated);
+        }
+    }
+
+    @Override
+    public void changeEmail(String memberId, NewEmailDTO newEmail) {
+        if(emailService.isEmailTaken(newEmail.getNewEmail())){
+            throw new ApplicationException(ApplicationError.EMAIL_DUPLICATED);
+        } else {
+            NewEmailDTO updated = NewEmailDTO.builder()
+                    .memberId(memberId)
+                    .newEmail(newEmail.getNewEmail())
+                    .build();
+            memberMapper.saveNewEmail(updated);
+        }
+    }
+
+    @Override
+    public UploadFileDTO uploadImage(String memberId, String imageUrl) {
+
+        UploadFileDTO uploadFile = UploadFileDTO.builder()
+                .memberId(memberId)
+                .storeFileName(imageUrl)
+                .build();
+
+        memberMapper.saveNewImage(uploadFile);
+        return uploadFile;
+    }
+
 }

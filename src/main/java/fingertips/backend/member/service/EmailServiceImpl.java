@@ -33,7 +33,6 @@ public class EmailServiceImpl implements EmailService {
     private final MemberMapper memberMapper;
     private final PasswordEncoder passwordEncoder;
 
-
     private String username;
     private String password;
     private String host;
