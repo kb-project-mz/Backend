@@ -1,6 +1,6 @@
 package fingertips.backend.member.sociallogin.service;
 
-import fingertips.backend.exception.dto.JsonResponse;
+
 import fingertips.backend.exception.error.ApplicationError;
 import fingertips.backend.exception.error.ApplicationException;
 import fingertips.backend.member.sociallogin.dto.SocialLoginDTO;
@@ -24,7 +24,11 @@ import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -99,40 +103,100 @@ public class SocialLoginServiceImpl implements SocialLoginService {
         return processGoogleLogin(memberInfo, accessToken);
     }
 
-    @Override
-    public boolean googleMemberExists(String email) {
-        return socialLoginMapper.checkMemberExists(email) > 0;
-    }
-
-    @Override
     @Transactional
-    public void googleMemberJoin(SocialLoginDTO socialLoginDTO) {
-        try {
-            socialLoginMapper.insertMember(socialLoginDTO);
-        } catch (Exception e) {
-            throw new ApplicationException(ApplicationError.DATABASE_ERROR);
-        }
-    }
+    public SocialLoginDTO fetchUserInfoFromGoogle(String accessToken, String idToken, String refreshToken, Integer expiresIn) {
+        // 기존 사용자 정보 요청 URL
+        String userInfoUrl = "https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + accessToken;
+        logger.info("Google 사용자 정보 요청 URL: {}", userInfoUrl);
 
-    @Override
-    @Transactional
-    public TokenDTO googleLoginWithTokens(SocialLoginDTO socialLoginDTO) {
-        return processGoogleLogin(socialLoginDTO, null);
-    }
+        ResponseEntity<Map> response = restTemplate.getForEntity(userInfoUrl, Map.class);
+        Map<String, Object> userInfo = response.getBody();
+        logger.info("Google 사용자 정보 응답: {}", userInfo);
 
-    private void insertMember(SocialLoginDTO memberInfo) {
-        try {
-            socialLoginMapper.insertMember(memberInfo);
-        } catch (Exception e) {
-            throw new ApplicationException(ApplicationError.DATABASE_ERROR);
-        }
-    }
+        if (userInfo != null) {
+            String googleId = (String) userInfo.get("id");
+            String email = (String) userInfo.get("email");
+            String name = (String) userInfo.get("name");
 
-    private void updateMemberTokens(SocialLoginDTO memberInfo) {
-        try {
-            socialLoginMapper.updateMemberTokens(memberInfo);
-        } catch (Exception e) {
-            throw new ApplicationException(ApplicationError.DATABASE_ERROR);
+            // 추가: People API를 통해 생년월일과 성별 정보 가져오기
+            String peopleApiUrl = "https://people.googleapis.com/v1/people/me?personFields=birthdays,genders";
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(accessToken);
+
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+            ResponseEntity<Map> peopleResponse = restTemplate.exchange(peopleApiUrl, HttpMethod.GET, entity, Map.class);
+            Map<String, Object> personData = peopleResponse.getBody();
+            logger.info("Google People API 응답: {}", personData);
+
+            // 생년월일 정보 처리
+            List<Map<String, Object>> birthdays = (List<Map<String, Object>>) personData.get("birthdays");
+            String birthDate = null;
+            if (birthdays != null && !birthdays.isEmpty()) {
+                Map<String, Object> birthday = birthdays.get(0); // 첫 번째 생일 정보
+                Map<String, Object> date = (Map<String, Object>) birthday.get("date");
+                if (date != null) {
+                    birthDate = date.get("year") + "-" + date.get("month") + "-" + date.get("day");
+                    logger.info("생년월일: {}", birthDate);
+                }
+            }
+
+            // 성별 정보 처리
+            List<Map<String, Object>> genders = (List<Map<String, Object>>) personData.get("genders");
+            String gender = null;
+            if (genders != null && !genders.isEmpty()) {
+                Map<String, Object> genderInfo = genders.get(0); // 첫 번째 성별 정보
+                gender = (String) genderInfo.get("value");
+                logger.info("성별: {}", gender);
+            }
+
+            // 기존 사용자 조회
+            SocialLoginDTO memberInfo = socialLoginMapper.getMemberByGoogleId(googleId);
+            if (memberInfo == null) {
+                logger.info("DB에 존재하지 않는 사용자. 새로운 사용자 생성 시작.");
+                memberInfo = SocialLoginDTO.builder()
+                        .googleId(googleId)
+                        .email(email)
+                        .memberName(name)
+                        .googleAccessToken(accessToken)
+                        .googleIdToken(idToken)
+                        .googleRefreshToken(refreshToken)
+                        .expiresIn(expiresIn)
+                        .socialType("GOOGLE")
+                        .birthday(birthDate)
+                        .gender(gender)
+                        .build();
+
+                logger.info("새로운 사용자 정보: {}", memberInfo);
+
+                String memberId = generateUniqueMemberId(googleId);
+                memberInfo.setMemberId(memberId);
+
+                BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+                String password = generateUniqueMemberId(googleId);
+                String encodedPassword = passwordEncoder.encode(password);
+                memberInfo.setPassword(encodedPassword);
+
+                try {
+                    socialLoginMapper.insertMember(memberInfo);
+                    logger.info("새로운 사용자 DB 저장 완료");
+                } catch (Exception e) {
+                    logger.error("새로운 사용자 저장 중 오류 발생: ", e);
+                    throw new ApplicationException(ApplicationError.DATABASE_ERROR);
+                }
+
+                // 저장 후 다시 조회
+                SocialLoginDTO memberByGoogleId = socialLoginMapper.getMemberByGoogleId(googleId);
+                memberInfo.setMemberIdx(memberByGoogleId.getMemberIdx());
+                logger.info("새로운 회원 등록 완료: {}", memberInfo);
+
+            } else {
+                // 기존 사용자의 memberId, memberIdx 가져오기
+                logger.info("기존 회원 정보: {}", memberInfo);
+            }
+
+            return memberInfo;
+        } else {
+            throw new ApplicationException(ApplicationError.INVALID_USER_INFO);
         }
     }
 
@@ -159,11 +223,6 @@ public class SocialLoginServiceImpl implements SocialLoginService {
         logger.info("processGoogleLogin 완료 후 응답 준비: {}", memberInfo);
 
         return new TokenDTO(jwtToken, jwtRefreshToken, memberInfo.getMemberId(), memberInfo.getMemberIdx(), memberInfo.getMemberName());
-    }
-
-    private String generateUniqueMemberId(String googleId) {
-        String uniqueId = googleId + "_" + UUID.randomUUID().toString().substring(0, 8);
-        return uniqueId;
     }
 
     private Map<String, String> getGoogleAccessToken(String code) {
@@ -211,57 +270,9 @@ public class SocialLoginServiceImpl implements SocialLoginService {
         }
     }
 
-    private SocialLoginDTO fetchUserInfoFromGoogle(String accessToken, String idToken, String refreshToken, Integer expiresIn) {
-        String userInfoUrl = "https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + accessToken;
-        logger.info("Google 사용자 정보 요청 URL: {}", userInfoUrl);
-
-        ResponseEntity<Map> response = restTemplate.getForEntity(userInfoUrl, Map.class);
-        Map<String, Object> userInfo = response.getBody();
-        logger.info("Google 사용자 정보 응답: {}", userInfo);
-
-        if (userInfo != null) {
-            String googleId = (String) userInfo.get("id");
-            String email = (String) userInfo.get("email");
-            String name = (String) userInfo.get("name");
-
-            // 기존 사용자 조회
-            SocialLoginDTO memberInfo = socialLoginMapper.getMemberByGoogleId(googleId);
-            if (memberInfo == null) {
-                // 사용자 정보가 DB에 없다면 새로운 사용자 생성
-                memberInfo = SocialLoginDTO.builder()
-                        .googleId(googleId)
-                        .email(email)
-                        .memberName(name)
-                        .googleAccessToken(accessToken)
-                        .googleIdToken(idToken)
-                        .googleRefreshToken(refreshToken)
-                        .expiresIn(expiresIn)
-                        .socialType("GOOGLE")
-                        .build();
-
-                // 유니크한 memberId 생성 및 설정
-                String memberId = generateUniqueMemberId(googleId);
-                memberInfo.setMemberId(memberId);
-
-                BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-                String password = generateUniqueMemberId(googleId);
-                String encodedPassword = passwordEncoder.encode(password);
-                memberInfo.setPassword(encodedPassword);
-
-                // 새로운 사용자 DB에 저장
-                socialLoginMapper.insertMember(memberInfo);
-                SocialLoginDTO memberByGoogleId = socialLoginMapper.getMemberByGoogleId(googleId);
-                memberInfo.setMemberIdx(memberByGoogleId.getMemberIdx());
-                logger.info("새로운 회원 등록: {}", memberInfo);
-            } else {
-                // 기존 사용자의 memberId, memberIdx 가져오기
-                logger.info("기존 회원 정보: {}", memberInfo);
-            }
-
-            return memberInfo;
-        } else {
-            throw new ApplicationException(ApplicationError.INVALID_USER_INFO);
-        }
+    private String generateUniqueMemberId(String googleId) {
+        String uniqueId = googleId + "_" + UUID.randomUUID().toString().substring(0, 8);
+        return uniqueId;
     }
 
     private SocialLoginDTO googleValidateToken(String googleIdToken) {
@@ -306,6 +317,43 @@ public class SocialLoginServiceImpl implements SocialLoginService {
             } catch (NumberFormatException e) {
                 memberInfo.setExpiresIn(0);
             }
+        }
+    }
+
+    @Override
+    public boolean googleMemberExists(String email) {
+        return socialLoginMapper.checkMemberExists(email) > 0;
+    }
+
+    @Override
+    @Transactional
+    public void googleMemberJoin(SocialLoginDTO socialLoginDTO) {
+        try {
+            socialLoginMapper.insertMember(socialLoginDTO);
+        } catch (Exception e) {
+            throw new ApplicationException(ApplicationError.DATABASE_ERROR);
+        }
+    }
+
+    @Override
+    @Transactional
+    public TokenDTO googleLoginWithTokens(SocialLoginDTO socialLoginDTO) {
+        return processGoogleLogin(socialLoginDTO, null);
+    }
+
+    private void insertMember(SocialLoginDTO memberInfo) {
+        try {
+            socialLoginMapper.insertMember(memberInfo);
+        } catch (Exception e) {
+            throw new ApplicationException(ApplicationError.DATABASE_ERROR);
+        }
+    }
+
+    private void updateMemberTokens(SocialLoginDTO memberInfo) {
+        try {
+            socialLoginMapper.updateMemberTokens(memberInfo);
+        } catch (Exception e) {
+            throw new ApplicationException(ApplicationError.DATABASE_ERROR);
         }
     }
 }

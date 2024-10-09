@@ -15,6 +15,8 @@ public class SocialLoginDTO {
     private String password;
     private String email;
     private String memberName;
+    private String birthday;
+    private String gender;
     private String googleId;
     private String googleAccessToken;
     private String googleIdToken;
