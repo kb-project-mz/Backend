@@ -25,9 +25,4 @@
         INSERT INTO test_result (member_idx, type_idx)
         VALUES (#{memberIdx}, #{typeIdx})
     </insert>
-
-    <insert id="insertTestLinkClick">
-        INSERT INTO test_link_visit_log (member_idx, guest_idx, visit_time)
-        VALUES (#{memberIdx}, #{guestIdx}, NOW())
-    </insert>
 </mapper>

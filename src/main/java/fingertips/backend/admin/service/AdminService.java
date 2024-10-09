@@ -19,7 +19,7 @@ public interface AdminService {
     void updateCumulativeLoginCount();
     void updateCumulativeVisitCount();
     void updateCumulativeWithdrawalCount();
-    List<UserMetricsAggregateDTO> getDailyMetrics();
+    Map<String, Integer> getDailyMetrics();
     Map<String, Float> getAllGrowthMetrics();
     void insertDailyMetrics(UserMetricsDTO metrics);
     int getTodaySignUpCount();
@@ -29,4 +29,5 @@ public interface AdminService {
     int getTodayTestLinkVisitCount();
     int getTodayTestResultClickCount();
     int getTodayTestSignUpCount();
+    void insertUserMetricsAggregate(UserMetricsAggregateDTO aggregateMetrics);
 }

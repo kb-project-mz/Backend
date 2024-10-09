@@ -5,6 +5,7 @@ import fingertips.backend.admin.dto.UserMetricsDTO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface AdminMapper {
@@ -17,15 +18,7 @@ public interface AdminMapper {
     int getCumulativeLoginCount();
     int getCumulativeVisitCount();
     int getCumulativeWithdrawalCount();
-    List<UserMetricsAggregateDTO> selectDailyMetrics();
-    int getYesterdayCumulativeSignUpCount();
-    float getSignUpGrowthPercentage();
-    int getYesterdayCumulativeLoginCount();
-    float getLoginGrowthPercentage();
-    int getYesterdayCumulativeVisitCount();
-    float getVisitGrowthPercentage();
-    int getYesterdayCumulativeWithdrawalCount();
-    float getWithdrawalGrowthPercentage();
+    List<UserMetricsDTO> selectDailyMetrics();
     int getTodaySignUpCount();
     int getTodayLoginCount();
     int getTodayVisitCount();
@@ -34,4 +27,10 @@ public interface AdminMapper {
     int getTodayTestResultClickCount();
     int getTodayTestSignUpCount();
     void insertDailyMetrics(UserMetricsDTO metrics);
+    void insertUserMetricsAggregate();
+    Float getSignUpGrowthPercentage();
+    Float getLoginGrowthPercentage();
+    Float getVisitGrowthPercentage();
+    Float getWithdrawalGrowthPercentage();
+    void updateGrowthRates(Map<String, Object> params);
 }

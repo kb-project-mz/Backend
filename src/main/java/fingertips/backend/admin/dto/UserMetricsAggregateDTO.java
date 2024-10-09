@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -13,12 +14,12 @@ import java.util.Date;
 @Builder
 public class UserMetricsAggregateDTO {
     private int aggregateIdx;
-    private Date metricDate;
-    private int totalSignUpCount;
-    private int totalWithdrawalCount;
-    private int totalVisitCount;
-    private int totalLoginCount;
-    private int totalTestLinkVisitCount;
-    private int totalTestResultClickCount;
-    private int totalTestSignUpCount;
+    private LocalDate metricDate;
+    private Integer totalSignUpCount;
+    private Integer totalWithdrawalCount;
+    private Integer totalVisitCount;
+    private Integer totalLoginCount;
+    private Integer totalTestLinkVisitCount;
+    private Integer totalTestResultClickCount;
+    private Integer totalTestSignUpCount;
 }

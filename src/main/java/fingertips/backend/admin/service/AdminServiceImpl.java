@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,17 +53,6 @@ public class AdminServiceImpl implements AdminService {
         loginLogDTO.setIpAddress(ipAddress);
 
         adminMapper.insertLoginLog(loginLogDTO);
-    }
-
-
-    @Override
-    public List<UserMetricsAggregateDTO> getDailyMetrics() {
-        try {
-            return adminMapper.selectDailyMetrics();
-        } catch (Exception e) {
-            logger.error("일별 메트릭 데이터를 가져오는 중 오류 발생: {}", e.getMessage(), e);
-            throw new RuntimeException("일별 메트릭 데이터를 가져오는 중 오류 발생", e);
-        }
     }
 
     @Override
@@ -136,6 +126,47 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    public Map<String, Integer> getDailyMetrics() {
+        Map<String, Integer> dailyMetrics = new HashMap<>();
+        try {
+            // 오늘의 회원가입 수
+            Integer signUpCount = adminMapper.getTodaySignUpCount();
+            if (signUpCount == null) {
+                signUpCount = 0;
+            }
+
+            // 오늘의 로그인 수
+            Integer loginCount = adminMapper.getTodayLoginCount();
+            if (loginCount == null) {
+                loginCount = 0;
+            }
+
+            // 오늘의 방문자 수
+            Integer visitCount = adminMapper.getTodayVisitCount();
+            if (visitCount == null) {
+                visitCount = 0;
+            }
+
+            // 오늘의 탈퇴 수
+            Integer withdrawalCount = adminMapper.getTodayWithdrawalCount();
+            if (withdrawalCount == null) {
+                withdrawalCount = 0;
+            }
+
+            // 오늘의 메트릭스 값 저장
+            dailyMetrics.put("signUpCount", signUpCount);
+            dailyMetrics.put("loginCount", loginCount);
+            dailyMetrics.put("visitCount", visitCount);
+            dailyMetrics.put("withdrawalCount", withdrawalCount);
+
+        } catch (Exception e) {
+            logger.error("오늘의 메트릭 데이터를 가져오는 중 오류 발생: {}", e.getMessage(), e);
+            throw new RuntimeException("오늘의 메트릭 데이터를 가져오는 중 오류 발생", e);
+        }
+        return dailyMetrics;
+    }
+
+    @Override
     public int getCumulativeWithdrawalCount() {
         try {
             return adminMapper.getCumulativeWithdrawalCount();
@@ -149,15 +180,55 @@ public class AdminServiceImpl implements AdminService {
     public Map<String, Float> getAllGrowthMetrics() {
         Map<String, Float> growthMetrics = new HashMap<>();
         try {
-            growthMetrics.put("signUpGrowth", adminMapper.getSignUpGrowthPercentage());
-            growthMetrics.put("loginGrowth", adminMapper.getLoginGrowthPercentage());
-            growthMetrics.put("visitGrowth", adminMapper.getVisitGrowthPercentage());
-            growthMetrics.put("withdrawalGrowth", adminMapper.getWithdrawalGrowthPercentage());
+            // 회원가입 증가율
+            Float signUpGrowth = adminMapper.getSignUpGrowthPercentage();
+            if (signUpGrowth == null) {
+                signUpGrowth = 0.0f;
+            }
+
+            // 로그인 증가율
+            Float loginGrowth = adminMapper.getLoginGrowthPercentage();
+            if (loginGrowth == null) {
+                loginGrowth = 0.0f;
+            }
+
+            // 방문자 증가율
+            Float visitGrowth = adminMapper.getVisitGrowthPercentage();
+            if (visitGrowth == null) {
+                visitGrowth = 0.0f;
+            }
+
+            // 탈퇴 증가율
+            Float withdrawalGrowth = adminMapper.getWithdrawalGrowthPercentage();
+            if (withdrawalGrowth == null) {
+                withdrawalGrowth = 0.0f;
+            }
+
+            // 증가율 저장
+            growthMetrics.put("signUpGrowth", signUpGrowth);
+            growthMetrics.put("loginGrowth", loginGrowth);
+            growthMetrics.put("visitGrowth", visitGrowth);
+            growthMetrics.put("withdrawalGrowth", withdrawalGrowth);
+
+            // 증가율 업데이트 쿼리 실행
+            Map<String, Object> params = new HashMap<>();
+            params.put("signUpGrowth", signUpGrowth);
+            params.put("loginGrowth", loginGrowth);
+            params.put("visitGrowth", visitGrowth);
+            params.put("withdrawalGrowth", withdrawalGrowth);
+            params.put("metricDate", getTodayDate());
+
+            adminMapper.updateGrowthRates(params);
+
         } catch (Exception e) {
             logger.error("증가율 데이터를 가져오는 중 오류 발생: {}", e.getMessage(), e);
             throw new RuntimeException("증가율 데이터를 가져오는 중 오류 발생", e);
         }
         return growthMetrics;
+    }
+
+    public LocalDate getTodayDate() {
+        return LocalDate.now();
     }
 
     @Override
@@ -198,5 +269,10 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public int getTodayTestSignUpCount() {
         return adminMapper.getTodayTestSignUpCount();
+    }
+
+    @Override
+    public void insertUserMetricsAggregate(UserMetricsAggregateDTO aggregateMetrics) {
+        adminMapper.insertUserMetricsAggregate();
     }
 }
