@@ -33,7 +33,7 @@
     </update>
 
     <select id="getSurveyInfo" parameterType="String" resultType="ForSurveyDTO">
-        SELECT birthday, gender
+        SELECT YEAR(birthday) as birthYear, gender
         FROM member
         WHERE member_id = #{memberId}
     </select>

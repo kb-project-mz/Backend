@@ -20,8 +20,7 @@ import java.util.*;
 @Slf4j
 public class TestController {
 
-    @Autowired
-    private TestService testService;
+    private final TestService testService;
 
     @GetMapping("/questions")
     public ResponseEntity<JsonResponse<List<TestQuestionDTO>>> getAllQuestions() {
@@ -29,7 +28,6 @@ public class TestController {
         return ResponseEntity.ok(JsonResponse.success(questions));
     }
 
-    // 2. 특정 질문에 대한 선택지 리스트 불러@GetMapping("/options/{questionIdx}")오기
     @GetMapping("/options/{questionIdx}")
     public ResponseEntity<JsonResponse<List<TestOptionDTO>>> getOptionsByQuestionId(@PathVariable int questionIdx) {
         List<TestOptionDTO> options = testService.getOptionsByQuestionId(questionIdx);
@@ -37,7 +35,7 @@ public class TestController {
     }
 
     // 3. 테스트 유형 불러오기
-    @GetMapping("/result")
+    @GetMapping("/types")
     public ResponseEntity<JsonResponse<List<TestTypeDTO>>> getTypeResults() {
         List<TestTypeDTO> results = testService.getTypeResults();
         return ResponseEntity.ok(JsonResponse.success(results));
@@ -50,7 +48,7 @@ public class TestController {
         return ResponseEntity.ok(JsonResponse.success("Result"));
     }
 
-    // 3. 테스트 유형 불러오기
+    // 로그인 한 사용자의 정보 불러오기
     @GetMapping("/survey/{memberId}")
     public ResponseEntity<JsonResponse<ForSurveyDTO>> getSurveyInfo(@PathVariable String memberId) {
         ForSurveyDTO results = testService.getSurveyInfo(memberId);
