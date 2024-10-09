@@ -16,5 +16,6 @@ public interface TestMapper {
     List<TestOptionDTO> getOptionsByQuestionId(int questionIdx);
     List<TestTypeDTO> getResultsByMemberId();
     void saveTestResult(TestResultDTO testResultDTO);
+    void incrementParticipants(int typeIdx);
 }
 

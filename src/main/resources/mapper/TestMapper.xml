@@ -26,7 +26,11 @@
         VALUES (#{memberIdx}, #{typeIdx}, #{birthYear}, #{gender})
     </insert>
 
-
+    <update id="incrementParticipants" parameterType="int">
+        UPDATE test_type
+        SET participants_count = participants_count + 1
+        WHERE type_idx = #{typeIdx}
+    </update>
 <!--    지우 !!!!!!!!!!!!!!!!!!
             <select id="getResultsByMemberId" parameterType="int" resultType="TestResultDTO">-->
 <!--        SELECT tr.member_idx, tt.type_idx, tt.type_name,-->

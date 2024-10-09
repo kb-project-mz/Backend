@@ -10,6 +10,7 @@ import fingertips.backend.test.dto.TestQuestionDTO;
 import fingertips.backend.test.dto.TestOptionDTO;
 import fingertips.backend.test.dto.TestTypeDTO;
 import fingertips.backend.test.mapper.TestMapper;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -36,9 +37,11 @@ public class TestServiceImpl implements TestService {
         return testMapper.getResultsByMemberId();
     };
 
+    @Transactional
     @Override
     public void saveTestResult(TestResultDTO testResultDTO) {
         testMapper.saveTestResult(testResultDTO);
+        testMapper.incrementParticipants(testResultDTO.getTypeIdx());
     }
 
 
