@@ -1,9 +1,6 @@
 package fingertips.backend.home.service;
 
-import fingertips.backend.home.dto.BalanceDTO;
-import fingertips.backend.home.dto.CompareAuthDTO;
-import fingertips.backend.home.dto.HomeChallengeDTO;
-import fingertips.backend.home.dto.PeerChallengeDTO;
+import fingertips.backend.home.dto.*;
 
 import java.util.List;
 
@@ -23,5 +20,7 @@ public interface HomeService {
 
     // 로그인한 사용자와 DB 비교
     CompareAuthDTO getAuth(Integer memberIdx);
+
+    TestDTO getTest(Integer memberIdx);
 
 }

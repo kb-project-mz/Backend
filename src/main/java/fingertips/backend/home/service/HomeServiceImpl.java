@@ -1,9 +1,6 @@
 package fingertips.backend.home.service;
 
-import fingertips.backend.home.dto.BalanceDTO;
-import fingertips.backend.home.dto.CompareAuthDTO;
-import fingertips.backend.home.dto.HomeChallengeDTO;
-import fingertips.backend.home.dto.PeerChallengeDTO;
+import fingertips.backend.home.dto.*;
 import fingertips.backend.home.mapper.HomeMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -115,6 +112,11 @@ public class HomeServiceImpl implements HomeService {
    @Scheduled(fixedRate = 1000)
    public void updateChallengeStatus() {
        homeMapper.updateChallengeStatus();
+   }
+
+   @Override
+   public TestDTO getTest(Integer memberIdx) {
+       return homeMapper.getTest(memberIdx);
    }
 
 }
