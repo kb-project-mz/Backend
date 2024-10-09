@@ -22,8 +22,8 @@
     </select>
 
     <insert id="saveTestResult" parameterType="TestResultDTO">
-        INSERT INTO test_result (member_idx, type_idx, type_image)
-        VALUES (#{memberIdx}, #{typeIdx}, #{typeImage})
+        INSERT INTO test_result (member_idx, type_idx, participants_birth_year, participants_gender)
+        VALUES (#{memberIdx}, #{typeIdx}, #{birthYear}, #{gender})
     </insert>
 
 

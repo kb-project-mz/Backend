@@ -46,15 +46,12 @@ public class TestController {
         return ResponseEntity.ok(JsonResponse.success(results));
     }
 
-
     // 3. 테스트 결과 저장하기
-    @PostMapping("/saveResult")
+    @PostMapping("/result")
     public ResponseEntity<JsonResponse<String>> saveTestResult(@RequestBody TestResultDTO testResultDTO) {
-        System.out.println("Received data: " + testResultDTO);
         testService.saveTestResult(testResultDTO);
         return ResponseEntity.ok(JsonResponse.success("Result"));
     }
-
     // !!!!!!!!!!!!!!!!!!지우 보시오 !!!!!!!!!!
 //    @GetMapping("/result}")
 //    public ResponseEntity<JsonResponse<List<TestResultDTO>>> getResultsByMemberId(int memberIdx) {
