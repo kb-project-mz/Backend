@@ -16,8 +16,8 @@
         WHERE question_idx = #{questionIdx}
     </select>
 
-    <select id="getResultsByMemberId" resultType="TestTypeDTO">
-        SELECT type_idx, type_name
+    <select id="getTypeResults" resultType="TestTypeDTO">
+        SELECT type_idx, type_name, type_image
         FROM test_type
     </select>
 
@@ -31,6 +31,13 @@
         SET participants_count = participants_count + 1
         WHERE type_idx = #{typeIdx}
     </update>
+
+    <select id="getSurveyInfo" parameterType="String" resultType="ForSurveyDTO">
+        SELECT birthday, gender
+        FROM member
+        WHERE member_id = #{memberId}
+    </select>
+
 <!--    지우 !!!!!!!!!!!!!!!!!!
             <select id="getResultsByMemberId" parameterType="int" resultType="TestResultDTO">-->
 <!--        SELECT tr.member_idx, tt.type_idx, tt.type_name,-->

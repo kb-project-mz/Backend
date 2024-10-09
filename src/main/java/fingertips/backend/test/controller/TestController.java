@@ -2,7 +2,7 @@ package fingertips.backend.test.controller;
 
 
 import fingertips.backend.exception.dto.JsonResponse;
-import fingertips.backend.test.dto.TestResultDTO;
+import fingertips.backend.test.dto.*;
 import fingertips.backend.test.service.TestService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,9 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import fingertips.backend.test.dto.TestQuestionDTO;
-import fingertips.backend.test.dto.TestOptionDTO;
-import fingertips.backend.test.dto.TestTypeDTO;
 
 
 import java.util.*;
@@ -41,8 +38,8 @@ public class TestController {
 
     // 3. 테스트 유형 불러오기
     @GetMapping("/result")
-    public ResponseEntity<JsonResponse<List<TestTypeDTO>>> getResultsByMemberId() {
-        List<TestTypeDTO> results = testService.getResultsByMemberId();
+    public ResponseEntity<JsonResponse<List<TestTypeDTO>>> getTypeResults() {
+        List<TestTypeDTO> results = testService.getTypeResults();
         return ResponseEntity.ok(JsonResponse.success(results));
     }
 
@@ -52,12 +49,19 @@ public class TestController {
         testService.saveTestResult(testResultDTO);
         return ResponseEntity.ok(JsonResponse.success("Result"));
     }
-    // !!!!!!!!!!!!!!!!!!지우 보시오 !!!!!!!!!!
+
+    // 3. 테스트 유형 불러오기
+    @GetMapping("/survey/{memberId}")
+    public ResponseEntity<JsonResponse<ForSurveyDTO>> getSurveyInfo(@PathVariable String memberId) {
+        ForSurveyDTO results = testService.getSurveyInfo(memberId);
+        return ResponseEntity.ok(JsonResponse.success(results));
+    }
+
+// !!!!!!!!!!!!!!!!!!지우 보시오 !!!!!!!!!!
 //    @GetMapping("/result}")
 //    public ResponseEntity<JsonResponse<List<TestResultDTO>>> getResultsByMemberId(int memberIdx) {
 //        List<TestResultDTO> results = testService.getResultsByMemberId(memberIdx);
 //        return ResponseEntity.ok(JsonResponse.success(results));
 //    }
-
 
 }
