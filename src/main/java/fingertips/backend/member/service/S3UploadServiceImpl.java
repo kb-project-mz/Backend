@@ -37,8 +37,6 @@ public class S3UploadServiceImpl implements S3uploaderService {
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(file.getSize());
             metadata.setContentType(file.getContentType());
-
-            log.info("00000000000000000000000000000"+file.getContentType());
             amazonS3.putObject(new PutObjectRequest(bucket, randomFilename, file.getInputStream(), metadata));
 
             return UploadFile.builder()
@@ -55,8 +53,6 @@ public class S3UploadServiceImpl implements S3uploaderService {
         }
         return null;
     }
-
-    // 파일 삭제
     @Override
     public void deleteFile(String fileUrl) {
         String[] urlParts = fileUrl.split("/");
@@ -85,12 +81,6 @@ public class S3UploadServiceImpl implements S3uploaderService {
         log.info("File delete complete: " + objectKey);
     }
 
-//    private void clear() {
-//        uploadedFileNames.clear();
-//        uploadedFileSizes.clear();
-//    }
-
-    // 랜덤파일명 생성 (파일명 중복 방지)
     @Override
     public String generateRandomFilename(MultipartFile multipartFile) {
         String originalFilename = multipartFile.getOriginalFilename();
@@ -99,7 +89,6 @@ public class S3UploadServiceImpl implements S3uploaderService {
         return randomFilename;
     }
 
-    // 파일 확장자 체크
     @Override
     public String validateFileExtension(String originalFilename) {
         String fileExtension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase();
