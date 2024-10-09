@@ -14,7 +14,7 @@ import java.util.Date;
 @Builder
 public class UserMetricsAggregateDTO {
     private int aggregateIdx;
-    private LocalDate metricDate;
+    private Date metricDate;
     private Integer totalSignUpCount;
     private Integer totalWithdrawalCount;
     private Integer totalVisitCount;

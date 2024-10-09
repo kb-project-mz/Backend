@@ -15,11 +15,11 @@ import java.util.Date;
 public class UserMetricsDTO {
     private int metricIdx;
     private int memberIdx;
-    private LocalDate metricDate;
-    private Integer  todaySignUpCount;
-    private Integer  todayWithdrawalCount;
-    private Integer  todayVisitCount;
-    private Integer  todayLoginCount;
+    private Date metricDate;
+    private Integer todaySignUpCount;
+    private Integer todayWithdrawalCount;
+    private Integer todayVisitCount;
+    private Integer todayLoginCount;
     private Integer  todayTestLinkVisitCount;
     private Integer  todayTestResultClickCount;
     private Integer  todayTestSignUpCount;

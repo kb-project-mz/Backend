@@ -1,5 +1,6 @@
 package fingertips.backend.admin.controller;
 
+import fingertips.backend.admin.dto.UserMetricsDTO;
 import fingertips.backend.admin.service.AdminService;
 import fingertips.backend.exception.dto.JsonResponse;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 import java.io.IOException;
 
@@ -41,13 +43,14 @@ public class AdminController {
 
     // 일별 전체 통계를 반환하는 API
     @GetMapping("/daily-metrics")
-    public ResponseEntity<JsonResponse<Map<String, Integer>>> getAllMetrics() throws IOException {
+    public ResponseEntity<JsonResponse<List<UserMetricsDTO>>> getAllMetrics() throws IOException {
         logger.info("getAllMetrics API 호출됨");
 
-        Map<String, Integer> allMetrics = adminService.getDailyMetrics();
+        List<UserMetricsDTO> allMetrics = adminService.getDailyMetrics();
         logger.debug("디버깅 - 가져온 일별 메트릭 데이터: {}", allMetrics);
         return ResponseEntity.ok(JsonResponse.success(allMetrics));
     }
+
     // 누적 회원가입 수
     @GetMapping("/total/sign-up")
     public ResponseEntity<JsonResponse<Integer>> updateCumulativeSignUpCount() throws IOException {

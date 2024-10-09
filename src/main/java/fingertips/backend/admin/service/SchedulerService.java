@@ -69,7 +69,8 @@ public class SchedulerService {
     @Scheduled(cron = "0 0 * * * ?")
     @Transactional
     public void saveDailyMetrics() {
-        LocalDate today = LocalDate.now();
+
+        Date today = new Date();
 
         try {
             // 오늘의 메트릭 데이터를 가져와서 DTO로 구성
@@ -115,5 +116,4 @@ public class SchedulerService {
             throw new ApplicationException(ApplicationError.USER_METRICS_SAVE_FAILED);
         }
     }
-
 }

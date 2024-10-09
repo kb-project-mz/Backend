@@ -126,44 +126,23 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public Map<String, Integer> getDailyMetrics() {
-        Map<String, Integer> dailyMetrics = new HashMap<>();
+    public List<UserMetricsDTO> getDailyMetrics() {
         try {
-            // 오늘의 회원가입 수
-            Integer signUpCount = adminMapper.getTodaySignUpCount();
-            if (signUpCount == null) {
-                signUpCount = 0;
+            logger.info("selectDailyMetrics 쿼리 실행 시작");
+
+            List<UserMetricsDTO> metrics = adminMapper.selectDailyMetrics();
+
+            if (metrics == null || metrics.isEmpty()) {
+                logger.error("No metrics data found");
+            } else {
+                logger.debug("Metrics data: {}", metrics);
             }
 
-            // 오늘의 로그인 수
-            Integer loginCount = adminMapper.getTodayLoginCount();
-            if (loginCount == null) {
-                loginCount = 0;
-            }
-
-            // 오늘의 방문자 수
-            Integer visitCount = adminMapper.getTodayVisitCount();
-            if (visitCount == null) {
-                visitCount = 0;
-            }
-
-            // 오늘의 탈퇴 수
-            Integer withdrawalCount = adminMapper.getTodayWithdrawalCount();
-            if (withdrawalCount == null) {
-                withdrawalCount = 0;
-            }
-
-            // 오늘의 메트릭스 값 저장
-            dailyMetrics.put("signUpCount", signUpCount);
-            dailyMetrics.put("loginCount", loginCount);
-            dailyMetrics.put("visitCount", visitCount);
-            dailyMetrics.put("withdrawalCount", withdrawalCount);
-
+            return metrics;
         } catch (Exception e) {
-            logger.error("오늘의 메트릭 데이터를 가져오는 중 오류 발생: {}", e.getMessage(), e);
-            throw new RuntimeException("오늘의 메트릭 데이터를 가져오는 중 오류 발생", e);
+            logger.error("전체 메트릭 데이터를 가져오는 중 오류 발생: {}", e.getMessage(), e);
+            throw new RuntimeException("전체 메트릭 데이터를 가져오는 중 오류 발생", e);
         }
-        return dailyMetrics;
     }
 
     @Override
