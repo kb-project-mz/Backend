@@ -56,22 +56,13 @@ public class TransactionController {
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 
-    // 새로운 카테고리별 거래 건수를 반환하는 API
-    @GetMapping("/category-count")
-    public ResponseEntity<JsonResponse<List<CategoryTransactionCountDTO>>> getCategoryTransactionCount(@RequestParam Map<String, String> params) {
+    // 설정한 기간 내에서 카테고리별 사용 금액 내림차순으로 반환
+    @GetMapping("/category")
+    public ResponseEntity<JsonResponse<List<CategoryTransactionCountDTO>>> getCategoryData(@RequestParam Map<String, String> params) {
 
         PeriodDTO period = makePeriodDTO(params);
-        List<CategoryTransactionCountDTO> transactionCounts = transactionService.getCategoryTransactionCount(period);
+        List<CategoryTransactionCountDTO> transactionCounts = transactionService.getCategoryData(period);
         return ResponseEntity.ok().body(JsonResponse.success(transactionCounts));
-    }
-
-    // 금액 기준으로 가장 많이 지출한 카테고리를 반환하는 엔드포인트
-    @GetMapping("/most-spent-category")
-    public ResponseEntity<JsonResponse<List<MostSpentCategoryDTO>>> getMostSpentCategoryByAmount(@RequestParam Map<String, String> params) {
-
-        PeriodDTO period = makePeriodDTO(params);
-        List<MostSpentCategoryDTO> mostSpentCategories = transactionService.getMostSpentCategoryByAmount(period);
-        return ResponseEntity.ok(JsonResponse.success(mostSpentCategories));
     }
 
     @GetMapping("/fixed/{memberIdx}")
@@ -83,18 +74,16 @@ public class TransactionController {
 
     private PeriodDTO makePeriodDTO(@RequestParam Map<String, String> params) {
 
-        int memberIdx = Integer.parseInt(params.get("memberIdx"));
+        Integer memberIdx = Integer.parseInt(params.get("memberIdx"));
 
-        int startYear = Integer.parseInt(params.get("startYear"));
-        int startMonth = Integer.parseInt(params.get("startMonth"));
-        int startDay = Integer.parseInt(params.get("startDay"));
+        Integer startYear = Integer.parseInt(params.get("startYear"));
+        Integer startMonth = Integer.parseInt(params.get("startMonth"));
+        Integer startDay = Integer.parseInt(params.get("startDay"));
 
-        int endYear = Integer.parseInt(params.get("endYear"));
-        int endMonth = Integer.parseInt(params.get("endMonth"));
-        int endDay = Integer.parseInt(params.get("endDay"));
-        logger.info("종료 날짜 정보 - 연도: {}, 월: {}, 일: {}", endYear, endMonth, endDay);
+        Integer endYear = Integer.parseInt(params.get("endYear"));
+        Integer endMonth = Integer.parseInt(params.get("endMonth"));
+        Integer endDay = Integer.parseInt(params.get("endDay"));
 
-        // PeriodDTO를 만들고 나서 해당 DTO 객체를 로그로 확인합니다.
         PeriodDTO periodDTO = PeriodDTO.builder()
                 .memberIdx(memberIdx)
                 .startYear(startYear)
@@ -105,10 +94,6 @@ public class TransactionController {
                 .endDay(endDay)
                 .build();
 
-        logger.info("생성된 PeriodDTO 객체: {}", periodDTO);
-
-        // PeriodDTO가 정상적으로 반환되었는지 로그로 확인합니다.
-        logger.info("PeriodDTO 객체를 성공적으로 반환합니다.");
         return periodDTO;
     }
 }
