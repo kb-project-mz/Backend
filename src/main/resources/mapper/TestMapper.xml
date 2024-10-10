@@ -46,3 +46,4 @@
 <!--        WHERE tr.member_idx = #{memberIdx}-->
 <!--    </select>-->
 </mapper>
+

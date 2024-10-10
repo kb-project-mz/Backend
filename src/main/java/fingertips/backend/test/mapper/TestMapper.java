@@ -15,5 +15,6 @@ public interface TestMapper {
     void saveTestResult(TestResultDTO testResultDTO);
     void incrementParticipants(int typeIdx);
     ForSurveyDTO getSurveyInfo(String memberId);
+
 }
 

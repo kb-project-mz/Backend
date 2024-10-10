@@ -102,4 +102,9 @@
         WHERE member_name = #{memberName}
     </select>
 
+    <insert id="insertAdmin" parameterType="MemberDTO">
+        INSERT INTO member (member_id, password, role)
+        VALUES (#{memberId}, #{password}, #{role})
+    </insert>
+
 </mapper>
