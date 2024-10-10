@@ -33,11 +33,12 @@ public class GoogleController {
     @GetMapping("")
     public ResponseEntity<JsonResponse<String>> googleLoginRedirect() {
         logger.info("구글 로그인 리다이렉트 호출");
+
         String authUrl = UriComponentsBuilder.fromHttpUrl("https://accounts.google.com/o/oauth2/v2/auth")
                 .queryParam("response_type", "code")
                 .queryParam("client_id", googleClientId)
                 .queryParam("redirect_uri", "http://localhost:8080/api/v1/member/login/google/callback")
-                .queryParam("scope", "email profile")
+                .queryParam("scope", "email profile https://www.googleapis.com/auth/user.birthday.read https://www.googleapis.com/auth/user.gender.read")
                 .queryParam("access_type", "offline")
                 .queryParam("prompt", "consent")
                 .toUriString();
@@ -62,7 +63,6 @@ public class GoogleController {
         String memberId = URLEncoder.encode(token.getMemberId(), StandardCharsets.UTF_8);
         String memberIdx = URLEncoder.encode(String.valueOf(token.getMemberIdx()), StandardCharsets.UTF_8);
         String memberName = URLEncoder.encode(token.getMemberName(), StandardCharsets.UTF_8);
-
 
         String redirectUrl = String.format("%s?access_token=%s&refresh_token=%s&member_id=%s&member_idx=%s&member_name=%s",
                 baseUrl, accessToken, refreshToken, memberId, memberIdx, memberName);

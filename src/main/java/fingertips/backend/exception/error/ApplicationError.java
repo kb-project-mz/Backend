@@ -43,6 +43,7 @@ public enum ApplicationError {
     SOCIAL_ACCOUNT_DISCONNECT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "SOCIAL_007", "소셜 계정 연동 해제에 실패했습니다."),
     INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "SOCIAL_008", "유효하지 않은 액세스 토큰입니다."),
     INVALID_USER_INFO(HttpStatus.BAD_REQUEST, "SOCIAL_009", "유효하지 않은 사용자 정보입니다."),
+    SOCIAL_ENCODING_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"SOCIAL_010", "인코딩 처리 중 오류가 발생했습니다."),
 
     // 서버
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "SERVER_001", "서버 내부 에러가 발생하였습니다."),
