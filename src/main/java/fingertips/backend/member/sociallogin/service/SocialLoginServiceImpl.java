@@ -168,8 +168,7 @@ public class SocialLoginServiceImpl implements SocialLoginService {
 
                 logger.info("새로운 사용자 정보: {}", memberInfo);
 
-                String memberId = generateUniqueMemberId(googleId);
-                memberInfo.setMemberId(memberId);
+                memberInfo.setMemberId(email);
 
                 BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
                 String password = generateUniqueMemberId(googleId);

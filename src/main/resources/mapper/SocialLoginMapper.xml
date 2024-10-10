@@ -12,9 +12,9 @@
     </select>
 
     <insert id="insertMember" parameterType="SocialLoginDTO">
-        INSERT INTO member (google_id, email, member_name, google_access_token, google_id_token, google_refresh_token,
+        INSERT INTO member (member_id, google_id, email, member_name, google_access_token, google_id_token, google_refresh_token,
                             expires_in, social_type, birthday, gender)
-        VALUES (#{googleId}, #{email}, #{memberName}, #{googleAccessToken}, #{googleIdToken}, #{googleRefreshToken},
+        VALUES (#{memberId}, #{googleId}, #{email}, #{memberName}, #{googleAccessToken}, #{googleIdToken}, #{googleRefreshToken},
                 #{expiresIn}, #{socialType}, #{birthday}, #{gender})
     </insert>
 
