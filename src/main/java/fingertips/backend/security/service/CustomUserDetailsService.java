@@ -22,6 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         MemberDTO memberDTO = mapper.getMemberByMemberId(username);
+
         if (memberDTO == null) {
             throw new UsernameNotFoundException("존재하지 않는 아이디입니다.");
         }
