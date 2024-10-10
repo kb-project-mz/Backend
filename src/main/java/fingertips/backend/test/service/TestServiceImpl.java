@@ -1,16 +1,18 @@
 package fingertips.backend.test.service;
 
 
-import fingertips.backend.test.dto.TestResultDTO;
+import fingertips.backend.test.dto.*;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import fingertips.backend.test.dto.TestQuestionDTO;
-import fingertips.backend.test.dto.TestOptionDTO;
-import fingertips.backend.test.dto.TestTypeDTO;
 import fingertips.backend.test.mapper.TestMapper;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Log4j
+@RequiredArgsConstructor
 @Service
 public class TestServiceImpl implements TestService {
 
@@ -28,13 +30,20 @@ public class TestServiceImpl implements TestService {
     }
 
     @Override
-    public List<TestTypeDTO> getResultsByMemberId(){
-        return testMapper.getResultsByMemberId();
+    public List<TestTypeDTO> getTypeResults(){
+        return testMapper.getTypeResults();
     };
 
+    @Transactional
     @Override
     public void saveTestResult(TestResultDTO testResultDTO) {
         testMapper.saveTestResult(testResultDTO);
+        testMapper.incrementParticipants(testResultDTO.getTypeIdx());
+    }
+
+    @Override
+    public ForSurveyDTO getSurveyInfo(String memberId) {
+        return testMapper.getSurveyInfo(memberId);
     }
 
 

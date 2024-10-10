@@ -16,13 +16,34 @@
         WHERE question_idx = #{questionIdx}
     </select>
 
-    <select id="getResultsByMemberId" resultType="TestTypeDTO">
-        SELECT type_idx, type_name
+    <select id="getTypeResults" resultType="TestTypeDTO">
+        SELECT type_idx, type_name, type_image
         FROM test_type
     </select>
 
     <insert id="saveTestResult" parameterType="TestResultDTO">
-        INSERT INTO test_result (member_idx, type_idx)
-        VALUES (#{memberIdx}, #{typeIdx})
+        INSERT INTO test_result (member_idx, type_idx, participants_birth_year, participants_gender)
+        VALUES (#{memberIdx}, #{typeIdx}, #{birthYear}, #{gender})
     </insert>
+
+    <update id="incrementParticipants" parameterType="int">
+        UPDATE test_type
+        SET participants_count = participants_count + 1
+        WHERE type_idx = #{typeIdx}
+    </update>
+
+    <select id="getSurveyInfo" parameterType="String" resultType="ForSurveyDTO">
+        SELECT YEAR(birthday) as birthYear, gender
+        FROM member
+        WHERE member_id = #{memberId}
+    </select>
+
+<!--    지우 !!!!!!!!!!!!!!!!!!
+            <select id="getResultsByMemberId" parameterType="int" resultType="TestResultDTO">-->
+<!--        SELECT tr.member_idx, tt.type_idx, tt.type_name,-->
+<!--        FROM test_type tt-->
+<!--                 JOIN test_result tr ON tt.type_idx = tr.type_idx;-->
+<!--        WHERE tr.member_idx = #{memberIdx}-->
+<!--    </select>-->
 </mapper>
+
