@@ -59,8 +59,8 @@ dependencies {
 
   // log4jdbc-log4j2
   implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4:1.16'
-  implementation 'org.apache.logging.log4j:log4j-api:2.0.1'
-  implementation 'org.apache.logging.log4j:log4j-core:2.0.1'
+  implementation 'org.apache.logging.log4j:log4j-api:2.17.1'
+  implementation 'org.apache.logging.log4j:log4j-core:2.17.1'
 
   // xml 내 한글 처리
   implementation 'xerces:xercesImpl:2.12.2'
