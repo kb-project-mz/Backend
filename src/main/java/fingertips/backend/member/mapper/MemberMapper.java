@@ -22,8 +22,9 @@ public interface MemberMapper {
     void updatePasswordByEmail(PasswordFindDTO passwordFindDTO);
     int checkEmailDuplicate(String email);
     int existsMemberName(String memberName);
-
-    void saveNewPassword(NewPasswordDTO newPassword);
+		void saveNewPassword(NewPasswordDTO newPassword);
     void saveNewImage(UploadFileDTO uploadFile);
     void saveNewEmail(NewEmailDTO newEmail);
+
+    void insertAdmin(MemberDTO admin);
 }

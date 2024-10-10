@@ -79,4 +79,9 @@ public class JwtProcessor {
             return false;
         }
     }
+
+    public boolean isAdmin(String token) {
+        String role = getUserRole(token);
+        return "ROLE_ADMIN".equals(role);
+    }
 }

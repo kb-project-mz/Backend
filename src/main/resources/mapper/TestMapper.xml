@@ -25,13 +25,4 @@
         INSERT INTO test_result (member_idx, type_idx)
         VALUES (#{memberIdx}, #{typeIdx})
     </insert>
-
-
-<!--    지우 !!!!!!!!!!!!!!!!!!
-            <select id="getResultsByMemberId" parameterType="int" resultType="TestResultDTO">-->
-<!--        SELECT tr.member_idx, tt.type_idx, tt.type_name,-->
-<!--        FROM test_type tt-->
-<!--                 JOIN test_result tr ON tt.type_idx = tr.type_idx;-->
-<!--        WHERE tr.member_idx = #{memberIdx}-->
-<!--    </select>-->
 </mapper>
