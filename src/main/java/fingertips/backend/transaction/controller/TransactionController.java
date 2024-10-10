@@ -57,18 +57,20 @@ public class TransactionController {
     }
 
     // 새로운 카테고리별 거래 건수를 반환하는 API
-    @GetMapping("/category-count/{memberIdx}")
-    public ResponseEntity<JsonResponse<List<CategoryTransactionCountDTO>>> getCategoryTransactionCount(@PathVariable int memberIdx) {
-        List<CategoryTransactionCountDTO> transactionCounts = transactionService.getCategoryTransactionCount(memberIdx);
+    @GetMapping("/category-count")
+    public ResponseEntity<JsonResponse<List<CategoryTransactionCountDTO>>> getCategoryTransactionCount(@RequestParam Map<String, String> params) {
+
+        PeriodDTO period = makePeriodDTO(params);
+        List<CategoryTransactionCountDTO> transactionCounts = transactionService.getCategoryTransactionCount(period);
         return ResponseEntity.ok().body(JsonResponse.success(transactionCounts));
     }
 
     // 금액 기준으로 가장 많이 지출한 카테고리를 반환하는 엔드포인트
-    @GetMapping("/most-spent-category/{memberIdx}")
-    public ResponseEntity<JsonResponse<List<MostSpentCategoryDTO>>> getMostSpentCategoryByAmount(@PathVariable int memberIdx) {
+    @GetMapping("/most-spent-category")
+    public ResponseEntity<JsonResponse<List<MostSpentCategoryDTO>>> getMostSpentCategoryByAmount(@RequestParam Map<String, String> params) {
 
-        List<MostSpentCategoryDTO> mostSpentCategories = transactionService.getMostSpentCategoryByAmount(memberIdx);
-
+        PeriodDTO period = makePeriodDTO(params);
+        List<MostSpentCategoryDTO> mostSpentCategories = transactionService.getMostSpentCategoryByAmount(period);
         return ResponseEntity.ok(JsonResponse.success(mostSpentCategories));
     }
 

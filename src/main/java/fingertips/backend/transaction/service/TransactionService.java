@@ -12,8 +12,8 @@ public interface TransactionService {
     String getMostAndMaximumUsed(PeriodDTO period);
     List<AccountTransactionDTO> getAccountTransactionList(Integer memberId);
     String getAiRecommendation(PeriodDTO periodDTO);
-    List<CategoryTransactionCountDTO> getCategoryTransactionCount(int memberIdx);
-    List<MostSpentCategoryDTO> getMostSpentCategoryByAmount(int memberIdx);
+    List<CategoryTransactionCountDTO> getCategoryTransactionCount(PeriodDTO periodDTO);
+    List<MostSpentCategoryDTO> getMostSpentCategoryByAmount(PeriodDTO periodDTO);
     List<String> getFixedExpense(Integer memberIdx);
     List<CardTransactionDTO> getCardTransactionLastFourMonths(Integer memberIdx);
 }
