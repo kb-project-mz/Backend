@@ -43,7 +43,7 @@
     <!-- 마이페이지를 위한 정보 받아오기 -->
     <select id="getProfile" parameterType="String" resultType="ProfileDTO">
         SELECT
-            member_id, member_name, birthday, email, image_url
+            member_id, member_name, social_type, birthday, email, image_url
         FROM member
         WHERE member_id = #{memberId}
     </select>
