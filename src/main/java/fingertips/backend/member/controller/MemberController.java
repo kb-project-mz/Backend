@@ -17,7 +17,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.servlet.http.HttpServletRequest;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -164,6 +163,7 @@ public class MemberController {
     @GetMapping("/info")
     public ResponseEntity<JsonResponse<ProfileDTO>> getMemberInfo() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println(authentication.getAuthorities());
         String memberId = authentication.getName();
         ProfileDTO profile = memberService.getProfile(memberId);
         return ResponseEntity.ok(JsonResponse.success(profile));

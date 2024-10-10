@@ -15,6 +15,11 @@
         <level value="info" />
     </logger>
 
+    <!-- Spring Security Logger for DEBUG -->
+    <logger name="org.springframework.security">
+        <level value="DEBUG" />
+    </logger>
+
     <!-- 3rdparty Loggers -->
     <logger name="org.springframework.core">
         <level value="info" />

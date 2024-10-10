@@ -25,6 +25,14 @@ tasks.withType(JavaCompile) {
   options.encoding = 'UTF-8'
 }
 
+test {
+  useJUnitPlatform()
+  testLogging {
+    events "passed", "skipped", "failed"
+  }
+}
+
+
 dependencies {
   // 스프링
   implementation("org.springframework:spring-context:${springVersion}") { exclude group: 'commons-logging', module: 'commons-logging' }
@@ -112,15 +120,29 @@ dependencies {
   implementation 'org.springframework.security:spring-security-oauth2-client:5.8.13'
   implementation 'org.springframework.security:spring-security-oauth2-jose:5.8.13'
 
-  //  Apache Commons Lang 라이브러리
+  // Apache Commons Lang 라이브러리
   implementation 'org.apache.commons:commons-lang3:3.12.0'
+
+  // Spring Scheduler
+  implementation 'org.springframework:spring-context:5.3.23'
+  implementation 'org.springframework:spring-context-support:5.3.23'
+
+  // JUnit 4 의존성 추가
+  testImplementation 'junit:junit:4.13.2'
+  testImplementation 'org.junit.vintage:junit-vintage-engine:5.9.2'
+
+  // Mockito 의존성 추가
+  testImplementation 'org.mockito:mockito-core:3.11.2'
 
   // S3
   implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
   // AWS SDK
-  implementation 'com.amazonaws:aws-java-sdk-s3:1.12.300' // 최신 버전 확인 후 사용
-  implementation 'com.amazonaws:aws-java-sdk-core:1.12.300' // S3와 연결하기 위한 core 라이브러리
+  implementation 'com.amazonaws:aws-java-sdk-s3:1.12.300'
+  implementation 'com.amazonaws:aws-java-sdk-core:1.12.300'
+
+  // Transaction
+  implementation 'org.springframework:spring-tx'
 }
 
 

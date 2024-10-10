@@ -1,9 +1,6 @@
 package fingertips.backend.home.mapper;
 
-import fingertips.backend.home.dto.BalanceDTO;
-import fingertips.backend.home.dto.CompareAuthDTO;
-import fingertips.backend.home.dto.HomeChallengeDTO;
-import fingertips.backend.home.dto.PeerChallengeDTO;
+import fingertips.backend.home.dto.*;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -20,4 +17,6 @@ public interface HomeMapper {
     void updateChallengeStatus();
 
     CompareAuthDTO getAuth(Integer memberIdx);
+
+    TestDTO getTest(Integer memberIdx);
 }

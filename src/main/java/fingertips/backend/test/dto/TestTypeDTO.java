@@ -10,4 +10,5 @@ import lombok.*;
 public class TestTypeDTO {
     private Integer typeIdx;
     private String typeName; //유형 이름
+    private String typeImage;
 }

@@ -73,4 +73,15 @@
         ]]>
     </update>
 
+    <select id="getTest" resultType="TestDTO">
+        SELECT tr.member_idx, tt.type_image
+        FROM test_result tr
+                 LEFT JOIN test_type tt
+                           ON tr.type_idx = tt.type_idx
+        WHERE member_idx = #{memberIdx}
+          AND tt.type_image IS NOT NULL
+        ORDER BY create_date DESC
+            LIMIT 1;
+    </select>
+
 </mapper>

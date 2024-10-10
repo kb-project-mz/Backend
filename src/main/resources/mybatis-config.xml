@@ -2,6 +2,7 @@
 <!DOCTYPE configuration
         PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
 <configuration>
     <settings>
         <setting name="mapUnderscoreToCamelCase" value="true" />
@@ -15,7 +16,7 @@
         <package name="fingertips.backend.member.dto" />
         <package name="fingertips.backend.home.dto" />
         <package name="fingertips.backend.member.sociallogin.dto" />
-        <package name="fingertips.backend.test.dto"/>
+        <package name="fingertips.backend.test.dto" />
     </typeAliases>
 
     <mappers>

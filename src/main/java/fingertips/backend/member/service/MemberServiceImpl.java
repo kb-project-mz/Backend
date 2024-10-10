@@ -100,14 +100,6 @@ public class MemberServiceImpl implements MemberService {
     public ProfileDTO getProfile(String memberId) {
         return memberMapper.getProfile(memberId);
     }
-
-    private void validateCurrentPassword (String inputPassword,
-                                          String existingPassword,
-                                          BCryptPasswordEncoder passwordEncoder) {
-        if (inputPassword == null || !passwordEncoder.matches(inputPassword, existingPassword)) {
-            throw new ApplicationException(ApplicationError.PASSWORD_MISMATCH);
-        }
-    }
     
     @Override
     public void withdrawMember(String memberId) {
@@ -208,12 +200,10 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public UploadFileDTO uploadImage(String memberId, String imageUrl) {
-
         UploadFileDTO uploadFile = UploadFileDTO.builder()
                 .memberId(memberId)
                 .storeFileName(imageUrl)
                 .build();
-
         memberMapper.saveNewImage(uploadFile);
         return uploadFile;
     }

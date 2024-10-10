@@ -1,9 +1,6 @@
 package fingertips.backend.home.service;
 
-import fingertips.backend.home.dto.BalanceDTO;
-import fingertips.backend.home.dto.CompareAuthDTO;
-import fingertips.backend.home.dto.HomeChallengeDTO;
-import fingertips.backend.home.dto.PeerChallengeDTO;
+import fingertips.backend.home.dto.*;
 import fingertips.backend.home.mapper.HomeMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,10 +45,9 @@ public class HomeServiceImpl implements HomeService {
         return homeMapper.getBalanceByMemberIdx(memberIdx);
     }
 
-
     public CompareAuthDTO getAuth(Integer memberIdx) { return homeMapper.getAuth(memberIdx); }
 
-   @Scheduled(fixedRate = 1000)
+//   @Scheduled(fixedRate = 1000)
    public void checkForBalanceUpdates() {
        List<BalanceDTO> currentBalances = homeMapper.getBalanceByMemberIdx(memberIdx);
        CompareAuthDTO auth = homeMapper.getAuth(memberIdx);
@@ -112,9 +108,14 @@ public class HomeServiceImpl implements HomeService {
 
 
     // @Scheduled(cron = "0 0 0 * * ?")
-   @Scheduled(fixedRate = 1000)
+//   @Scheduled(fixedRate = 1000)
    public void updateChallengeStatus() {
        homeMapper.updateChallengeStatus();
+   }
+
+   @Override
+   public TestDTO getTest(Integer memberIdx) {
+       return homeMapper.getTest(memberIdx);
    }
 
 }
