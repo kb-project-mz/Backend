@@ -37,9 +37,9 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<CategoryTransactionCountDTO> getCategoryTransactionCount(int memberIdx) {
+    public List<CategoryTransactionCountDTO> getCategoryData(PeriodDTO periodDTO) {
         // 카테고리별 거래 건수와 지출 금액을 가져오는 mapper 호출
-        List<CategoryTransactionCountDTO> categoryTransactionCounts = transactionMapper.getCategoryTransactionCount(memberIdx);
+        List<CategoryTransactionCountDTO> categoryTransactionCounts = transactionMapper.getCategoryData(periodDTO);
 
         // 전체 거래 건수를 계산
         int totalTransactions = categoryTransactionCounts.stream()
@@ -53,11 +53,6 @@ public class TransactionServiceImpl implements TransactionService {
         });
 
         return categoryTransactionCounts;
-    }
-
-    @Override
-    public List<MostSpentCategoryDTO> getMostSpentCategoryByAmount(int memberIdx) {
-        return transactionMapper.getMostSpentCategoryByAmount(memberIdx);
     }
 
     @Override

@@ -12,7 +12,6 @@ public interface TransactionMapper {
     List<CardTransactionDTO> getCardTransactionList(Integer memberIdx);
     List<CardTransactionDTO> getCardTransactionListByPeriod(PeriodDTO period);
     List<AccountTransactionDTO> getAccountTransactionList(Integer memberIdx);
-    List<CategoryTransactionCountDTO> getCategoryTransactionCount(Integer memberIdx);
-    List<MostSpentCategoryDTO> getMostSpentCategoryByAmount(int memberIdx);
+    List<CategoryTransactionCountDTO> getCategoryData(PeriodDTO periodDTO);
     List<CardTransactionDTO> getCardTransactionLastFourMonths(Integer memberIdx);
 }
