@@ -102,9 +102,10 @@ public class MemberServiceImpl implements MemberService {
     }
     
     @Override
-    public void withdrawMember(String memberId) {
+    public void withdrawMember(Integer memberIdx) {
 
-        memberMapper.withdrawMember(memberId);
+        log.info("withdrawMember Service 진입");
+        memberMapper.withdrawMember(memberIdx);
     }
 
     @Override

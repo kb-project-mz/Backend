@@ -122,6 +122,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/v1/member/login/google/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/v1/member/logout").authenticated()
                 .antMatchers(HttpMethod.POST, "/api/v1/member/refresh").authenticated()
+                .antMatchers(HttpMethod.POST, "/api/v1/member/withdraw").authenticated()
                 .antMatchers("/api/v1/asset/**").authenticated()
                 .antMatchers("/api/v1/challenge/**").authenticated()
                 .antMatchers("/api/v1/consumption/**").authenticated()

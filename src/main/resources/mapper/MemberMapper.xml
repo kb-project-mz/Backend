@@ -7,7 +7,7 @@
     <select id="getMemberByMemberId" parameterType="String" resultType="MemberDTO">
         SELECT *
         FROM member
-        WHERE member_id = #{memberId}
+        WHERE member_id = #{memberId} AND is_active = 1
     </select>
 
     <insert id="insertMember" parameterType="MemberDTO">
@@ -78,10 +78,10 @@
         WHERE member_id = #{memberId}
     </update>
 
-    <update id="withdrawMember" parameterType="String">
+    <update id="withdrawMember" parameterType="Integer">
         UPDATE member
         SET is_active = 0, withdraw_date = NOW()
-        WHERE member_id = #{memberId}
+        WHERE member_idx = #{memberIdx}
     </update>
 
     <update id="updatePasswordByEmail" parameterType="PasswordFindDTO">
