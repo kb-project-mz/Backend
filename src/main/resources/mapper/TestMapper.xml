@@ -22,8 +22,8 @@
     </select>
 
     <insert id="saveTestResult" parameterType="TestResultDTO">
-        INSERT INTO test_result (member_idx, type_idx, participants_birth_year, participants_gender)
-        VALUES (#{memberIdx}, #{typeIdx}, #{birthYear}, #{gender})
+        INSERT INTO test_result (member_idx, type_idx, participants_birth_year, participants_gender, region, occupation)
+        VALUES (#{memberIdx}, #{typeIdx}, #{birthYear}, #{gender}, #{region}, #{occupation})
     </insert>
 
     <update id="incrementParticipants" parameterType="int">
