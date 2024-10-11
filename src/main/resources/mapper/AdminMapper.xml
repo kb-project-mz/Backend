@@ -371,62 +371,61 @@
     <!-- 회원가입 증가율 -->
     <select id="getSignUpGrowthPercentage" resultType="Float">
         SELECT
-        COALESCE(ROUND(((COALESCE(today.today_sign_up_count, 0) - COALESCE(yesterday.cumulative_sign_up_count, 0)) / NULLIF(yesterday.cumulative_sign_up_count, 0)) * 100, 2), -100) AS sign_up_growth_percentage
-        FROM
-        (SELECT total_sign_up_count AS cumulative_sign_up_count
-        FROM user_metrics_aggregate
-        WHERE metric_date = (SELECT MAX(metric_date) FROM user_metrics_aggregate WHERE metric_date &lt; CURDATE())
-        ) AS yesterday,
-        (SELECT SUM(today_sign_up_count) AS today_sign_up_count
-        FROM user_metrics
-        WHERE metric_date = CURDATE()
-        ) AS today;
+            COALESCE(
+                    CASE
+                        WHEN uma_yesterday.total_sign_up_count = 0 THEN 0
+                        ELSE ROUND((um.today_sign_up_count / uma_yesterday.total_sign_up_count) * 100, 2)
+                        END, 0) AS sign_up_growth_percentage
+        FROM user_metrics um
+                 JOIN user_metrics_aggregate uma_yesterday
+                      ON uma_yesterday.metric_date = DATE_SUB(um.metric_date, INTERVAL 1 DAY)
+        WHERE um.metric_date = CURDATE();
     </select>
+
 
 
     <!-- 로그인 증가율 -->
     <select id="getLoginGrowthPercentage" resultType="Float">
         SELECT
-        COALESCE(ROUND(((COALESCE(today.today_login_count, 0) - COALESCE(yesterday.cumulative_login_count, 0)) / NULLIF(yesterday.cumulative_login_count, 0)) * 100, 2), -100) AS login_growth_percentage
-        FROM
-        (SELECT total_login_count AS cumulative_login_count
-        FROM user_metrics_aggregate
-        WHERE metric_date = (SELECT MAX(metric_date) FROM user_metrics_aggregate WHERE metric_date &lt; CURDATE())
-        ) AS yesterday,
-        (SELECT SUM(today_login_count) AS today_login_count
-        FROM user_metrics
-        WHERE metric_date = CURDATE()
-        ) AS today;
+            COALESCE(
+                    CASE
+                        WHEN uma_yesterday.total_login_count = 0 THEN 0
+                        ELSE ROUND((um.today_login_count / uma_yesterday.total_login_count) * 100, 2)
+                        END, 0) AS login_growth_percentage
+        FROM user_metrics um
+                 JOIN user_metrics_aggregate uma_yesterday
+                      ON uma_yesterday.metric_date = DATE_SUB(um.metric_date, INTERVAL 1 DAY)
+        WHERE um.metric_date = CURDATE();
     </select>
+
 
     <!-- 방문자 증가율 -->
     <select id="getVisitGrowthPercentage" resultType="Float">
         SELECT
-        COALESCE(ROUND(((COALESCE(today.today_visit_count, 0) - COALESCE(yesterday.cumulative_visit_count, 0)) / NULLIF(yesterday.cumulative_visit_count, 0)) * 100, 2), -100) AS visit_growth_percentage
-        FROM
-        (SELECT total_visit_count AS cumulative_visit_count
-        FROM user_metrics_aggregate
-        WHERE metric_date = (SELECT MAX(metric_date) FROM user_metrics_aggregate WHERE metric_date &lt; CURDATE())
-        ) AS yesterday,
-        (SELECT SUM(today_visit_count) AS today_visit_count
-        FROM user_metrics
-        WHERE metric_date = CURDATE()
-        ) AS today;
+            COALESCE(
+                    CASE
+                        WHEN uma_yesterday.total_visit_count = 0 THEN 0
+                        ELSE ROUND((um.today_visit_count / uma_yesterday.total_visit_count) * 100, 2)
+                        END, 0) AS visit_growth_percentage
+        FROM user_metrics um
+                 JOIN user_metrics_aggregate uma_yesterday
+                      ON uma_yesterday.metric_date = DATE_SUB(um.metric_date, INTERVAL 1 DAY)
+        WHERE um.metric_date = CURDATE();
     </select>
+
 
     <!-- 탈퇴 수 증가율 -->
     <select id="getWithdrawalGrowthPercentage" resultType="Float">
         SELECT
-        COALESCE(ROUND(((COALESCE(today.today_withdrawal_count, 0) - COALESCE(yesterday.cumulative_withdrawal_count, 0)) / NULLIF(yesterday.cumulative_withdrawal_count, 0)) * 100, 2), -100) AS withdrawal_growth_percentage
-        FROM
-        (SELECT total_withdrawal_count AS cumulative_withdrawal_count
-        FROM user_metrics_aggregate
-        WHERE metric_date = (SELECT MAX(metric_date) FROM user_metrics_aggregate WHERE metric_date &lt; CURDATE())
-        ) AS yesterday,
-        (SELECT SUM(today_withdrawal_count) AS today_withdrawal_count
-        FROM user_metrics
-        WHERE metric_date = CURDATE()
-        ) AS today;
+            COALESCE(
+                    CASE
+                        WHEN uma_yesterday.total_withdrawal_count = 0 THEN 0
+                        ELSE ROUND((um.today_withdrawal_count / uma_yesterday.total_withdrawal_count) * 100, 2)
+                        END, 0) AS withdrawal_growth_percentage
+        FROM user_metrics um
+                 JOIN user_metrics_aggregate uma_yesterday
+                      ON uma_yesterday.metric_date = DATE_SUB(um.metric_date, INTERVAL 1 DAY)
+        WHERE um.metric_date = CURDATE();
     </select>
 
     <!-- 증가율을 업데이트하는 쿼리 -->
@@ -438,4 +437,40 @@
             login_growth_percentage = #{loginGrowth}
         WHERE metric_date = #{metricDate};
     </update>
+
+    <update id="updateGrowthPercentages">
+        UPDATE user_metrics_aggregate AS uma
+            JOIN (
+            SELECT um.metric_date,
+            COALESCE(
+            CASE
+            WHEN uma_yesterday.total_sign_up_count = 0 THEN 0
+            ELSE ROUND((um.today_sign_up_count / uma_yesterday.total_sign_up_count) * 100, 2)
+            END, 0) AS sign_up_growth_percentage,
+            COALESCE(
+            CASE
+            WHEN uma_yesterday.total_login_count = 0 THEN 0
+            ELSE ROUND((um.today_login_count / uma_yesterday.total_login_count) * 100, 2)
+            END, 0) AS login_growth_percentage,
+            COALESCE(
+            CASE
+            WHEN uma_yesterday.total_visit_count = 0 THEN 0
+            ELSE ROUND((um.today_visit_count / uma_yesterday.total_visit_count) * 100, 2)
+            END, 0) AS visit_growth_percentage,
+            COALESCE(
+            CASE
+            WHEN uma_yesterday.total_withdrawal_count = 0 THEN 0
+            ELSE ROUND((um.today_withdrawal_count / uma_yesterday.total_withdrawal_count) * 100, 2)
+            END, 0) AS withdrawal_growth_percentage
+            FROM user_metrics um
+            JOIN user_metrics_aggregate uma_yesterday
+            ON uma_yesterday.metric_date = DATE_SUB(um.metric_date, INTERVAL 1 DAY)
+            ) AS calculated_growth
+        ON uma.metric_date = calculated_growth.metric_date
+            SET uma.sign_up_growth_percentage = calculated_growth.sign_up_growth_percentage,
+                uma.login_growth_percentage = calculated_growth.login_growth_percentage,
+                uma.visit_growth_percentage = calculated_growth.visit_growth_percentage,
+                uma.withdrawal_growth_percentage = calculated_growth.withdrawal_growth_percentage;
+    </update>
+
 </mapper>
