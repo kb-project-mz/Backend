@@ -9,7 +9,7 @@
                ch.challenge_limit, ch.detailed_category, ch.challenge_start_date, ch.challenge_end_date
         FROM challenge ch
         JOIN category ca ON ca.category_idx = ch.category_idx
-        WHERE ch.member_idx = #{memberIdx} AND ch.is_public = 1 AND ch.is_delete = 0;
+        WHERE ch.member_idx = #{memberIdx} AND ch.is_delete = 0;
     </select>
 
 
@@ -59,6 +59,7 @@
             JOIN member m2 ON m2.member_idx = #{memberIdx}
         WHERE c.is_public = 1 AND c.is_delete = 0 AND c.challenge_status = "진행"
             AND ABS(YEAR(m1.birthday) - YEAR(m2.birthday)) &lt; 6
+            AND c.member_idx != #{memberIdx}
         ORDER BY c.create_date DESC
         LIMIT 10;
     </select>
