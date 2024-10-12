@@ -22,10 +22,8 @@ public interface MemberService {
 
     void clearRefreshToken(String memberId);
     String findByNameAndEmail(String memberName, String email);
-    void withdrawMember(String memberId);
+    void withdrawMember(Integer memberIdx);
     void updatePasswordByEmail(PasswordFindDTO passwordFindDTO);
     PasswordFindDTO processFindPassword(String memberName, String email);
     String processVerifyPassword(PasswordFindDTO passwordFindDTO);
-
-
 }

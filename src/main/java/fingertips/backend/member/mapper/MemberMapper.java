@@ -17,12 +17,12 @@ public interface MemberMapper {
     ProfileDTO getProfile(String memberId);
     String getPassword(String memberId);
     void clearRefreshToken(String memberId);
-    void withdrawMember(String memberId);
+    void withdrawMember(Integer memberIdx);
 
     void updatePasswordByEmail(PasswordFindDTO passwordFindDTO);
     int checkEmailDuplicate(String email);
     int existsMemberName(String memberName);
-		void saveNewPassword(NewPasswordDTO newPassword);
+    void saveNewPassword(NewPasswordDTO newPassword);
     void saveNewImage(UploadFileDTO uploadFile);
     void saveNewEmail(NewEmailDTO newEmail);
 

@@ -214,4 +214,12 @@ public class MemberController {
         memberService.changeEmail(memberId, newEmail);
         return ResponseEntity.ok(JsonResponse.success("Email changed successfully"));
     }
+
+    @PostMapping("/withdraw")
+    public ResponseEntity<JsonResponse<String>> withdrawMember(@RequestBody Integer memberIdx) {
+
+        log.info("withdraw memberIdx:" + memberIdx.toString());
+        memberService.withdrawMember(memberIdx);
+        return ResponseEntity.ok().body(JsonResponse.success("Withdraw successfully"));
+    }
 }
