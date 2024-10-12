@@ -12,4 +12,6 @@ public class TestResultDTO {
     private String typeImage;
     private Integer birthYear;
     private String gender;
+    private String region;
+    private String occupation;
 }
