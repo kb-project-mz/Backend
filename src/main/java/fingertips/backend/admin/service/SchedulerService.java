@@ -42,7 +42,7 @@ public class SchedulerService {
     private static final String MYSQL_DUMP_PATH = "C:/Program Files/MySQL/MySQL Server 8.0/bin/mysqldump.exe";
     private static final String BACKUP_DIRECTORY = "C:\\backups\\";
 
-    @Scheduled(cron = "0 0 * * * ?")
+    @Scheduled(cron = "0 0 0 * * ?")
     public void backupDatabase() {
         String backupFileName = "db_backup_" + new SimpleDateFormat("yyyyMMdd").format(new Date()) + ".sql";
         File backupFile = new File(BACKUP_DIRECTORY + backupFileName);
@@ -66,7 +66,7 @@ public class SchedulerService {
         }
     }
 
-    @Scheduled(cron = "0 0 * * * ?")
+    @Scheduled(cron = "0 0 0 * * ?")
     @Transactional
     public void saveDailyMetrics() {
 
