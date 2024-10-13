@@ -82,9 +82,10 @@ public class EmailServiceImpl implements EmailService {
             message.setRecipients(MimeMessage.RecipientType.TO, InternetAddress.parse(email));
             message.setSubject("[fingertips] 이메일 인증 코드");
             message.setText("안녕하세요,\n\n"
-                    + "fingertips에 가입해 주셔서 감사합니다.\n"
-                    + "아래 인증 코드를 입력하여 이메일 인증을 완료해 주세요:\n\n"
+                    + "fingertips 입니다.\n\n"
+                    + "회원님의 계정 보호 및 확인을 위해 아래 인증 코드를 입력해 주세요:\n\n"
                     + "인증 코드: " + verificationCode + "\n\n"
+                    + "추가 문의사항이 있으시면 언제든지 연락 주시기 바랍니다.\n\n"
                     + "감사합니다.\n"
                     + "fingertips 팀 드림");
             javaMailSender.send(message);
@@ -171,16 +172,18 @@ public class EmailServiceImpl implements EmailService {
             MimeMessage message = javaMailSender.createMimeMessage();
             message.setFrom(new InternetAddress(username));
             message.setRecipients(MimeMessage.RecipientType.TO, InternetAddress.parse(email));
-            message.setSubject("[fingertips] 임시 비밀번호");
+            message.setSubject("[fingertips] 임시 비밀번호 안내");
             message.setText("안녕하세요, fingertips입니다.\n\n"
-                    + "회원님의 임시 비밀번호가 발급되었습니다. 아래 비밀번호를 사용하여 로그인해 주시고, "
-                    + "보안을 위해 로그인 후 반드시 비밀번호를 변경해 주세요.\n\n"
+                    + "회원님의 계정 보호를 위해 임시 비밀번호가 발급되었습니다.\n"
+                    + "아래 비밀번호를 사용하여 로그인해 주시고, 보안을 위해 로그인 후 반드시 비밀번호를 변경해 주세요.\n\n"
                     + "임시 비밀번호: " + newPassword + "\n\n"
-                    + "로그인 후 비밀번호 변경 방법:\n"
-                    + "1. 로그인 후, '마이페이지'로 이동합니다.\n"
-                    + "2. '비밀번호 변경' 메뉴에서 새 비밀번호를 설정합니다.\n\n"
-                    + "항상 최고의 서비스를 제공하기 위해 노력하는 fingertips가 되겠습니다.\n\n"
-                    + "감사합니다.\n"
+                    + "[로그인 후 비밀번호 변경 방법]\n\n"
+                    + "1. 로그인 후, 상단바에 있는 '이름' 을 클릭해 마이페이지로 이동합니다.\n"
+                    + "2. '비밀번호 변경' 을 통해 새 비밀번호를 설정합니다.\n"
+                    + "3. 비밀번호는 보안을 위해 8자 이상, 대문자, 소문자, 숫자, 특수문자를 포함해 주세요.\n\n"
+                    + "항상 최고의 서비스를 제공하기 위해 노력하는 fingertips가 되겠습니다.\n"
+                    + "추가적인 도움이 필요하시다면 언제든지 고객 지원팀에 문의해 주세요.\n\n"
+                    + "fingertips를 이용해 주셔서 감사합니다.\n\n"
                     + "fingertips 팀 드림");
             javaMailSender.send(message);
         } catch (MessagingException e) {

@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,6 +14,6 @@ public class PeerChallengeDTO {
     private String challengeType;
     private int challengeLimit;
     private String detailedCategory;
-    private Date challengeStartDate;
-    private Date challengeEndDate;
+    private String challengeStartDate;
+    private String challengeEndDate;
 }
