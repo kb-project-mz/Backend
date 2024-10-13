@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 @Log4j
 @RequiredArgsConstructor
@@ -74,24 +73,54 @@ public class MemberServiceImpl implements MemberService {
         memberMapper.clearRefreshToken(memberId);
     }
 
-    public String findByNameAndEmail(String memberName, String email) {
-
+    public MemberIdFindDTO findByNameAndEmail(String memberName, String email) {
         MemberIdFindDTO memberIdFindDTO = MemberIdFindDTO.builder()
                 .memberName(memberName)
                 .email(email)
                 .build();
 
         try {
+            String inactiveMemberId = checkIfMemberIsInactive(memberName, email);
+
+            if (inactiveMemberId != null) {
+                return MemberIdFindDTO.builder()
+                        .memberId(inactiveMemberId)
+                        .memberName(memberName)
+                        .email(email)
+                        .isActive(0)
+                        .build();
+            }
+
             String foundMemberId = memberMapper.findByNameAndEmail(memberIdFindDTO);
 
             if (foundMemberId == null) {
-                throw new ApplicationException(ApplicationError.MEMBER_NOT_FOUND);
+                return null;
             }
-            System.out.println(foundMemberId);
-            return foundMemberId;
-        } catch (Exception e) {
 
+            return MemberIdFindDTO.builder()
+                    .memberId(foundMemberId)
+                    .memberName(memberName)
+                    .email(email)
+                    .isActive(1)
+                    .build();
+
+        } catch (Exception e) {
             log.error("Error occurred while finding member by name and email: ", e);
+            throw new ApplicationException(ApplicationError.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public String checkIfMemberIsInactive(String memberName, String email) {
+        MemberIdFindDTO memberIdFindDTO = MemberIdFindDTO.builder()
+                .memberName(memberName)
+                .email(email)
+                .build();
+
+        try {
+            return memberMapper.findInactiveMemberByNameAndEmail(memberIdFindDTO);
+
+        } catch (Exception e) {
+            log.error("Error occurred while checking inactive member: ", e);
             throw new ApplicationException(ApplicationError.INTERNAL_SERVER_ERROR);
         }
     }
@@ -111,19 +140,20 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public void updatePasswordByEmail(PasswordFindDTO passwordFindDTO) {
 
-        String encryptedPassword = passwordEncoder.encode(passwordFindDTO.getNewPassword());
+        checkIfMemberIsInactive(passwordFindDTO.getMemberName(), passwordFindDTO.getEmail());
 
+        String encryptedPassword = passwordEncoder.encode(passwordFindDTO.getNewPassword());
         passwordFindDTO.setNewPassword(encryptedPassword);
 
         try {
             memberMapper.updatePasswordByEmail(passwordFindDTO);
         } catch (Exception e) {
-            throw e;
+            throw new ApplicationException(ApplicationError.INTERNAL_SERVER_ERROR);
         }
     }
 
     public PasswordFindDTO processFindPassword(String memberName, String email) {
-        String memberId = findByNameAndEmail(memberName, email);
+        String memberId = String.valueOf(findByNameAndEmail(memberName, email));
         if (memberId == null) {
             throw new ApplicationException(ApplicationError.MEMBER_NOT_FOUND);
         }
@@ -136,7 +166,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     public String processVerifyPassword(PasswordFindDTO passwordFindDTO) {
-        String memberId = findByNameAndEmail(passwordFindDTO.getMemberName(), passwordFindDTO.getEmail());
+        String memberId = String.valueOf(findByNameAndEmail(passwordFindDTO.getMemberName(), passwordFindDTO.getEmail()));
         if (memberId == null) {
             throw new ApplicationException(ApplicationError.MEMBER_NOT_FOUND);
         }
