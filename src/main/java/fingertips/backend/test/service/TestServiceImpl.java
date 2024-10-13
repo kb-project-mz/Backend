@@ -46,5 +46,10 @@ public class TestServiceImpl implements TestService {
         return testMapper.getSurveyInfo(memberId);
     }
 
+    @Override
+    public ForAdditionalSurveyDTO getAdditionalSurveyInfo(int memberIdx) {
+        return testMapper.getAdditionalSurveyInfo(memberIdx);
+    }
+
 
 }

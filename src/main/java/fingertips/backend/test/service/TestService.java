@@ -10,4 +10,5 @@ public interface TestService {
     List<TestTypeDTO> getTypeResults();
     void saveTestResult(TestResultDTO testResultDTO);
     ForSurveyDTO getSurveyInfo(String memberId);
+    ForAdditionalSurveyDTO getAdditionalSurveyInfo(int memberIdx);
 }

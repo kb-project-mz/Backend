@@ -27,39 +27,29 @@ public class TestController {
         List<TestQuestionDTO> questions = testService.getAllQuestions();
         return ResponseEntity.ok(JsonResponse.success(questions));
     }
-
     @GetMapping("/options/{questionIdx}")
     public ResponseEntity<JsonResponse<List<TestOptionDTO>>> getOptionsByQuestionId(@PathVariable int questionIdx) {
         List<TestOptionDTO> options = testService.getOptionsByQuestionId(questionIdx);
         return ResponseEntity.ok(JsonResponse.success(options));
     }
-
-    // 3. 테스트 유형 불러오기
     @GetMapping("/types")
     public ResponseEntity<JsonResponse<List<TestTypeDTO>>> getTypeResults() {
         List<TestTypeDTO> results = testService.getTypeResults();
         return ResponseEntity.ok(JsonResponse.success(results));
     }
-
-    // 3. 테스트 결과 저장하기
     @PostMapping("/result")
     public ResponseEntity<JsonResponse<String>> saveTestResult(@RequestBody TestResultDTO testResultDTO) {
         testService.saveTestResult(testResultDTO);
         return ResponseEntity.ok(JsonResponse.success("Result"));
     }
-
-    // 로그인 한 사용자의 정보 불러오기
     @GetMapping("/survey/{memberId}")
     public ResponseEntity<JsonResponse<ForSurveyDTO>> getSurveyInfo(@PathVariable String memberId) {
         ForSurveyDTO results = testService.getSurveyInfo(memberId);
         return ResponseEntity.ok(JsonResponse.success(results));
     }
-
-// !!!!!!!!!!!!!!!!!!지우 보시오 !!!!!!!!!!
-//    @GetMapping("/result}")
-//    public ResponseEntity<JsonResponse<List<TestResultDTO>>> getResultsByMemberId(int memberIdx) {
-//        List<TestResultDTO> results = testService.getResultsByMemberId(memberIdx);
-//        return ResponseEntity.ok(JsonResponse.success(results));
-//    }
-
+    @GetMapping("/survey/{memberIdx}/additional-info")
+    public ResponseEntity<JsonResponse<ForAdditionalSurveyDTO>> getAdditionalSurveyInfo(@PathVariable int memberIdx) {
+        ForAdditionalSurveyDTO results = testService.getAdditionalSurveyInfo(memberIdx);
+        return ResponseEntity.ok(JsonResponse.success(results));
+    }
 }
