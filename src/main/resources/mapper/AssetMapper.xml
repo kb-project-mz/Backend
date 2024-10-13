@@ -41,4 +41,16 @@
         SET connected_status = 1
         WHERE account_idx = #{accountIdx}
     </update>
+
+    <update id="disconnectCard" parameterType="Integer">
+        UPDATE card
+        SET connected_status = 0
+        WHERE card_idx = #{cardIdx}
+    </update>
+
+    <update id="disconnectAccount" parameterType="Integer">
+        UPDATE account
+        SET connected_status = 0
+        WHERE account_idx = #{accountIdx}
+    </update>
 </mapper>
