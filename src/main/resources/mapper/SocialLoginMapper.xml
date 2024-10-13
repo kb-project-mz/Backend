@@ -29,11 +29,14 @@
 
     <select id="getMemberByGoogleId" resultType="SocialLoginDTO">
         SELECT google_id, email, member_name, google_access_token, google_id_token,
-               google_refresh_token, expires_in, social_type, member_id, member_idx
+               google_refresh_token, expires_in, social_type, member_id, member_idx, is_active
         FROM member
         WHERE google_id = #{googleId}
     </select>
 
-
-
+    <update id="activateMemberByEmail" parameterType="String">
+        UPDATE member
+        SET is_active = 1, withdraw_date = NULL
+        WHERE email = #{email} AND is_active = 0
+    </update>
 </mapper>

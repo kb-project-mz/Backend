@@ -23,4 +23,5 @@ public class SocialLoginDTO {
     private String googleRefreshToken;
     private int expiresIn;
     private String socialType;
+    private Integer isActive;
 }
