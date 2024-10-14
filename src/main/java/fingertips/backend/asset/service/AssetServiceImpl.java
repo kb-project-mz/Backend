@@ -29,4 +29,14 @@ public class AssetServiceImpl implements AssetService {
     public void connectAccount(Integer accountIdx) {
         assetMapper.connectAccount(accountIdx);
     }
+
+    @Override
+    public void disconnectCard(Integer cardIdx) {
+        assetMapper.disconnectCard(cardIdx);
+    }
+
+    @Override
+    public void disconnectAccount(Integer accountIdx) {
+        assetMapper.disconnectAccount(accountIdx);
+    }
 }

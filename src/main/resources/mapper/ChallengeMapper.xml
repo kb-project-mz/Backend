@@ -57,7 +57,7 @@
             JOIN member m1 ON c.member_idx = m1.member_idx
             JOIN category cat ON c.category_idx = cat.category_idx
             JOIN member m2 ON m2.member_idx = #{memberIdx}
-        WHERE c.is_public = 1 AND c.is_delete = 0 AND c.challenge_status = "진행"
+        WHERE c.is_public = 1 AND c.is_delete = 0
             AND ABS(YEAR(m1.birthday) - YEAR(m2.birthday)) &lt; 6
             AND c.member_idx != #{memberIdx}
         ORDER BY c.create_date DESC

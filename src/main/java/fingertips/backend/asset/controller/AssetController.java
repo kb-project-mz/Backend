@@ -39,4 +39,18 @@ public class AssetController {
         assetService.connectAccount(accountIdx);
         return ResponseEntity.ok(JsonResponse.success("Update Success"));
     }
+
+    @PostMapping("/card/disconnect/{cardIdx}")
+    public ResponseEntity<JsonResponse<String>> disconnectCard(@PathVariable int cardIdx) {
+
+        assetService.disconnectCard(cardIdx);
+        return ResponseEntity.ok(JsonResponse.success("Update Success"));
+    }
+
+    @PostMapping("/account/disconnect/{accountIdx}")
+    public ResponseEntity<JsonResponse<String>> disconnectAccount(@PathVariable int accountIdx) {
+
+        assetService.disconnectAccount(accountIdx);
+        return ResponseEntity.ok(JsonResponse.success("Update Success"));
+    }
 }
