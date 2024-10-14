@@ -118,7 +118,6 @@ public class SocialLoginServiceImpl implements SocialLoginService {
             String email = (String) userInfo.get("email");
             String name = (String) userInfo.get("name");
 
-            // 추가: People API를 통해 생년월일과 성별 정보 가져오기
             String peopleApiUrl = "https://people.googleapis.com/v1/people/me?personFields=birthdays,genders";
             HttpHeaders headers = new HttpHeaders();
             headers.setBearerAuth(accessToken);
@@ -128,11 +127,10 @@ public class SocialLoginServiceImpl implements SocialLoginService {
             Map<String, Object> personData = peopleResponse.getBody();
             logger.info("Google People API 응답: {}", personData);
 
-            // 생년월일 정보 처리
             List<Map<String, Object>> birthdays = (List<Map<String, Object>>) personData.get("birthdays");
             String birthDate = null;
             if (birthdays != null && !birthdays.isEmpty()) {
-                Map<String, Object> birthday = birthdays.get(0); // 첫 번째 생일 정보
+                Map<String, Object> birthday = birthdays.get(0);
                 Map<String, Object> date = (Map<String, Object>) birthday.get("date");
                 if (date != null) {
                     birthDate = date.get("year") + "-" + date.get("month") + "-" + date.get("day");
@@ -140,16 +138,14 @@ public class SocialLoginServiceImpl implements SocialLoginService {
                 }
             }
 
-            // 성별 정보 처리
             List<Map<String, Object>> genders = (List<Map<String, Object>>) personData.get("genders");
             String gender = null;
             if (genders != null && !genders.isEmpty()) {
-                Map<String, Object> genderInfo = genders.get(0); // 첫 번째 성별 정보
+                Map<String, Object> genderInfo = genders.get(0);
                 gender = (String) genderInfo.get("value");
                 logger.info("성별: {}", gender);
             }
 
-            // 기존 사용자 조회
             SocialLoginDTO memberInfo = socialLoginMapper.getMemberByGoogleId(googleId);
             if (memberInfo == null) {
                 logger.info("DB에 존재하지 않는 사용자. 새로운 사용자 생성 시작.");
@@ -183,14 +179,22 @@ public class SocialLoginServiceImpl implements SocialLoginService {
                     throw new ApplicationException(ApplicationError.DATABASE_ERROR);
                 }
 
-                // 저장 후 다시 조회
                 SocialLoginDTO memberByGoogleId = socialLoginMapper.getMemberByGoogleId(googleId);
                 memberInfo.setMemberIdx(memberByGoogleId.getMemberIdx());
                 logger.info("새로운 회원 등록 완료: {}", memberInfo);
 
             } else {
-                // 기존 사용자의 memberId, memberIdx 가져오기
                 logger.info("기존 회원 정보: {}", memberInfo);
+                if (memberInfo.getIsActive() == 0) {
+                    logger.info("탈퇴한 회원, 다시 활성화 처리");
+                    try {
+                        socialLoginMapper.activateMemberByEmail(email);
+                        logger.info("사용자 계정 활성화 완료");
+                    } catch (Exception e) {
+                        logger.error("계정 활성화 중 오류 발생: ", e);
+                        throw new ApplicationException(ApplicationError.DATABASE_ERROR);
+                    }
+                }
             }
 
             return memberInfo;

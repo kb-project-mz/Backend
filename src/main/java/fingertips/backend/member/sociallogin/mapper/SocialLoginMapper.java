@@ -10,4 +10,5 @@ public interface SocialLoginMapper {
     void insertMember(SocialLoginDTO socialLoginDTO);
     void updateMemberTokens(SocialLoginDTO socialLoginDTO);
     SocialLoginDTO getMemberByGoogleId(String googleId);
+    void activateMemberByEmail(String email);
 }

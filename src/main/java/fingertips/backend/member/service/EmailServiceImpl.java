@@ -81,12 +81,12 @@ public class EmailServiceImpl implements EmailService {
             message.setFrom(new InternetAddress(username));
             message.setRecipients(MimeMessage.RecipientType.TO, InternetAddress.parse(email));
             message.setSubject("[fingertips] 이메일 인증 코드");
-            message.setText("안녕하세요,\n\n"
+            message.setText("안녕하세요,\n"
                     + "fingertips 입니다.\n\n"
-                    + "회원님의 계정 보호 및 확인을 위해 아래 인증 코드를 입력해 주세요:\n\n"
+                    + "회원님의 계정 보호 및 확인을 위해 아래 인증 코드를 입력해 주세요\n\n"
                     + "인증 코드: " + verificationCode + "\n\n"
-                    + "추가 문의사항이 있으시면 언제든지 연락 주시기 바랍니다.\n\n"
-                    + "감사합니다.\n"
+                    + "추가 문의사항이 있으시면 언제든지 연락 주시기 바랍니다.\n"
+                    + "감사합니다.\n\n"
                     + "fingertips 팀 드림");
             javaMailSender.send(message);
             verificationCodes.put(email, verificationCode);
