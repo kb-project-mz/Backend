@@ -48,9 +48,10 @@ public class MemberController {
             MemberIdFindDTO foundMemberId = memberService.findByNameAndEmail(memberName, email);
 
             MemberIdFindDTO memberIdFindDTO = MemberIdFindDTO.builder()
-                    .memberId(String.valueOf(foundMemberId))
+                    .memberId(foundMemberId.getMemberId())
                     .memberName(memberName)
                     .email(email)
+                    .isActive(foundMemberId.getIsActive())
                     .build();
 
             return ResponseEntity.ok(JsonResponse.success(memberIdFindDTO));

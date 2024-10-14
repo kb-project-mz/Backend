@@ -153,7 +153,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     public PasswordFindDTO processFindPassword(String memberName, String email) {
-        String memberId = String.valueOf(findByNameAndEmail(memberName, email));
+        String memberId = findByNameAndEmail(memberName, email).getMemberId();
         if (memberId == null) {
             throw new ApplicationException(ApplicationError.MEMBER_NOT_FOUND);
         }
@@ -166,7 +166,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     public String processVerifyPassword(PasswordFindDTO passwordFindDTO) {
-        String memberId = String.valueOf(findByNameAndEmail(passwordFindDTO.getMemberName(), passwordFindDTO.getEmail()));
+        String memberId = findByNameAndEmail(passwordFindDTO.getMemberName(), passwordFindDTO.getEmail()).getMemberId();
         if (memberId == null) {
             throw new ApplicationException(ApplicationError.MEMBER_NOT_FOUND);
         }
