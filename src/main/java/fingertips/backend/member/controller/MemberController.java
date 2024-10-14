@@ -1,6 +1,7 @@
 package fingertips.backend.member.controller;
 
 import fingertips.backend.exception.dto.JsonResponse;
+import fingertips.backend.exception.error.ApplicationException;
 import fingertips.backend.member.dto.*;
 import fingertips.backend.member.service.S3uploaderService;
 import fingertips.backend.security.account.dto.AuthDTO;
@@ -44,15 +45,15 @@ public class MemberController {
     @GetMapping("/memberId/{memberName}/{email}")
     public ResponseEntity<JsonResponse<MemberIdFindDTO>> findMemberId(@PathVariable String memberName, @PathVariable String email) {
 
-        String foundMemberId = memberService.findByNameAndEmail(memberName, email);
+            MemberIdFindDTO foundMemberId = memberService.findByNameAndEmail(memberName, email);
 
-        MemberIdFindDTO memberIdFindDTO = MemberIdFindDTO.builder()
-                .memberId(foundMemberId)
-                .memberName(memberName)
-                .email(email)
-                .build();
+            MemberIdFindDTO memberIdFindDTO = MemberIdFindDTO.builder()
+                    .memberId(String.valueOf(foundMemberId))
+                    .memberName(memberName)
+                    .email(email)
+                    .build();
 
-        return ResponseEntity.ok(JsonResponse.success(memberIdFindDTO));
+            return ResponseEntity.ok(JsonResponse.success(memberIdFindDTO));
     }
 
     @GetMapping("/password/{memberName}/{email}")

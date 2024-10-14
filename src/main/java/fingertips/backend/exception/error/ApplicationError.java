@@ -23,6 +23,9 @@ public enum ApplicationError {
     MEMBER_ID_DUPLICATED(HttpStatus.BAD_REQUEST, "MEMBER_005", "이미 존재하는 아이디입니다."),
     EMAIL_DUPLICATED(HttpStatus.BAD_REQUEST, "MEMBER_006", "이미 존재하는 이메일입니다."),
 
+    // 탈퇴
+    MEMBER_WITHDRAWN(HttpStatus.BAD_REQUEST, "MEMBER_010", "탈퇴한 회원입니다. 다시 회원가입을 해주세요."),
+
     // 마이페이지
     PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "MEMBER_007", "비밀번호가 일치하지 않습니다."),
     PASSWORD_CORRESPOND(HttpStatus.BAD_REQUEST, "MEMBER_008", "이전과 같은 비밀번호는 사용하실 수 없습니다."),

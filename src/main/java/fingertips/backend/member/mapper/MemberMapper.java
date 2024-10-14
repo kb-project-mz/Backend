@@ -18,13 +18,12 @@ public interface MemberMapper {
     String getPassword(String memberId);
     void clearRefreshToken(String memberId);
     void withdrawMember(Integer memberIdx);
-
     void updatePasswordByEmail(PasswordFindDTO passwordFindDTO);
     int checkEmailDuplicate(String email);
     int existsMemberName(String memberName);
     void saveNewPassword(NewPasswordDTO newPassword);
     void saveNewImage(UploadFileDTO uploadFile);
     void saveNewEmail(NewEmailDTO newEmail);
-
     void insertAdmin(MemberDTO admin);
+    String findInactiveMemberByNameAndEmail(MemberIdFindDTO memberIdFindDTO);
 }

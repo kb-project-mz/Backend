@@ -13,4 +13,5 @@ public class MemberIdFindDTO {
     private String memberId;
     private String memberName;
     private String email;
+    private Integer isActive;
 }

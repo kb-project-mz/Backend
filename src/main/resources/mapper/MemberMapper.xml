@@ -41,7 +41,6 @@
         WHERE member_id = #{memberId}
     </select>
 
-    <!-- 마이페이지를 위한 정보 받아오기 -->
     <select id="getProfile" parameterType="String" resultType="ProfileDTO">
         SELECT
             member_id, member_name, social_type, birthday, email, image_url
@@ -84,6 +83,15 @@
         SET is_active = 0, withdraw_date = NOW()
         WHERE member_idx = #{memberIdx}
     </update>
+
+    <select id="findInactiveMemberByNameAndEmail" parameterType="MemberIdFindDTO" resultType="String">
+        SELECT member_id
+        FROM member
+        WHERE email = #{email}
+          AND member_name = #{memberName}
+          AND is_active = 0
+    </select>
+
 
     <update id="updatePasswordByEmail" parameterType="PasswordFindDTO">
         UPDATE member
