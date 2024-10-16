@@ -8,10 +8,10 @@ import lombok.*;
 @AllArgsConstructor
 public class AssetDTO {
 
-    private Integer financeKind; // 카드 1, 계좌 2
+    private Integer financeKind;
     private Integer prdtId;
-    private String financeName; // 은행 이름
-    private String prdtName; // 상품명
+    private String financeName;
+    private String prdtName;
     private String image;
     private Integer totalAmount;
     private Integer connectedStatus;

@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class PasswordFindDTO {
+
     private String memberName;
     private String memberId;
     private String email;

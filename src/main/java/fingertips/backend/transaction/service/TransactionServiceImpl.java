@@ -38,15 +38,11 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public List<CategoryTransactionCountDTO> getCategoryData(PeriodDTO periodDTO) {
-        // 카테고리별 거래 건수와 지출 금액을 가져오는 mapper 호출
         List<CategoryTransactionCountDTO> categoryTransactionCounts = transactionMapper.getCategoryData(periodDTO);
-
-        // 전체 거래 건수를 계산
         int totalTransactions = categoryTransactionCounts.stream()
                 .mapToInt(CategoryTransactionCountDTO::getTotalSpent)
                 .sum();
 
-        // 각 카테고리별 비율 계산 및 설정
         categoryTransactionCounts.forEach(transaction -> {
             double percentage = (double) transaction.getTotalSpent()/ totalTransactions * 100;
             transaction.setPercentage(percentage);
@@ -60,7 +56,6 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionMapper.getAccountTransactionList(memberId);
     }
 
-    // TODO : 프롬프트 수정
     @Override
     public String getMostAndMaximumUsed(PeriodDTO period) {
 
@@ -85,7 +80,6 @@ public class TransactionServiceImpl implements TransactionService {
 
         return openAiService.askOpenAi(prompt);
     }
-
 
     @Override
     public String getAiRecommendation(PeriodDTO period) {
@@ -141,7 +135,6 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public List<CardTransactionDTO> getCardTransactionLastFourMonths(Integer memberIdx) {
-
         return transactionMapper.getCardTransactionLastFourMonths(memberIdx);
     }
 

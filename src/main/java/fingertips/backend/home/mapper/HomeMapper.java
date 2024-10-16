@@ -9,14 +9,9 @@ import java.util.List;
 public interface HomeMapper {
 
     List<BalanceDTO> getBalanceByMemberIdx(int memberIdx);
-
     List<HomeChallengeDTO> getChallengeByMemberIdx(Integer memberIdx);
-
     List<PeerChallengeDTO> getPeerChallenge(Integer memberIdx);
-
     void updateChallengeStatus();
-
     CompareAuthDTO getAuth(Integer memberIdx);
-
     TestDTO getTest(Integer memberIdx);
 }

@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class NewPasswordDTO {
+
     private String memberId;
     private String newPassword;
 }

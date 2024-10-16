@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class CompareAuthDTO {
+
     private Integer memberIdx;
     private String memberId;
     private String memberName;

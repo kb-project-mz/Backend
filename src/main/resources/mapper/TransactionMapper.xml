@@ -37,7 +37,6 @@
         ORDER BY account_transaction_date DESC
     </select>
 
-    <!-- 카테고리별 거래 건수와 총 지출 금액을 가져오는 쿼리 -->
     <select id="getCategoryData" parameterType="PeriodDTO" resultType="CategoryTransactionCountDTO">
         SELECT cat.category_name, SUM(ct.amount) AS totalSpent
         FROM card_transaction ct

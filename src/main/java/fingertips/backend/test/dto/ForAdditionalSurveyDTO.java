@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ForAdditionalSurveyDTO {
+
     private String region;
     private String occupation;
 }

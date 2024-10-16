@@ -7,6 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TestResultDTO {
+
     private Integer memberIdx;
     private Integer typeIdx;
     private String typeImage;

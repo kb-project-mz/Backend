@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class NewEmailDTO {
+
     private String memberId;
     private String newEmail;
 }

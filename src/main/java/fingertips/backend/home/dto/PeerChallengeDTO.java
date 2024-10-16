@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class PeerChallengeDTO {
+
     private String challengeName;
     private String challengeType;
     private int challengeLimit;

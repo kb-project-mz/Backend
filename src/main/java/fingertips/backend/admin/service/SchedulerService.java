@@ -87,19 +87,13 @@ public class SchedulerService {
               .build();
 
       adminService.insertUserMetricsAggregate(aggregateMetrics);
-
-      logger.info("메트릭 데이터가 성공적으로 저장되었습니다. 날짜: {}", today);
-
     } catch (NullPointerException e) {
-      logger.error("메트릭 데이터를 저장하는 중 null 값이 발견되었습니다: {}", e.getMessage());
       throw new ApplicationException(ApplicationError.USER_METRICS_SAVE_FAILED);
 
     } catch (ApplicationException e) {
-      logger.error("스케줄러 실행 중 오류 발생: {}", e.getMessage());
       throw new ApplicationException(ApplicationError.SCHEDULER_FAILED);
 
     } catch (Exception e) {
-      logger.error("메트릭 데이터를 저장하는 중 예기치 않은 오류가 발생했습니다: {}", e.getMessage());
       throw new ApplicationException(ApplicationError.USER_METRICS_SAVE_FAILED);
     }
   }

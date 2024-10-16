@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ForSurveyDTO {
+
     private Integer birthYear;
     private String gender;
 }

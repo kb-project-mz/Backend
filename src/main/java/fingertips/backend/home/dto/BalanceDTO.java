@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class BalanceDTO {
+
     private int accountIdx;
     private int memberIdx;
     private String bankName;

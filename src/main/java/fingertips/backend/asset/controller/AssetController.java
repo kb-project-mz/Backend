@@ -21,35 +21,30 @@ public class AssetController {
 
     @GetMapping("/{memberIdx}")
     public ResponseEntity<JsonResponse<List<AssetDTO>>> getAllAssets(@PathVariable int memberIdx) {
-
         List<AssetDTO> assetList = assetService.getAllAssets(memberIdx);
         return ResponseEntity.ok(JsonResponse.success(assetList));
     }
 
     @PostMapping("/card/{cardIdx}")
     public ResponseEntity<JsonResponse<String>> updateCardStatus(@PathVariable int cardIdx) {
-
         assetService.connectCard(cardIdx);
         return ResponseEntity.ok(JsonResponse.success("Update Success"));
     }
 
     @PostMapping("/account/{accountIdx}")
     public ResponseEntity<JsonResponse<String>> updateAccountStatus(@PathVariable int accountIdx) {
-
         assetService.connectAccount(accountIdx);
         return ResponseEntity.ok(JsonResponse.success("Update Success"));
     }
 
     @PostMapping("/card/disconnect/{cardIdx}")
     public ResponseEntity<JsonResponse<String>> disconnectCard(@PathVariable int cardIdx) {
-
         assetService.disconnectCard(cardIdx);
         return ResponseEntity.ok(JsonResponse.success("Update Success"));
     }
 
     @PostMapping("/account/disconnect/{accountIdx}")
     public ResponseEntity<JsonResponse<String>> disconnectAccount(@PathVariable int accountIdx) {
-
         assetService.disconnectAccount(accountIdx);
         return ResponseEntity.ok(JsonResponse.success("Update Success"));
     }

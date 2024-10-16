@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class EmailDTO {
+
     private String email;
     private String newEmail;
     private String inputCode;

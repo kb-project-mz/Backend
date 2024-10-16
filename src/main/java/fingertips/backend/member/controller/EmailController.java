@@ -22,42 +22,29 @@ import lombok.extern.slf4j.Slf4j;
 public class EmailController {
 
     private final EmailService emailService;
-    private final MemberService memberService;
 
     private static final Logger logger = LoggerFactory.getLogger(EmailController.class);
 
-    // 이메일 인증 코드 확인
     @PostMapping("/verification")
     public ResponseEntity<JsonResponse<Boolean>> verifyEmail(@RequestBody EmailDTO emailDTO) {
-
         boolean isVerified = emailService.verifyEmail(emailDTO.getEmail(), emailDTO.getInputCode());
-
         return ResponseEntity.ok(JsonResponse.success(isVerified));
     }
 
-    // 이메일 변경
     @PostMapping("/")
     public ResponseEntity<JsonResponse<String>> requestEmailChange(@RequestBody EmailDTO emailDTO) {
-
         String verificationCode = emailService.generateVerificationCode();
-
         emailService.sendVerificationEmail(emailDTO.getNewEmail(), verificationCode);
-
         return ResponseEntity.ok(JsonResponse.success("변경 요청이 성공적으로 전송되었습니다."));
     }
 
-    // 인증 코드 전송
     @PostMapping("/code")
     public ResponseEntity<JsonResponse<String>> sendVerificationCode(@RequestBody EmailDTO emailDTO) {
-
         String newVerificationCode = emailService.generateVerificationCode();
-
         emailService.sendVerificationEmail(emailDTO.getEmail(), newVerificationCode);
-
         return ResponseEntity.ok(JsonResponse.success("인증 코드가 전송되었습니다."));
     }
 
-    // 새 비밀번호 전송
     @PostMapping("/newpassword")
     public ResponseEntity<JsonResponse<PasswordFindDTO>> findPassword(@RequestBody PasswordFindDTO passwordFindDTO) {
 

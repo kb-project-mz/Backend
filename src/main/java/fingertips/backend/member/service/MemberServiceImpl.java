@@ -18,16 +18,7 @@ public class MemberServiceImpl implements MemberService {
 
     private final MemberMapper memberMapper;
     private final PasswordEncoder passwordEncoder;
-    private final JwtProcessor jwtProcessor;
     private final EmailService emailService;
-
-    public String authenticate(String username, String password) {
-        MemberDTO memberDTO = memberMapper.getMemberByMemberId(username);
-        if (memberDTO != null && passwordEncoder.matches(password, memberDTO.getPassword())) {
-            return jwtProcessor.generateAccessToken(username, memberDTO.getRole());
-        }
-        throw new ApplicationException(ApplicationError.MEMBER_NOT_FOUND);
-    }
 
     public void joinMember(MemberDTO memberDTO) {
 
@@ -90,22 +81,17 @@ public class MemberServiceImpl implements MemberService {
                         .isActive(0)
                         .build();
             }
-
             String foundMemberId = memberMapper.findByNameAndEmail(memberIdFindDTO);
-
             if (foundMemberId == null) {
                 return null;
             }
-
             return MemberIdFindDTO.builder()
                     .memberId(foundMemberId)
                     .memberName(memberName)
                     .email(email)
                     .isActive(1)
                     .build();
-
         } catch (Exception e) {
-            log.error("Error occurred while finding member by name and email: ", e);
             throw new ApplicationException(ApplicationError.INTERNAL_SERVER_ERROR);
         }
     }
@@ -118,9 +104,7 @@ public class MemberServiceImpl implements MemberService {
 
         try {
             return memberMapper.findInactiveMemberByNameAndEmail(memberIdFindDTO);
-
         } catch (Exception e) {
-            log.error("Error occurred while checking inactive member: ", e);
             throw new ApplicationException(ApplicationError.INTERNAL_SERVER_ERROR);
         }
     }
@@ -132,19 +116,14 @@ public class MemberServiceImpl implements MemberService {
     
     @Override
     public void withdrawMember(Integer memberIdx) {
-
-        log.info("withdrawMember Service 진입");
         memberMapper.withdrawMember(memberIdx);
     }
 
     @Override
     public void updatePasswordByEmail(PasswordFindDTO passwordFindDTO) {
-
         checkIfMemberIsInactive(passwordFindDTO.getMemberName(), passwordFindDTO.getEmail());
-
         String encryptedPassword = passwordEncoder.encode(passwordFindDTO.getNewPassword());
         passwordFindDTO.setNewPassword(encryptedPassword);
-
         try {
             memberMapper.updatePasswordByEmail(passwordFindDTO);
         } catch (Exception e) {

@@ -45,11 +45,9 @@ public class JwtUsernamePasswordAuthenticationFilter extends UsernamePasswordAut
             throws AuthenticationException {
 
         LoginDTO login = LoginDTO.of(request);
-
         if (memberMapper.getMemberByMemberId(login.getMemberId()) == null) {
             throw new UsernameNotFoundException("존재하지 않는 아이디입니다.");
         }
-
         request.setAttribute("memberId", login.getMemberId());
 
         int attempts = loginFailureHandler.getAttemptsCache().getOrDefault(login.getMemberId(), 0);

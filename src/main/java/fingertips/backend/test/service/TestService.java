@@ -5,6 +5,7 @@ import java.util.List;
 import fingertips.backend.test.dto.*;
 
 public interface TestService {
+
     List<TestQuestionDTO> getAllQuestions();
     List<TestOptionDTO> getOptionsByQuestionId(int questionIdx);
     List<TestTypeDTO> getTypeResults();

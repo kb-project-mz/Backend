@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class TestDTO {
+
     private Integer memberIdx;
     private String typeImage;
 }

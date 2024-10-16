@@ -2,7 +2,6 @@
 <!DOCTYPE log4j:configuration SYSTEM "http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/xml/doc-files/log4j.dtd">
 
 <log4j:configuration>
-    <!-- Appenders-->
     <appender name="console" class="org.apache.log4j.ConsoleAppender">
         <param name="Target" value="System.out" />
         <layout class="org.apache.log4j.PatternLayout">
@@ -10,17 +9,14 @@
         </layout>
     </appender>
 
-    <!-- Application Loggers -->
     <logger name="fingertips.backend">
         <level value="info" />
     </logger>
 
-    <!-- Spring Security Logger for DEBUG -->
     <logger name="org.springframework.security">
         <level value="DEBUG" />
     </logger>
 
-    <!-- 3rdparty Loggers -->
     <logger name="org.springframework.core">
         <level value="info" />
     </logger>
@@ -48,7 +44,6 @@
         <level value="info" />
     </logger>
 
-    <!-- Root Logger -->
     <root>
         <priority value="info" />
         <appender-ref ref="console" />
