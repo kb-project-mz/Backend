@@ -19,7 +19,6 @@ public class OpenAiService {
 
     @Value("${openai.api.model}")
     private String model;
-
     private final RestTemplate openAiRestTemplate;
 
     public String askOpenAi(String prompt) {

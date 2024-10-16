@@ -8,7 +8,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TestTypeDTO {
+
     private Integer typeIdx;
-    private String typeName; //유형 이름
+    private String typeName;
     private String typeImage;
 }

@@ -57,17 +57,13 @@ public class S3UploadServiceImpl implements S3uploaderService {
     public void deleteFile(String fileUrl) {
         String[] urlParts = fileUrl.split("/");
         String fileBucket = urlParts[2].split("\\.")[0];
-
         if (!fileBucket.equals(bucket)) {
             throw new ApplicationException(ApplicationError.FILE_EMPTY);
         }
-
         String objectKey = String.join("/", Arrays.copyOfRange(urlParts, 3, urlParts.length));
-
         if (!amazonS3.doesObjectExist(bucket, objectKey)) {
             throw new ApplicationException(ApplicationError.FILE_EMPTY);
         }
-
         try {
             amazonS3.deleteObject(bucket, objectKey);
         } catch (AmazonS3Exception e) {
@@ -77,8 +73,6 @@ public class S3UploadServiceImpl implements S3uploaderService {
             log.error("AWS SDK client error : " + e.getMessage());
             throw new ApplicationException(ApplicationError.INTERNAL_SERVER_ERROR);
         }
-
-        log.info("File delete complete: " + objectKey);
     }
 
     @Override

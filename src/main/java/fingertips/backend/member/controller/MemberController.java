@@ -44,9 +44,7 @@ public class MemberController {
 
     @GetMapping("/memberId/{memberName}/{email}")
     public ResponseEntity<JsonResponse<MemberIdFindDTO>> findMemberId(@PathVariable String memberName, @PathVariable String email) {
-
             MemberIdFindDTO foundMemberId = memberService.findByNameAndEmail(memberName, email);
-
             MemberIdFindDTO memberIdFindDTO = MemberIdFindDTO.builder()
                     .memberId(foundMemberId.getMemberId())
                     .memberName(memberName)
@@ -63,61 +61,45 @@ public class MemberController {
             @PathVariable String email) {
 
         String decodedEmail = URLDecoder.decode(email, StandardCharsets.UTF_8);
-
         PasswordFindDTO passwordFindDTO = memberService.processFindPassword(memberName, decodedEmail);
-
         return ResponseEntity.ok(JsonResponse.success(passwordFindDTO));
     }
 
     @PostMapping("/password/verify-password")
     public ResponseEntity<JsonResponse<String>> verifyPassword(@RequestBody PasswordFindDTO passwordFindDTO) {
-
         String memberId = memberService.processVerifyPassword(passwordFindDTO);
-
         return ResponseEntity.ok(JsonResponse.success(memberId));
     }
 
     @GetMapping("/memberInfo/{memberId}")
     public ResponseEntity<JsonResponse<MemberDTO>> getMember(@PathVariable String memberId) {
-
         MemberDTO member = memberService.getMemberByMemberId(memberId);
-
         return ResponseEntity.ok(JsonResponse.success(member));
     }
 
     @GetMapping("/check-memberId/{memberId}")
     public ResponseEntity<JsonResponse<Boolean>> checkMemberId(@PathVariable String memberId) {
-
         boolean exists = memberService.existsMemberId(memberId);
-
         return ResponseEntity.ok(JsonResponse.success(exists));
     }
 
     @GetMapping("/email/duplicate")
     public ResponseEntity<Map<String, Boolean>> checkEmailDuplicate(@RequestParam String email) {
-
         boolean exists = memberService.checkEmailDuplicate(email);
-
         Map<String, Boolean> response = new HashMap<>();
-
         response.put("exists", exists);
-
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/memberName/{memberName}")
     public ResponseEntity<JsonResponse<Boolean>> checkMemberName(@PathVariable String memberName) {
-
         boolean exists = memberService.existsMemberName(memberName);
-
         return ResponseEntity.ok(JsonResponse.success(exists));
     }
 
     @PostMapping("/refreshToken")
     public ResponseEntity<?> refreshAccessToken(@RequestBody Map<String, String> requestBody) {
-
         String refreshToken = requestBody.get("refreshToken");
-
         if (jwtProcessor.validateToken(refreshToken)) {
             String memberId = jwtProcessor.getMemberId(refreshToken);
             String newAccessToken = jwtProcessor.generateAccessToken(memberId, "ROLE_USER");
@@ -135,9 +117,7 @@ public class MemberController {
 
     @PostMapping("/logout")
     public ResponseEntity<JsonResponse<String>> logout(HttpServletRequest request) {
-
         String bearerToken = request.getHeader("Authorization");
-
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             String token = bearerToken.substring(7);
             String memberId = jwtProcessor.getMemberId(token);
@@ -146,22 +126,6 @@ public class MemberController {
         return ResponseEntity.ok(JsonResponse.success("Logout successful"));
     }
 
-    /*
-    @GetMapping("/all")
-    public ResponseEntity<String> doAll() {
-        return ResponseEntity.ok("All can access everybody");
-    }
-
-    @GetMapping("/admin")
-    public ResponseEntity<String> doAdmin(@AuthenticationPrincipal UserDetails userDetails) {
-        if (userDetails.getAuthorities().stream()
-                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"))) {
-            return ResponseEntity.ok("Admin resource accessed");
-        } else {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
-        }
-    }
-    */
     @GetMapping("/info")
     public ResponseEntity<JsonResponse<ProfileDTO>> getMemberInfo() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -219,8 +183,6 @@ public class MemberController {
 
     @PostMapping("/withdraw")
     public ResponseEntity<JsonResponse<String>> withdrawMember(@RequestBody Integer memberIdx) {
-
-        log.info("withdraw memberIdx:" + memberIdx.toString());
         memberService.withdrawMember(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success("Withdraw successfully"));
     }

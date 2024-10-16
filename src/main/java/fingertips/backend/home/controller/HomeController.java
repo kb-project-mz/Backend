@@ -23,7 +23,6 @@ public class HomeController {
 
     @PostMapping("/balance/{memberIdx}")
     public ResponseEntity<JsonResponse<List<BalanceDTO>>> getBalanceByMemberIdx(@PathVariable int memberIdx) {
-
         homeService.setMemberIdx(memberIdx);
         List<BalanceDTO> balanceByMemberIdx = homeService.getBalanceByMemberIdx(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success(balanceByMemberIdx));

@@ -12,6 +12,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Builder
 public class HomeChallengeDTO {
+
     private Integer challengeIdx;
     private Integer challengeLimit;
     private String challengeName;

@@ -20,22 +20,18 @@ public class ChallengeController {
 
     @GetMapping("/{memberIdx}")
     public ResponseEntity<JsonResponse<List<ChallengeDTO>>> getChallengeList(@PathVariable Integer memberIdx) {
-
         List<ChallengeDTO> response = challengeService.getChallengeList(memberIdx);
-
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 
     @PostMapping("")
     public ResponseEntity<JsonResponse<String>> insertChallenge(@RequestBody ChallengeDTO dto) {
-
         challengeService.insertChallenge(dto);
         return ResponseEntity.ok().body(JsonResponse.success("Create Challenge Success"));
     }
 
     @PostMapping("/{challengeIdx}")
     public ResponseEntity<JsonResponse<String>> deleteChallenge(@PathVariable Integer challengeIdx) {
-
         challengeService.deleteChallenge(challengeIdx);
         return ResponseEntity.ok().body(JsonResponse.success("Delete Challenge Success"));
     }
@@ -43,7 +39,6 @@ public class ChallengeController {
     @GetMapping("/detailed-category/{memberIdx}/{category}")
     public ResponseEntity<JsonResponse<List<String>>> getDetailedCategories(@PathVariable Integer memberIdx,
                                                                             @PathVariable Integer category) {
-
         CardTransactionFilterDTO cardHistoryFilterDTO = CardTransactionFilterDTO.builder()
                 .memberIdx(memberIdx)
                 .categoryIdx(category)
@@ -55,14 +50,12 @@ public class ChallengeController {
 
     @GetMapping("/status/{memberIdx}")
     public ResponseEntity<JsonResponse<List<ProgressDTO>>> getChallengeStatus(@PathVariable Integer memberIdx) {
-
         List<ProgressDTO> response = challengeService.getChallengeStatus(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 
     @GetMapping("/peer/{memberIdx}")
     public ResponseEntity<JsonResponse<List<ChallengeDTO>>> getPeerChallengeList(@PathVariable Integer memberIdx) {
-
         List<ChallengeDTO> response = challengeService.getPeerChallengeList(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
