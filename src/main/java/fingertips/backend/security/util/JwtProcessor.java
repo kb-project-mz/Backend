@@ -1,8 +1,10 @@
 package fingertips.backend.security.util;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +14,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.List;
 
+@Slf4j
 @Component
 public class JwtProcessor {
 
@@ -31,9 +34,10 @@ public class JwtProcessor {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateAccessToken(String subject, String role) {
+    public String generateAccessToken(String subject, Integer memberIdx, String role) {
         return Jwts.builder()
                 .setSubject(subject)
+                .claim("memberIdx", memberIdx)
                 .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(new Date().getTime() + ACCESS_TOKEN_VALID_MILLISECONDS))
@@ -59,11 +63,24 @@ public class JwtProcessor {
                 .getSubject();
     }
 
-    public String getUserRole(String token) {
+    public Integer getMemberIdx(String token) {
+        String accessToken = token.substring(7);
+
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
-                .parseClaimsJws(token)
+                .parseClaimsJws(accessToken)
+                .getBody();
+        return claims.get("memberIdx", Integer.class);
+    }
+
+    public String getUserRole(String token) {
+        String accessToken = token.substring(7);
+
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(accessToken)
                 .getBody();
         return claims.get("role", String.class);
     }

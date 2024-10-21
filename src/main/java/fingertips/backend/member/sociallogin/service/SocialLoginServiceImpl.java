@@ -215,7 +215,7 @@ public class SocialLoginServiceImpl implements SocialLoginService {
             updateMemberTokens(memberInfo);
         }
 
-        String jwtToken = jwtProcessor.generateAccessToken(memberInfo.getMemberId(), "ROLE_USER");
+        String jwtToken = jwtProcessor.generateAccessToken(memberInfo.getMemberId(), memberInfo.getMemberIdx(), "ROLE_USER");
         String jwtRefreshToken = jwtProcessor.generateRefreshToken(memberInfo.getMemberId());
 
         logger.info("JWT 액세스 토큰: {}", jwtToken);

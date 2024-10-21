@@ -125,7 +125,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/api/v1/member/withdraw").authenticated()
                 .antMatchers("/api/v1/asset/**").authenticated()
                 .antMatchers("/api/v1/challenge/**").authenticated()
-                .antMatchers("/api/v1/consumption/**").authenticated()
+                .antMatchers("/api/v1/transaction/**").authenticated()
                 .anyRequest().permitAll();
 
         http.httpBasic().disable()

@@ -1,5 +1,6 @@
 package fingertips.backend.transaction.controller;
 
+import fingertips.backend.security.util.JwtProcessor;
 import fingertips.backend.transaction.dto.*;
 import fingertips.backend.transaction.service.TransactionService;
 import fingertips.backend.exception.dto.JsonResponse;
@@ -9,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,15 +26,22 @@ public class TransactionController {
     private final TransactionService transactionService;
 
     private static final Logger logger = LoggerFactory.getLogger(TransactionController.class);
+    private final JwtProcessor jwtProcessor;
 
-    @GetMapping("/card/{memberIdx}")
-    public ResponseEntity<JsonResponse<List<CardTransactionDTO>>> getCardTransactionListPerMonth(@PathVariable int memberIdx) {
+    @GetMapping("/card")
+    public ResponseEntity<JsonResponse<List<CardTransactionDTO>>> getCardTransactionListPerMonth(@RequestHeader("Authorization") String token) {
+
+        Integer memberIdx = jwtProcessor.getMemberIdx(token);
+
         List<CardTransactionDTO> cardTransactionList = transactionService.getCardTransactionList(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success(cardTransactionList));
     }
 
-    @GetMapping("/account/{memberIdx}")
-    public ResponseEntity<JsonResponse<List<AccountTransactionDTO>>> getAccountTransactionListPerMonth(@PathVariable int memberIdx) {
+    @GetMapping("/account")
+    public ResponseEntity<JsonResponse<List<AccountTransactionDTO>>> getAccountTransactionListPerMonth(@RequestHeader("Authorization") String token) {
+
+        Integer memberIdx = jwtProcessor.getMemberIdx(token);
+
         List<AccountTransactionDTO> accountTransactionList = transactionService.getAccountTransactionList(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success(accountTransactionList));
     }
