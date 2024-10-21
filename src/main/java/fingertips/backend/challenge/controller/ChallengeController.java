@@ -5,6 +5,7 @@ import fingertips.backend.challenge.dto.ChallengeDTO;
 import fingertips.backend.challenge.dto.ProgressDTO;
 import fingertips.backend.challenge.service.ChallengeService;
 import fingertips.backend.exception.dto.JsonResponse;
+import fingertips.backend.security.util.JwtProcessor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +18,13 @@ import java.util.*;
 public class ChallengeController {
 
     private final ChallengeService challengeService;
+    private final JwtProcessor jwtProcessor;
 
-    @GetMapping("/{memberIdx}")
-    public ResponseEntity<JsonResponse<List<ChallengeDTO>>> getChallengeList(@PathVariable Integer memberIdx) {
+    @GetMapping("")
+    public ResponseEntity<JsonResponse<List<ChallengeDTO>>> getChallengeList(@RequestHeader("Authorization") String token) {
+
+        Integer memberIdx = jwtProcessor.getMemberIdx(token);
+
         List<ChallengeDTO> response = challengeService.getChallengeList(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
@@ -48,14 +53,20 @@ public class ChallengeController {
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 
-    @GetMapping("/status/{memberIdx}")
-    public ResponseEntity<JsonResponse<List<ProgressDTO>>> getChallengeStatus(@PathVariable Integer memberIdx) {
+    @GetMapping("/status")
+    public ResponseEntity<JsonResponse<List<ProgressDTO>>> getChallengeStatus(@RequestHeader("Authorization") String token) {
+
+        Integer memberIdx = jwtProcessor.getMemberIdx(token);
+
         List<ProgressDTO> response = challengeService.getChallengeStatus(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 
-    @GetMapping("/peer/{memberIdx}")
-    public ResponseEntity<JsonResponse<List<ChallengeDTO>>> getPeerChallengeList(@PathVariable Integer memberIdx) {
+    @GetMapping("/peer")
+    public ResponseEntity<JsonResponse<List<ChallengeDTO>>> getPeerChallengeList(@RequestHeader("Authorization") String token) {
+
+        Integer memberIdx = jwtProcessor.getMemberIdx(token);
+
         List<ChallengeDTO> response = challengeService.getPeerChallengeList(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
