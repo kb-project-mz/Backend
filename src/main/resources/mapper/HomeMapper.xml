@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="fingertips.backend.home.mapper.HomeMapper">
+
+    <select id="getBalanceByMemberIdx" resultType="BalanceDTO">
+        SELECT account_idx, member_idx, bank_name, account_name, balance
+        FROM account
+        WHERE member_idx = #{memberIdx}
+          AND connected_status = 1
+    </select>
+
+    <select id="getChallengeByMemberIdx" resultType="HomeChallengeDTO">
+        SELECT c.challenge_idx,
+               c.challenge_limit,
+               c.challenge_name,
+               CASE
+                   WHEN c.challenge_type = "횟수" THEN COALESCE(COUNT(ct.card_transaction_idx), 0)
+                   WHEN c.challenge_type = "금액" THEN COALESCE(SUM(ct.amount), 0)
+                   END AS cardHistoryCount,
+               c.challenge_status,
+               CASE
+                   WHEN c.challenge_status = '진행' THEN c.challenge_end_date
+                   WHEN c.challenge_status = '예정' THEN c.challenge_start_date
+                   END AS relevant_date
+        FROM challenge c
+                 LEFT JOIN card_transaction ct
+                           ON ct.card_transaction_date BETWEEN c.challenge_start_date AND c.challenge_end_date
+                               AND ct.card_transaction_description LIKE CONCAT('%', c.detailed_category, '%')
+                               AND ct.category_idx = c.category_idx
+        WHERE c.member_idx = #{memberIdx}
+          AND c.is_delete = 0
+          AND c.is_public = 1
+          AND (c.challenge_end_date >= CURDATE() OR c.challenge_status = '예정')
+        GROUP BY c.challenge_idx, c.challenge_limit, c.challenge_type, c.challenge_status
+        ORDER BY relevant_date ASC
+            LIMIT 3
+    </select>
+    
+    <select id="getPeerChallenge" resultType="PeerChallengeDTO">
+        SELECT c.challenge_name, c.challenge_type, c.challenge_limit, c.detailed_category,
+               c.challenge_start_date, c.challenge_end_date
+        FROM challenge c
+                 LEFT OUTER JOIN member
+                                 ON c.member_idx = member.member_idx
+        WHERE YEAR(birthday) BETWEEN (
+            SELECT YEAR(birthday) - 5
+            FROM member
+            WHERE member_idx = #{memberIdx}
+            ) AND (
+            SELECT YEAR(birthday) + 5
+            FROM member
+            WHERE member_idx = #{memberIdx}
+            )
+        GROUP BY category_idx
+            LIMIT 3;
+    </select>
+
+    <select id="getAuth" resultType="CompareAuthDTO">
+        SELECT member_idx, member_id, member_name
+        FROM member
+        WHERE member_idx = #{memberIdx};
+    </select>
+
+    <update id="updateChallengeStatus">
+        <![CDATA[
+        UPDATE challenge
+        SET challenge_status = '진행'
+        WHERE challenge_start_date <= CURDATE()
+          AND challenge_status = '예정'
+        ]]>
+    </update>
+
+    <select id="getTest" resultType="TestDTO">
+        SELECT tr.member_idx, tt.type_image
+        FROM test_result tr
+                 LEFT JOIN test_type tt
+                           ON tr.type_idx = tt.type_idx
+        WHERE member_idx = #{memberIdx}
+          AND tt.type_image IS NOT NULL
+        ORDER BY create_date DESC
+            LIMIT 1;
+    </select>
+
+</mapper>

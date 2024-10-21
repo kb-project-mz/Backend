@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="fingertips.backend.member.mapper.MemberMapper">
+
+    <select id="getMemberByMemberId" parameterType="String" resultType="MemberDTO">
+        SELECT *
+        FROM member
+        WHERE member_id = #{memberId} AND is_active = 1
+    </select>
+
+    <insert id="insertMember" parameterType="MemberDTO">
+        INSERT INTO member (member_id, password, member_name, birthday, gender, email)
+        VALUES (#{memberId}, #{password}, #{memberName}, #{birthday}, #{gender}, #{email})
+    </insert>
+
+    <update id="updateLockStatus" parameterType="MemberDTO">
+        UPDATE member
+        SET is_login_locked = #{isLoginLocked}, login_lock_time = #{loginLockTime}
+        WHERE member_id = #{memberId}
+    </update>
+
+    <update id="setRefreshToken" parameterType="MemberDTO">
+        UPDATE member
+        SET refresh_token = #{refreshToken}
+        WHERE member_idx = #{memberIdx}
+    </update>
+
+    <select id="findByNameAndEmail" parameterType="MemberIdFindDTO" resultType="String">
+        SELECT member_id
+        FROM member
+        WHERE email = #{email}
+          AND member_name = #{memberName}
+    </select>
+
+    <select id="existsMemberId" parameterType="String" resultType="Integer">
+        SELECT COUNT(*)
+        FROM member
+        WHERE member_id = #{memberId}
+    </select>
+
+    <select id="getProfile" parameterType="String" resultType="ProfileDTO">
+        SELECT
+            member_id, member_name, social_type, birthday, email, image_url
+        FROM member
+        WHERE member_id = #{memberId}
+    </select>
+
+    <select id="getPassword" parameterType="String" resultType="String">
+        SELECT password
+        FROM member
+        WHERE member_id = #{memberId}
+    </select>
+
+    <update id="saveNewPassword" parameterType="NewPasswordDTO">
+        UPDATE member
+        SET password = #{newPassword}
+        WHERE member_id = #{memberId}
+    </update>
+
+    <update id="saveNewImage" parameterType="UploadFileDTO">
+        UPDATE member
+        SET image_url = #{storeFileName}
+        WHERE member_id = #{memberId}
+    </update>
+
+    <update id="saveNewEmail" parameterType="NewEmailDTO">
+        UPDATE member
+        SET email = #{newEmail}
+        WHERE member_id = #{memberId}
+    </update>
+
+    <update id="clearRefreshToken">
+        UPDATE member
+        SET refresh_token = NULL
+        WHERE member_id = #{memberId}
+    </update>
+
+    <update id="withdrawMember" parameterType="Integer">
+        UPDATE member
+        SET is_active = 0, withdraw_date = NOW()
+        WHERE member_idx = #{memberIdx}
+    </update>
+
+    <select id="findInactiveMemberByNameAndEmail" parameterType="MemberIdFindDTO" resultType="String">
+        SELECT member_id
+        FROM member
+        WHERE email = #{email}
+          AND member_name = #{memberName}
+          AND is_active = 0
+    </select>
+
+
+    <update id="updatePasswordByEmail" parameterType="PasswordFindDTO">
+        UPDATE member
+        SET password = #{newPassword}
+        WHERE email = #{email}
+    </update>
+
+    <select id="checkEmailDuplicate" resultType="int">
+        SELECT COUNT(*)
+        FROM member
+        WHERE email = #{email}
+    </select>
+
+    <select id="existsMemberName" parameterType="String" resultType="Integer">
+        SELECT COUNT(*)
+        FROM member
+        WHERE member_name = #{memberName}
+    </select>
+
+    <insert id="insertAdmin" parameterType="MemberDTO">
+        INSERT INTO member (member_id, password, role)
+        VALUES (#{memberId}, #{password}, #{role})
+    </insert>
+
+</mapper>

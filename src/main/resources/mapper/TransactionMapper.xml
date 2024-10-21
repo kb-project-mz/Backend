@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="fingertips.backend.transaction.mapper.TransactionMapper">
+    <select id="getCardTransactionList" parameterType="Integer" resultType="CardTransactionDTO">
+        SELECT ct.card_idx, c.bank_name, c.card_name, c.card_image, ct.card_transaction_date, ct.card_transaction_time,
+               cat.category_name, ct.card_transaction_description, ct.amount
+        FROM card_transaction ct
+            JOIN card c ON ct.card_idx = c.card_idx
+            JOIN category cat ON ct.category_idx = cat.category_idx
+        WHERE c.member_idx = #{memberIdx}
+            AND c.connected_status = 1
+        ORDER BY card_transaction_date DESC
+    </select>
+
+    <select id="getCardTransactionListByPeriod" parameterType="PeriodDTO" resultType="CardTransactionDTO">
+        SELECT cat.category_name, ct.card_transaction_description, ct.amount
+        FROM card_transaction ct
+            JOIN card c ON ct.card_idx = c.card_idx
+            JOIN category cat ON ct.category_idx = cat.category_idx
+        WHERE c.member_idx = #{memberIdx}
+            AND c.connected_status = 1
+            AND ct.card_transaction_date BETWEEN CONCAT(#{startYear}, '-', #{startMonth}, '-', #{startDay})
+            AND CONCAT(#{endYear}, '-', #{endMonth}, '-', #{endDay});
+    </select>
+
+    <select id="getAccountTransactionList" parameterType="Integer" resultType="AccountTransactionDTO">
+        SELECT a.bank_name, a.account_name, a.account_image, `at`.account_transaction_date, `at`.account_transaction_time,
+               `at`.account_transaction_type, cat.category_name, `at`.account_transaction_description, `at`.amount
+        FROM account_transaction `at`
+            JOIN account a ON `at`.account_idx = a.account_idx
+            JOIN category cat ON `at`.category_idx = cat.category_idx
+        WHERE a.member_idx = #{memberIdx}
+            AND a.connected_status = 1
+        ORDER BY account_transaction_date DESC
+    </select>
+
+    <select id="getCategoryData" parameterType="PeriodDTO" resultType="CategoryTransactionCountDTO">
+        SELECT cat.category_name, SUM(ct.amount) AS totalSpent
+        FROM card_transaction ct
+          JOIN category cat ON ct.category_idx = cat.category_idx
+          JOIN card c ON ct.card_idx = c.card_idx
+        WHERE c.member_idx = #{memberIdx}
+          AND c.connected_status = 1
+          AND ct.card_transaction_date BETWEEN STR_TO_DATE(CONCAT(#{startYear}, '-', #{startMonth}, '-', #{startDay}), '%Y-%m-%d')
+          AND STR_TO_DATE(CONCAT(#{endYear}, '-', #{endMonth}, '-', #{endDay}), '%Y-%m-%d')
+        GROUP BY cat.category_name
+        ORDER BY totalSpent DESC
+    </select>
+
+    <select id="getCardTransactionLastFourMonths" parameterType="Integer" resultType="CardTransactionDTO">
+        SELECT ct.card_transaction_date, ct.card_transaction_description
+        FROM card_transaction ct JOIN card c ON ct.card_idx = c.card_idx
+        WHERE c.member_idx = #{memberIdx} AND c.connected_status = 1
+            AND card_transaction_date >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 4 MONTH), '%Y-%m-01')
+    </select>
+</mapper>

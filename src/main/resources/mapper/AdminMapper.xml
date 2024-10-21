@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="fingertips.backend.admin.mapper.AdminMapper">
+
+    <insert id="insertUserMetrics" parameterType="UserMetricsDTO">
+        INSERT INTO user_metrics (guest_idx, member_idx, today_sign_up_count, today_withdrawal_count, today_visit_count, today_login_count, today_test_link_visit_count, today_test_result_click_count, today_test_sign_up_count, metric_date)
+        VALUES (#{guestIdx}, #{memberIdx}, #{todaySignUpCount}, #{todayWithdrawalCount}, #{todayVisitCount}, #{todayLoginCount}, #{todayTestLinkVisitCount}, #{todayTestResultClickCount}, #{todayTestSignUpCount}, #{metricDate})
+    </insert>
+
+    <insert id="insertDailyMetrics">
+        INSERT INTO user_metrics (
+            today_sign_up_count,
+            today_login_count,
+            today_visit_count,
+            today_withdrawal_count,
+            today_test_link_visit_count,
+            today_test_result_click_count,
+            today_test_sign_up_count,
+            metric_date
+        )
+        VALUES
+            (#{todaySignUpCount},
+             #{todayLoginCount},
+             #{todayVisitCount},
+             #{todayWithdrawalCount},
+             #{todayTestLinkVisitCount},
+             #{todayTestResultClickCount},
+             #{todayTestSignUpCount},
+             CURDATE())
+            ON DUPLICATE KEY UPDATE
+                                 today_sign_up_count = VALUES(today_sign_up_count),
+                                 today_login_count = VALUES(today_login_count),
+                                 today_visit_count = VALUES(today_visit_count),
+                                 today_withdrawal_count = VALUES(today_withdrawal_count),
+                                 today_test_link_visit_count = VALUES(today_test_link_visit_count),
+                                 today_test_result_click_count = VALUES(today_test_result_click_count),
+                                 today_test_sign_up_count = VALUES(today_test_sign_up_count);
+    </insert>
+
+    <insert id="insertTestLinkClick">
+        INSERT INTO test_activity_log (member_idx, guest_idx, activity_type, activity_time)
+        VALUES (#{memberIdx}, #{guestIdx}, 'VISIT', NOW());
+    </insert>
+
+    <insert id="insertTestResultClickLog">
+        INSERT INTO test_activity_log (member_idx, guest_idx, activity_type, activity_time)
+        VALUES (#{memberIdx}, #{guestIdx}, 'RESULT_CLICK', NOW());
+    </insert>
+
+    <insert id="insertTestSignUpLog">
+        INSERT INTO test_activity_log (member_idx, guest_idx, result_idx, activity_type, activity_time)
+        VALUES (#{memberIdx}, #{guestIdx}, #{resultIdx}, 'SIGN_UP', NOW());
+    </insert>
+
+    <insert id="insertLoginLog">
+        INSERT INTO login_log (member_idx, user_agent, ip_address, login_time)
+        VALUES (#{memberIdx}, #{userAgent}, #{ipAddress}, NOW())
+    </insert>
+
+    <select id="getTodaySignUpCount" resultType="int">
+        SELECT COUNT(*)
+        FROM member
+        WHERE join_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 1 DAY) - INTERVAL 1 SECOND
+    </select>
+
+    <select id="getTodayLoginCount" resultType="int">
+        SELECT COUNT(*)
+        FROM login_log
+        WHERE login_time BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 1 DAY) - INTERVAL 1 SECOND
+    </select>
+
+    <select id="getTodayVisitCount" resultType="int">
+        SELECT COUNT(*)
+        FROM login_log
+        WHERE login_time BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 1 DAY) - INTERVAL 1 SECOND
+    </select>
+
+    <select id="getTodayWithdrawalCount" resultType="int">
+        SELECT COUNT(*)
+        FROM member
+        WHERE is_active = 0
+          AND withdraw_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 1 DAY) - INTERVAL 1 SECOND
+    </select>
+
+    <select id="getTodayTestLinkVisitCount" resultType="int">
+        SELECT COUNT(*)
+        FROM test_link_visit_log
+        WHERE visit_time BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 1 DAY) - INTERVAL 1 SECOND
+    </select>
+
+    <select id="getTodayTestResultClickCount" resultType="int">
+        SELECT COUNT(*)
+        FROM test_result_click_log
+        WHERE click_time BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 1 DAY) - INTERVAL 1 SECOND
+          AND EXISTS (
+            SELECT 1 FROM test_result
+            WHERE test_result.result_idx = test_result_click_log.result_idx
+            )
+    </select>
+
+    <select id="getTodayTestSignUpCount" resultType="int">
+        SELECT COUNT(DISTINCT member_idx)
+        FROM member_test_result
+        WHERE EXISTS (
+            SELECT 1 FROM test_result
+            WHERE test_result.result_idx = member_test_result.result_idx
+              AND test_result.create_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 1 DAY) - INTERVAL 1 SECOND
+        )
+          AND EXISTS (
+            SELECT 1 FROM member
+            WHERE member.member_idx = member_test_result.member_idx
+              AND join_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 1 DAY) - INTERVAL 1 SECOND
+        )
+    </select>
+
+    <select id="selectDailyMetrics" resultType="UserMetricsDTO">
+        SELECT
+            metric_date AS metricDate,
+            today_sign_up_count AS todaySignUpCount,
+            today_withdrawal_count AS todayWithdrawalCount,
+            today_visit_count AS todayVisitCount,
+            today_login_count AS todayLoginCount
+        FROM user_metrics
+        ORDER BY metric_date ASC
+    </select>
+
+    <insert id="insertUserMetricsAggregate" parameterType="UserMetricsAggregateDTO">
+        INSERT INTO user_metrics_aggregate (
+            metric_date,
+            total_sign_up_count,
+            total_withdrawal_count,
+            total_visit_count,
+            total_login_count,
+            total_test_link_visit_count,
+            total_test_result_click_count,
+            total_test_sign_up_count
+        )
+        VALUES (
+                   CURDATE(),
+                   #{todaySignUpCount},
+                   #{todayWithdrawalCount},
+                   #{todayVisitCount},
+                   #{todayLoginCount},
+                   #{todayTestLinkVisitCount},
+                   #{todayTestResultClickCount},
+                   #{todayTestSignUpCount}
+               )
+            ON DUPLICATE KEY UPDATE
+                                 total_sign_up_count = total_sign_up_count + VALUES(total_sign_up_count),
+                                 total_withdrawal_count = total_withdrawal_count + VALUES(total_withdrawal_count),
+                                 total_visit_count = total_visit_count + VALUES(total_visit_count),
+                                 total_login_count = total_login_count + VALUES(total_login_count),
+                                 total_test_link_visit_count = total_test_link_visit_count + VALUES(total_test_link_visit_count),
+                                 total_test_result_click_count = total_test_result_click_count + VALUES(total_test_result_click_count),
+                                 total_test_sign_up_count = total_test_sign_up_count + VALUES(total_test_sign_up_count);
+    </insert>
+
+
+    <select id="getAllUserMetricsAggregates" resultType="UserMetricsAggregateDTO">
+        SELECT * FROM user_metrics_aggregate
+    </select>
+
+    <select id="getCumulativeSignUpCount" resultType="int">
+        SELECT
+        COALESCE(yesterday.cumulative_sign_up_count, 0)
+        + COALESCE(today.today_sign_up_count, 0) AS cumulative_sign_up_count
+        FROM
+        (SELECT total_sign_up_count AS cumulative_sign_up_count
+        FROM user_metrics_aggregate
+        WHERE metric_date = (SELECT MAX(metric_date) FROM user_metrics_aggregate WHERE metric_date &lt; CURDATE())
+        ) AS yesterday,
+        (SELECT SUM(today_sign_up_count) AS today_sign_up_count
+        FROM user_metrics
+        WHERE metric_date = CURDATE()
+        ) AS today;
+    </select>
+
+
+    <select id="getCumulativeLoginCount" resultType="int">
+        SELECT
+        COALESCE(yesterday.cumulative_login_count, 0)
+        + COALESCE(today.today_login_count, 0) AS cumulative_login_count
+        FROM
+        (SELECT total_login_count AS cumulative_login_count
+        FROM user_metrics_aggregate
+        WHERE metric_date = (SELECT MAX(metric_date) FROM user_metrics_aggregate WHERE metric_date &lt; CURDATE())
+        ) AS yesterday,
+        (SELECT SUM(today_login_count) AS today_login_count
+        FROM user_metrics
+        WHERE metric_date = CURDATE()
+        ) AS today;
+    </select>
+
+    <select id="getCumulativeVisitCount" resultType="int">
+        SELECT
+        COALESCE(yesterday.cumulative_visit_count, 0)
+        + COALESCE(today.today_visit_count, 0) AS cumulative_visit_count
+        FROM
+        (SELECT total_visit_count AS cumulative_visit_count
+        FROM user_metrics_aggregate
+        WHERE metric_date = (SELECT MAX(metric_date) FROM user_metrics_aggregate WHERE metric_date &lt; CURDATE())
+        ) AS yesterday,
+        (SELECT SUM(today_visit_count) AS today_visit_count
+        FROM user_metrics
+        WHERE metric_date = CURDATE()
+        ) AS today;
+    </select>
+
+    <select id="getCumulativeWithdrawalCount" resultType="int">
+        SELECT
+        COALESCE(yesterday.cumulative_withdrawal_count, 0)
+        + COALESCE(today.today_withdrawal_count, 0) AS cumulative_withdrawal_count
+        FROM
+        (SELECT total_withdrawal_count AS cumulative_withdrawal_count
+        FROM user_metrics_aggregate
+        WHERE metric_date = (SELECT MAX(metric_date) FROM user_metrics_aggregate WHERE metric_date &lt; CURDATE())
+        ) AS yesterday,
+        (SELECT SUM(today_withdrawal_count) AS today_withdrawal_count
+        FROM user_metrics
+        WHERE metric_date = CURDATE()
+        ) AS today;
+    </select>
+
+    <update id="updateUserMetrics">
+        UPDATE user_metrics_aggregate
+        SET total_sign_up_count = #{cumulativeSignUpCount},
+            total_login_count = #{cumulativeLoginCount},
+            total_visit_count = #{cumulativeVisitCount},
+            total_withdrawal_count = #{cumulativeWithdrawalCount},
+            today_sign_up_count = #{todaySignUpCount},
+            today_login_count = #{todayLoginCount},
+            today_visit_count = #{todayVisitCount},
+            today_withdrawal_count = #{todayWithdrawalCount},
+            today_test_link_visit_count = #{todayTestLinkVisitCount},
+            today_test_result_click_count = #{todayTestResultClickCount},
+            today_test_sign_up_count = #{todayTestSignUpCount}
+        WHERE metric_date = CURDATE();
+    </update>
+
+    <update id="updateUserMetricsAggregate">
+        UPDATE user_metrics_aggregate
+        SET total_sign_up_count = total_sign_up_count + #{todaySignUpCount},
+            total_withdrawal_count = total_withdrawal_count + #{todayWithdrawalCount},
+            total_visit_count = total_visit_count + #{todayVisitCount},
+            total_login_count = total_login_count + #{todayLoginCount},
+            total_test_link_visit_count = total_test_link_visit_count + #{todayTestLinkVisitCount},
+            total_test_result_click_count = total_test_result_click_count + #{todayTestResultClickCount},
+            total_test_sign_up_count = total_test_sign_up_count + #{todayTestSignUpCount}
+        WHERE metric_date = CURDATE();
+    </update>
+
+    <update id="updateCumulativeSignUpCount" parameterType="int">
+        UPDATE user_metrics_aggregate
+        SET total_sign_up_count = total_sign_up_count + (SELECT COUNT(*) FROM member WHERE DATE(join_date) = CURDATE())
+        WHERE metric_date = CURDATE();
+    </update>
+
+    <update id="updateCumulativeWithdrawalCount" parameterType="int">
+        UPDATE user_metrics_aggregate
+        SET total_withdrawal_count = total_withdrawal_count + (SELECT COUNT(*) FROM member WHERE is_active = 0 AND DATE(withdraw_date) = CURDATE())
+        WHERE metric_date = CURDATE();
+    </update>
+
+    <update id="updateCumulativeVisitCount" parameterType="int">
+        UPDATE user_metrics_aggregate
+        SET total_visit_count = total_visit_count + (SELECT COUNT(member_idx) FROM login_log WHERE DATE(login_time) = CURDATE())
+        WHERE metric_date = CURDATE();
+    </update>
+
+    <update id="updateCumulativeLoginCount" parameterType="int">
+        UPDATE user_metrics_aggregate
+        SET total_login_count = total_login_count + (SELECT COUNT(*) FROM login_log WHERE DATE(login_time) = CURDATE())
+        WHERE metric_date = CURDATE();
+    </update>
+
+    <update id="updateCumulativeTestLinkVisitCount" parameterType="int">
+        UPDATE user_metrics_aggregate
+        SET total_test_link_visit_count = total_test_link_visit_count + (SELECT COUNT(*) FROM test_link_visit_log WHERE DATE(visit_time) = CURDATE())
+        WHERE metric_date = CURDATE();
+    </update>
+
+    <update id="updateCumulativeTestResultClickCount" parameterType="int">
+        UPDATE user_metrics_aggregate
+        SET total_test_result_click_count = total_test_result_click_count + (SELECT COUNT(*) FROM test_result_click_log WHERE DATE(click_time) = CURDATE())
+        WHERE metric_date = CURDATE();
+    </update>
+
+    <update id="updateCumulativeTestSignUpCount" parameterType="int">
+        UPDATE user_metrics_aggregate
+        SET total_test_sign_up_count = total_test_sign_up_count + (
+            SELECT COUNT(DISTINCT member_idx)
+            FROM member_test_result
+            WHERE EXISTS (
+                SELECT 1 FROM test_result
+                WHERE test_result.result_idx = member_test_result.result_idx
+                  AND DATE(test_result.create_date) = CURDATE()
+            )
+              AND EXISTS (
+                SELECT 1 FROM member
+                WHERE member.member_idx = member_test_result.member_idx
+                  AND DATE(member.join_date) = CURDATE()
+            )
+        )
+        WHERE metric_date = CURDATE();
+    </update>
+
+    <select id="getYesterdayCumulativeSignUpCount" resultType="int">
+        SELECT
+            (COALESCE(SUM(total_sign_up_count), 0)) AS cumulative_sign_up_count
+        FROM user_metrics_aggregate
+        WHERE metric_date &lt; DATE_SUB(CURDATE(), INTERVAL 1 DAY);
+    </select>
+
+    <select id="getYesterdayCumulativeLoginCount" resultType="int">
+        SELECT
+            (COALESCE(SUM(total_login_count), 0)) AS cumulative_login_count
+        FROM user_metrics_aggregate
+        WHERE metric_date &lt; DATE_SUB(CURDATE(), INTERVAL 1 DAY);
+    </select>
+
+    <select id="getYesterdayCumulativeVisitCount" resultType="int">
+        SELECT
+            (COALESCE(SUM(total_visit_count), 0)) AS cumulative_visit_count
+        FROM user_metrics_aggregate
+        WHERE metric_date &lt; DATE_SUB(CURDATE(), INTERVAL 1 DAY);
+    </select>
+
+    <select id="getYesterdayCumulativeWithdrawalCount" resultType="int">
+        SELECT
+            (COALESCE(SUM(total_withdrawal_count), 0)) AS cumulative_withdrawal_count
+        FROM user_metrics_aggregate
+        WHERE metric_date &lt; DATE_SUB(CURDATE(), INTERVAL 1 DAY);
+    </select>
+
+    <select id="getSignUpGrowthPercentage" resultType="Float">
+        SELECT
+            COALESCE(
+                    CASE
+                        WHEN uma_yesterday.total_sign_up_count = 0 THEN 0
+                        ELSE ROUND((um.today_sign_up_count / uma_yesterday.total_sign_up_count) * 100, 2)
+                        END, 0) AS sign_up_growth_percentage
+        FROM user_metrics um
+                 JOIN user_metrics_aggregate uma_yesterday
+                      ON uma_yesterday.metric_date = DATE_SUB(um.metric_date, INTERVAL 1 DAY)
+        WHERE um.metric_date = CURDATE();
+    </select>
+
+    <select id="getLoginGrowthPercentage" resultType="Float">
+        SELECT
+            COALESCE(
+                    CASE
+                        WHEN uma_yesterday.total_login_count = 0 THEN 0
+                        ELSE ROUND((um.today_login_count / uma_yesterday.total_login_count) * 100, 2)
+                        END, 0) AS login_growth_percentage
+        FROM user_metrics um
+                 JOIN user_metrics_aggregate uma_yesterday
+                      ON uma_yesterday.metric_date = DATE_SUB(um.metric_date, INTERVAL 1 DAY)
+        WHERE um.metric_date = CURDATE();
+    </select>
+
+    <select id="getVisitGrowthPercentage" resultType="Float">
+        SELECT
+            COALESCE(
+                    CASE
+                        WHEN uma_yesterday.total_visit_count = 0 THEN 0
+                        ELSE ROUND((um.today_visit_count / uma_yesterday.total_visit_count) * 100, 2)
+                        END, 0) AS visit_growth_percentage
+        FROM user_metrics um
+                 JOIN user_metrics_aggregate uma_yesterday
+                      ON uma_yesterday.metric_date = DATE_SUB(um.metric_date, INTERVAL 1 DAY)
+        WHERE um.metric_date = CURDATE();
+    </select>
+
+    <select id="getWithdrawalGrowthPercentage" resultType="Float">
+        SELECT
+            COALESCE(
+                    CASE
+                        WHEN uma_yesterday.total_withdrawal_count = 0 THEN 0
+                        ELSE ROUND((um.today_withdrawal_count / uma_yesterday.total_withdrawal_count) * 100, 2)
+                        END, 0) AS withdrawal_growth_percentage
+        FROM user_metrics um
+                 JOIN user_metrics_aggregate uma_yesterday
+                      ON uma_yesterday.metric_date = DATE_SUB(um.metric_date, INTERVAL 1 DAY)
+        WHERE um.metric_date = CURDATE();
+    </select>
+
+    <update id="updateGrowthRates" parameterType="map">
+        UPDATE user_metrics_aggregate
+        SET sign_up_growth_percentage = #{signUpGrowth},
+            withdrawal_growth_percentage = #{withdrawalGrowth},
+            visit_growth_percentage = #{visitGrowth},
+            login_growth_percentage = #{loginGrowth}
+        WHERE metric_date = #{metricDate};
+    </update>
+
+    <update id="updateGrowthPercentages">
+        UPDATE user_metrics_aggregate AS uma
+            JOIN (
+            SELECT um.metric_date,
+            COALESCE(
+            CASE
+            WHEN uma_yesterday.total_sign_up_count = 0 THEN 0
+            ELSE ROUND((um.today_sign_up_count / uma_yesterday.total_sign_up_count) * 100, 2)
+            END, 0) AS sign_up_growth_percentage,
+            COALESCE(
+            CASE
+            WHEN uma_yesterday.total_login_count = 0 THEN 0
+            ELSE ROUND((um.today_login_count / uma_yesterday.total_login_count) * 100, 2)
+            END, 0) AS login_growth_percentage,
+            COALESCE(
+            CASE
+            WHEN uma_yesterday.total_visit_count = 0 THEN 0
+            ELSE ROUND((um.today_visit_count / uma_yesterday.total_visit_count) * 100, 2)
+            END, 0) AS visit_growth_percentage,
+            COALESCE(
+            CASE
+            WHEN uma_yesterday.total_withdrawal_count = 0 THEN 0
+            ELSE ROUND((um.today_withdrawal_count / uma_yesterday.total_withdrawal_count) * 100, 2)
+            END, 0) AS withdrawal_growth_percentage
+            FROM user_metrics um
+            JOIN user_metrics_aggregate uma_yesterday
+            ON uma_yesterday.metric_date = DATE_SUB(um.metric_date, INTERVAL 1 DAY)
+            ) AS calculated_growth
+        ON uma.metric_date = calculated_growth.metric_date
+            SET uma.sign_up_growth_percentage = calculated_growth.sign_up_growth_percentage,
+                uma.login_growth_percentage = calculated_growth.login_growth_percentage,
+                uma.visit_growth_percentage = calculated_growth.visit_growth_percentage,
+                uma.withdrawal_growth_percentage = calculated_growth.withdrawal_growth_percentage;
+    </update>
+
+</mapper>

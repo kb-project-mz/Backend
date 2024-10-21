@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="fingertips.backend.test.mapper.TestMapper">
+
+    <select id="getAllQuestions" resultType="TestQuestionDTO">
+        SELECT question_idx, question_text
+        FROM test_question
+        ORDER BY question_idx ASC
+    </select>
+
+    <select id="getOptionsByQuestionId" parameterType="int" resultType="TestOptionDTO">
+        SELECT option_idx, question_idx, option_text, score, type_idx
+        FROM test_option
+        WHERE question_idx = #{questionIdx}
+    </select>
+
+    <select id="getTypeResults" resultType="TestTypeDTO">
+        SELECT type_idx, type_name, type_image
+        FROM test_type
+    </select>
+
+    <insert id="saveTestResult" parameterType="TestResultDTO">
+        INSERT INTO test_result (member_idx, type_idx, participants_birth_year, participants_gender, region, occupation)
+        VALUES (#{memberIdx}, #{typeIdx}, #{birthYear}, #{gender}, #{region}, #{occupation})
+    </insert>
+
+    <update id="incrementParticipants" parameterType="int">
+        UPDATE test_type
+        SET participants_count = participants_count + 1
+        WHERE type_idx = #{typeIdx}
+    </update>
+
+    <select id="getSurveyInfo" parameterType="String" resultType="ForSurveyDTO">
+        SELECT YEAR(birthday) as birthYear, gender
+        FROM member
+        WHERE member_id = #{memberId}
+    </select>
+
+    <select id="getAdditionalSurveyInfo" parameterType="Integer" resultType="ForAdditionalSurveyDTO">
+        SELECT region, occupation
+        FROM test_result
+        WHERE member_idx = #{memberIdx}
+        AND region IS NOT NULL
+        AND occupation IS NOT NULL
+        GROUP BY member_idx
+    </select>
+</mapper>
+

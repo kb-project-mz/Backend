@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="fingertips.backend.challenge.mapper.ChallengeMapper">
+    <select id="getChallengeList" resultType="ChallengeDTO" parameterType="Integer">
+        SELECT ch.challenge_idx, ca.category_name, ch.member_idx, ch.challenge_name, ch.challenge_type, ch.challenge_status,
+               ch.challenge_limit, ch.detailed_category, ch.challenge_start_date, ch.challenge_end_date
+        FROM challenge ch
+        JOIN category ca ON ca.category_idx = ch.category_idx
+        WHERE ch.member_idx = #{memberIdx} AND ch.is_delete = 0;
+    </select>
+
+
+    <insert id="insertChallenge"  parameterType="ChallengeDTO">
+        INSERT INTO challenge (member_idx, challenge_name, challenge_type, challenge_limit, category_idx,
+                               detailed_category, challenge_status, challenge_start_date, challenge_end_date, is_public)
+        VALUES (#{memberIdx}, #{challengeName}, #{challengeType}, #{challengeLimit},#{categoryIdx},
+                #{detailedCategory}, #{challengeStatus}, #{challengeStartDate}, #{challengeEndDate}, #{isPublic})
+    </insert>
+
+    <delete id="deleteChallenge" parameterType="Integer">
+        UPDATE challenge
+        SET is_delete = 1
+        WHERE challenge_idx = #{challengeIdx}
+    </delete>
+
+    <select id="getCardHistoryContentByCategory" parameterType="CardTransactionFilterDTO" resultType="String">
+        SELECT ct.card_transaction_description
+        FROM card_transaction ct
+            JOIN card c ON ct.card_idx = c.card_idx
+        WHERE c.member_idx = #{memberIdx} AND ct.category_idx = #{categoryIdx} AND c.connected_status = 1
+    </select>
+
+    <select id="getChallengeStatus" resultType="ProgressDTO">
+        SELECT c.challenge_idx,
+               c.challenge_limit,
+               CASE
+                   WHEN c.challenge_type = '횟수' THEN COALESCE(COUNT(ct.card_transaction_idx), 0)
+                   WHEN c.challenge_type = '금액' THEN COALESCE(SUM(ct.amount), 0)
+                   END AS cardHistoryCount
+        FROM challenge c
+                 LEFT JOIN (SELECT ct.*
+                            FROM card_transaction ct
+                                     LEFT JOIN card cr ON ct.card_idx = cr.card_idx
+                            WHERE cr.connected_status = 1) AS ct
+                           ON ct.card_transaction_date BETWEEN c.challenge_start_date AND c.challenge_end_date
+                               AND ct.card_transaction_description LIKE CONCAT('%', c.detailed_category, '%')
+                               AND ct.category_idx = c.category_idx
+        WHERE c.member_idx = 1
+          AND c.is_delete = 0
+        GROUP BY c.challenge_idx, c.challenge_limit, c.challenge_type;
+    </select>
+
+    <select id="getPeerChallengeList" parameterType="Integer" resultType="ChallengeDTO">
+        SELECT c.challenge_name, c.challenge_type, c.challenge_limit, cat.category_name, c.detailed_category,
+            c.challenge_start_date, c.challenge_end_date
+        FROM challenge c
+            JOIN member m1 ON c.member_idx = m1.member_idx
+            JOIN category cat ON c.category_idx = cat.category_idx
+            JOIN member m2 ON m2.member_idx = #{memberIdx}
+        WHERE c.is_public = 1 AND c.is_delete = 0
+            AND ABS(YEAR(m1.birthday) - YEAR(m2.birthday)) &lt; 6
+            AND c.member_idx != #{memberIdx}
+        ORDER BY c.create_date DESC
+        LIMIT 10;
+    </select>
+</mapper>

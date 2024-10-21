@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="fingertips.backend.member.sociallogin.mapper.SocialLoginMapper">
+
+    <select id="checkMemberExists" parameterType="String" resultType="int">
+        SELECT COUNT(*)
+        FROM member
+        WHERE email = #{email}
+    </select>
+
+    <insert id="insertMember" parameterType="SocialLoginDTO">
+        INSERT INTO member (member_id, google_id, password, email, member_name, google_access_token, google_id_token, google_refresh_token,
+                            expires_in, social_type, birthday, gender)
+        VALUES (#{memberId}, #{googleId}, #{password}, #{email}, #{memberName}, #{googleAccessToken}, #{googleIdToken}, #{googleRefreshToken},
+                #{expiresIn}, #{socialType}, #{birthday}, #{gender})
+    </insert>
+
+    <update id="updateMemberTokens" parameterType="SocialLoginDTO">
+        UPDATE member
+        SET google_access_token = #{googleAccessToken},
+        google_id_token = #{googleIdToken},
+        google_refresh_token = #{googleRefreshToken},
+        expires_in = #{expiresIn}
+        WHERE email = #{email}
+    </update>
+
+    <select id="getMemberByGoogleId" resultType="SocialLoginDTO">
+        SELECT google_id, email, member_name, google_access_token, google_id_token,
+               google_refresh_token, expires_in, social_type, member_id, member_idx, is_active
+        FROM member
+        WHERE google_id = #{googleId}
+    </select>
+
+    <update id="activateMemberByEmail" parameterType="String">
+        UPDATE member
+        SET is_active = 1, withdraw_date = NULL
+        WHERE email = #{email} AND is_active = 0
+    </update>
+</mapper>
