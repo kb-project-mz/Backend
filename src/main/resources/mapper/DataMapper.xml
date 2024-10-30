@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="fingertips.backend.data.mapper.DataMapper">
+
+    <insert id="insertData" parameterType="DataDTO">
+        INSERT INTO account_transaction (account_idx, account_transaction_date,
+                                         account_transaction_time, account_transaction_type,
+                                         category_idx, account_transaction_description, amount)
+        VALUES (#{accountIdx}, #{accountTransactionDate}, #{accountTransactionTime}, #{accountTransactionType}, #{categoryIdx}, #{accountTransactionDescription}, #{amount})
+    </insert>
+
+</mapper>

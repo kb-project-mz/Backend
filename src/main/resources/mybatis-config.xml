@@ -17,6 +17,7 @@
         <package name="fingertips.backend.home.dto" />
         <package name="fingertips.backend.member.sociallogin.dto" />
         <package name="fingertips.backend.test.dto" />
+        <package name="fingertips.backend.data.dto" />
     </typeAliases>
 
     <mappers>
@@ -29,5 +30,6 @@
         <mapper resource="mapper/SocialLoginMapper.xml" />
         <mapper resource="mapper/EmailMapper.xml" />
         <mapper resource="mapper/TestMapper.xml" />
+        <mapper resource="mapper/DataMapper.xml" />
     </mappers>
 </configuration>

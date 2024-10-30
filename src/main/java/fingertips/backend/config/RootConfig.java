@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
+import net.datafaker.Faker;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
@@ -23,6 +24,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import java.util.Locale;
+
 @Configuration
 @PropertySource({"classpath:/env.properties"})
 @MapperScan(basePackages = {
@@ -35,6 +38,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
         "fingertips.backend.home.mapper",
         "fingertips.backend.member.sociallogin.mapper",
         "fingertips.backend.test.mapper",
+        "fingertips.backend.data.mapper"
 })
 @ComponentScan(basePackages = {"fingertips.backend"})
 @Slf4j
@@ -103,5 +107,11 @@ public class RootConfig {
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
                 .withRegion(region)
                 .build();
+    }
+
+
+    @Bean
+    public Faker faker() {
+        return new Faker(new Locale("ko"));
     }
 }
