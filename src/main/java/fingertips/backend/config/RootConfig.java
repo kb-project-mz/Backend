@@ -38,7 +38,6 @@ import java.util.Locale;
         "fingertips.backend.home.mapper",
         "fingertips.backend.member.sociallogin.mapper",
         "fingertips.backend.test.mapper",
-        "fingertips.backend.data.mapper",
         "fingertips.backend.carddata.mapper"
 })
 @ComponentScan(basePackages = {"fingertips.backend"})
