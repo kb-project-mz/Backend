@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.util.*;
 
-
 @Component
 @RequiredArgsConstructor
 public class DataGenerator {
@@ -16,9 +15,9 @@ public class DataGenerator {
     private final Faker faker;
     private final Random random = new Random();
 
-
     public List<DataDTO> generateTransactions(int count) {
         List<DataDTO> transactions = new ArrayList<>();
+
         for (int i = 0; i < count; i++) {
             DataDTO transaction = new DataDTO();
             transaction.setAccountIdx(faker.number().numberBetween(1, 3));
@@ -39,14 +38,14 @@ public class DataGenerator {
 
             transaction.setCategoryIdx(14);
 
-            // 브랜드 이름을 무작위로 선택
-            String brand = brandNames.get(random.nextInt(brandNames.size()));
-            String productName = faker.commerce().productName();
-            String paymentDescription = brand + " - " + productName;
-            transaction.setAccountTransactionDescription(paymentDescription);
+            // 랜덤한 한국 이름 생성 (성이 앞에 오도록 설정)
+            String koreanName = faker.name().lastName() + faker.name().firstName();
+            transaction.setAccountTransactionDescription(koreanName);
 
             transactions.add(transaction);
         }
         return transactions;
     }
 }
+
+
