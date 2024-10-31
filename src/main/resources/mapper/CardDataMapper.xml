@@ -7,8 +7,8 @@
 
 <insert id="insertCardData" parameterType="CardDataDTO">
     INSERT INTO card_transaction
-    (card_transaction_id, card_idx, card_transaction_date, card_transaction_time, category_idx, card_transaction_description, amount)
+    (card_idx, card_transaction_date, card_transaction_time, category_idx, card_transaction_description, amount)
     VALUES
-    (#{cardTransactionId}, #{cardIdx}, #{cardTransactionDate}, #{cardTransactionTime}, #{categoryIdx}, #{cardTransactionDescription}, #{amount})
+    (#{cardIdx}, #{cardTransactionDate}, #{cardTransactionTime}, #{categoryIdx}, #{cardTransactionDescription}, #{amount})
 </insert>
 </mapper>

@@ -16,14 +16,6 @@ public class DataGenerator {
     private final Faker faker;
     private final Random random = new Random();
 
-    // 한국 브랜드 이름 리스트
-    private final List<String> brandNames = List.of(
-            "스타벅스", "빽다방", "매머드커피", "투썸플레이스", "이디야커피",
-            "삼성전자", "LG전자", "카카오", "네이버", "현대자동차",
-            "SK텔레콤", "쿠팡", "배달의민족", "신라면세점", "롯데백화점",
-            "하이마트", "파리바게뜨", "던킨도너츠", "CGV", "메가박스",
-            "아디다스", "나이키", "뉴발란스", "ABC마트", "올리브영"
-    );
 
     public List<DataDTO> generateTransactions(int count) {
         List<DataDTO> transactions = new ArrayList<>();

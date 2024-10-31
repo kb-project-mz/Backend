@@ -13,7 +13,7 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CardDataDTO {
-    private int cardTransactionId;
+    private int cardTransactionIdx;
     private int cardIdx;
     private LocalDate cardTransactionDate;
     private LocalTime cardTransactionTime;
