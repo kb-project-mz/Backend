@@ -6,63 +6,54 @@ import net.datafaker.Faker;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
 
 @Component
 @RequiredArgsConstructor
 public class DataGenerator {
 
     private final Faker faker;
+    private final Random random = new Random();
+
+    // 한국 브랜드 이름 리스트
+    private final List<String> brandNames = List.of(
+            "스타벅스", "빽다방", "매머드커피", "투썸플레이스", "이디야커피",
+            "삼성전자", "LG전자", "카카오", "네이버", "현대자동차",
+            "SK텔레콤", "쿠팡", "배달의민족", "신라면세점", "롯데백화점",
+            "하이마트", "파리바게뜨", "던킨도너츠", "CGV", "메가박스",
+            "아디다스", "나이키", "뉴발란스", "ABC마트", "올리브영"
+    );
 
     public List<DataDTO> generateTransactions(int count) {
         List<DataDTO> transactions = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             DataDTO transaction = new DataDTO();
             transaction.setAccountIdx(faker.number().numberBetween(1, 3));
-//            transaction.setAccountTransactionDate(faker.date().past(30, java.util.concurrent.TimeUnit.DAYS).toInstant()
-//                    .atZone(java.time.ZoneId.systemDefault()).toLocalDate());
-
-            // 날짜 오늘만임
             transaction.setAccountTransactionDate(LocalDate.now());
-
-            // 시간은 랜덤으로
             transaction.setAccountTransactionTime(faker.date().past(1, java.util.concurrent.TimeUnit.HOURS).toInstant()
                     .atZone(java.time.ZoneId.systemDefault()).toLocalTime());
 
-//            transaction.setAccountTransactionType(faker.bool().bool() ? "입금" : "출금");
-
-            // 입금, 출금 랜덤으로 되게
             String transactionType = faker.bool().bool() ? "입금" : "출금";
             transaction.setAccountTransactionType(transactionType);
 
-            // 입금, 출금에 따라
             int amount;
             if ("입금".equals(transactionType)) {
-                amount = faker.number().numberBetween(1, 5000)*10;
+                amount = faker.number().numberBetween(1, 5000) * 10;
             } else {
-                amount = -faker.number().numberBetween(1, 5000)*10;
+                amount = -faker.number().numberBetween(1, 5000) * 10;
             }
             transaction.setAmount(amount);
 
-
             transaction.setCategoryIdx(14);
-//            transaction.setCategoryIdx(faker.number().numberBetween(12, 14));
-//            transaction.setAccountTransactionDescription(faker.name().fullName());
-//            transaction.setAmount(faker.number().numberBetween(-50000, 50000));
 
-            //account_transaction
-//            String koreanName = faker.name().fullName().replace(" ", "");
-//            transaction.setAccountTransactionDescription(koreanName);
-
-            //card_transaction
-            String companyName = faker.company().name();
+            // 브랜드 이름을 무작위로 선택
+            String brand = brandNames.get(random.nextInt(brandNames.size()));
             String productName = faker.commerce().productName();
-            String paymentDescription = companyName + " - " + productName;
+            String paymentDescription = brand + " - " + productName;
             transaction.setAccountTransactionDescription(paymentDescription);
 
             transactions.add(transaction);
-
         }
         return transactions;
     }

@@ -3,7 +3,7 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-env.properties
+src/main/resources/env.properties
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

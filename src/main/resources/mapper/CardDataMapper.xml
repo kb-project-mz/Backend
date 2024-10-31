@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="fingertips.backend.carddata.mapper.CardDataMapper">
+
+<insert id="insertCardData" parameterType="CardDataDTO">
+    INSERT INTO card_transaction
+    (card_transaction_id, card_idx, card_transaction_date, card_transaction_time, category_idx, card_transaction_description, amount)
+    VALUES
+    (#{cardTransactionId}, #{cardIdx}, #{cardTransactionDate}, #{cardTransactionTime}, #{categoryIdx}, #{cardTransactionDescription}, #{amount})
+</insert>
+</mapper>
