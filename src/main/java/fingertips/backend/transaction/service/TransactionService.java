@@ -15,4 +15,5 @@ public interface TransactionService {
     List<CategoryTransactionCountDTO> getCategoryData(PeriodDTO periodDTO);
     List<String> getFixedExpense(Integer memberIdx);
     List<CardTransactionDTO> getCardTransactionLastFourMonths(Integer memberIdx);
+    MonthlySummaryDTO getMonthlySummary();
 }

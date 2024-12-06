@@ -22,7 +22,12 @@ public class TransactionController {
 
     private final TransactionService transactionService;
 
-    private static final Logger logger = LoggerFactory.getLogger(TransactionController.class);
+    @GetMapping("/summary")
+    public ResponseEntity<JsonResponse<MonthlySummaryDTO>> getMonthlySummary() {
+
+        MonthlySummaryDTO response = transactionService.getMonthlySummary();
+        return ResponseEntity.ok().body(JsonResponse.success(response));
+    }
 
     @GetMapping("/card/{memberIdx}")
     public ResponseEntity<JsonResponse<List<CardTransactionDTO>>> getCardTransactionListPerMonth(@PathVariable int memberIdx) {
@@ -35,7 +40,7 @@ public class TransactionController {
         List<AccountTransactionDTO> accountTransactionList = transactionService.getAccountTransactionList(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success(accountTransactionList));
     }
-  
+
     @GetMapping("/top-usage")
     public ResponseEntity<JsonResponse<String>> mostAndMaximumUsed(@RequestParam Map<String, String> params) {
         PeriodDTO period = makePeriodDTO(params);

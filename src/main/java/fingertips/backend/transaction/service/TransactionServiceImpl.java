@@ -138,6 +138,19 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionMapper.getCardTransactionLastFourMonths(memberIdx);
     }
 
+    @Override
+    public MonthlySummaryDTO getMonthlySummary() {
+
+        // 1. redis에 저장된 이번달 소비 내역 데이터 조회
+        // 2. 이번달 소비 내역 데이터에서 income, outcome 나누어서 계산
+
+        return MonthlySummaryDTO.builder()
+                .expense(10000L)
+                .income(10000L)
+                .average(10000L)
+                .build();
+    }
+
     public String formatConsumptionListAsTable(List<CardTransactionDTO> cardConsumption) {
 
         StringBuilder table = new StringBuilder();
