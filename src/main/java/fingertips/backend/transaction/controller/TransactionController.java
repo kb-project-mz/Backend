@@ -43,6 +43,15 @@ public class TransactionController {
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 
+    @GetMapping("/fixed")
+    public ResponseEntity<JsonResponse<List<String>>> getFixedExpense(@RequestHeader("Authorization") String token) {
+
+        String accessToken = jwtProcessor.extractToken(token);
+        Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);
+        List<String> response = transactionService.getFixedExpense(memberIdx);
+        return ResponseEntity.ok().body(JsonResponse.success(response));
+    }
+
     @GetMapping("/card/{memberIdx}")
     public ResponseEntity<JsonResponse<List<CardTransactionDTO>>> getCardTransactionListPerMonth(@PathVariable int memberIdx) {
         List<CardTransactionDTO> cardTransactionList = transactionService.getCardTransactionList(memberIdx);
@@ -74,12 +83,6 @@ public class TransactionController {
         PeriodDTO period = makePeriodDTO(params);
         List<CategoryTransactionCountDTO> transactionCounts = transactionService.getCategoryData(period);
         return ResponseEntity.ok().body(JsonResponse.success(transactionCounts));
-    }
-
-    @GetMapping("/fixed/{memberIdx}")
-    public ResponseEntity<JsonResponse<List<String>>> getFixedExpense(@PathVariable Integer memberIdx) {
-        List<String> response = transactionService.getFixedExpense(memberIdx);
-        return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 
     private PeriodDTO makePeriodDTO(@RequestParam Map<String, String> params) {

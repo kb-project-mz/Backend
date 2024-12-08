@@ -46,12 +46,24 @@ public class TransactionServiceImpl implements TransactionService {
         }
     }
 
-    private List<TransactionDTO> getTransaction(Integer memberIdx) {
+    private List<TransactionDTO> getTransaction(Integer memberIdx, String startDateString, String endDateString) {
 
         Object data = redisTemplate.opsForValue().get(String.valueOf(memberIdx));
 
         try {
-            return objectMapper.readValue((String) data, new TypeReference<List<TransactionDTO>>(){});
+            List<TransactionDTO> transactions = objectMapper.readValue(
+                    (String) data, new TypeReference<List<TransactionDTO>>() {});
+
+            LocalDate startDate = LocalDate.parse(startDateString, formatter);
+            LocalDate endDate = LocalDate.parse(endDateString, formatter);
+
+            return transactions.stream()
+                    .filter(transaction -> {
+                        LocalDate transactionDate = LocalDate.parse(transaction.getTransactionDate(), formatter);
+                        return (transactionDate.isEqual(startDate) || transactionDate.isAfter(startDate)) &&
+                                (transactionDate.isEqual(endDate) || transactionDate.isBefore(endDate));
+                    })
+                    .collect(Collectors.toList());
         } catch (Exception e) {
             throw new ApplicationException(ApplicationError.REDIS_ERROR);
         }
@@ -67,16 +79,12 @@ public class TransactionServiceImpl implements TransactionService {
         LocalDate endDate = LocalDate.parse(endDateString, formatter);
         Long daysDifference = ChronoUnit.DAYS.between(startDate, endDate);
 
-        List<TransactionDTO> transactions = getTransaction(memberIdx);
+        List<TransactionDTO> transactions = getTransaction(memberIdx, startDateString, endDateString);
         for (TransactionDTO transactionDTO : transactions) {
-            LocalDate transactionDate = LocalDate.parse(transactionDTO.getTransactionDate(), formatter);
-
-            if (!transactionDate.isBefore(startDate) && !transactionDate.isAfter(endDate)) {
-                if (transactionDTO.getTransactionType().equals("출금")) {
-                    expense += transactionDTO.getAmount();
-                } else {
-                    income += transactionDTO.getAmount();
-                }
+            if (transactionDTO.getTransactionType().equals("출금")) {
+                expense += transactionDTO.getAmount();
+            } else {
+                income += transactionDTO.getAmount();
             }
         }
 
@@ -162,11 +170,14 @@ public class TransactionServiceImpl implements TransactionService {
 
         List<String> recurringExpense = new ArrayList<>();
 
-        List<CardTransactionDTO> transactionLastThreeMonths = getCardTransactionLastFourMonths(memberIdx);
+        String startDate = String.valueOf(LocalDate.now().minusMonths(3));
+        String endDate = String.valueOf(LocalDate.now());
+        List<TransactionDTO> transactionLastThreeMonths = getTransaction(memberIdx, startDate, endDate);
+
         Map<String, Set<String>> transactionGroupedByDescription = transactionLastThreeMonths.stream()
                 .collect(Collectors.groupingBy(
-                        transaction -> transaction.getCardTransactionDescription().toUpperCase(),
-                        Collectors.mapping(CardTransactionDTO::getCardTransactionDate, Collectors.toSet())
+                        transaction -> transaction.getTransactionDescription().toUpperCase(),
+                        Collectors.mapping(TransactionDTO::getTransactionDate, Collectors.toSet())
                 ));
 
 
@@ -192,11 +203,6 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         return recurringExpense;
-    }
-
-    @Override
-    public List<CardTransactionDTO> getCardTransactionLastFourMonths(Integer memberIdx) {
-        return transactionMapper.getCardTransactionLastFourMonths(memberIdx);
     }
 
     public String formatConsumptionListAsTable(List<CardTransactionDTO> cardConsumption) {
