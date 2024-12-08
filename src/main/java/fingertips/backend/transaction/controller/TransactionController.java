@@ -70,29 +70,11 @@ public class TransactionController {
     }
 
     @GetMapping("/category")
-    public ResponseEntity<JsonResponse<List<CategoryTransactionCountDTO>>> getCategoryData(@RequestParam Map<String, String> params) {
-        PeriodDTO period = makePeriodDTO(params);
-        List<CategoryTransactionCountDTO> transactionCounts = transactionService.getCategoryData(period);
+    public ResponseEntity<JsonResponse<List<CategoryTransactionCountDTO>>> getCategoryData(@RequestHeader("Authorization") String token,
+                                                                                           @RequestParam String startDate, @RequestParam String endDate) {
+        String accessToken = jwtProcessor.extractToken(token);
+        Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);
+        List<CategoryTransactionCountDTO> transactionCounts = transactionService.getCategoryData(memberIdx, startDate, endDate);
         return ResponseEntity.ok().body(JsonResponse.success(transactionCounts));
-    }
-
-    private PeriodDTO makePeriodDTO(@RequestParam Map<String, String> params) {
-        Integer memberIdx = Integer.parseInt(params.get("memberIdx"));
-        Integer startYear = Integer.parseInt(params.get("startYear"));
-        Integer startMonth = Integer.parseInt(params.get("startMonth"));
-        Integer startDay = Integer.parseInt(params.get("startDay"));
-        Integer endYear = Integer.parseInt(params.get("endYear"));
-        Integer endMonth = Integer.parseInt(params.get("endMonth"));
-        Integer endDay = Integer.parseInt(params.get("endDay"));
-
-        return PeriodDTO.builder()
-                .memberIdx(memberIdx)
-                .startYear(startYear)
-                .startMonth(startMonth)
-                .startDay(startDay)
-                .endYear(endYear)
-                .endMonth(endMonth)
-                .endDay(endDay)
-                .build();
     }
 }

@@ -96,18 +96,26 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<CategoryTransactionCountDTO> getCategoryData(PeriodDTO periodDTO) {
-        List<CategoryTransactionCountDTO> categoryTransactionCounts = transactionMapper.getCategoryData(periodDTO);
-        int totalTransactions = categoryTransactionCounts.stream()
-                .mapToInt(CategoryTransactionCountDTO::getTotalSpent)
+    public List<CategoryTransactionCountDTO> getCategoryData(Integer memberIdx, String startDate, String endDate) {
+
+        List<TransactionDTO> transactions = getTransaction(memberIdx, startDate, endDate);
+        int totalSpentAmount = transactions.stream()
+                .mapToInt(TransactionDTO::getAmount)
                 .sum();
 
-        categoryTransactionCounts.forEach(transaction -> {
-            double percentage = (double) transaction.getTotalSpent()/ totalTransactions * 100;
-            transaction.setPercentage(percentage);
-        });
+        Map<String, Integer> categoryTotalSpent = transactions.stream()
+                .collect(Collectors.groupingBy(TransactionDTO::getCategoryName,
+                        Collectors.summingInt(TransactionDTO::getAmount)));
 
-        return categoryTransactionCounts;
+        return categoryTotalSpent.entrySet().stream()
+                .map(entry -> {
+                    String categoryName = entry.getKey();
+                    Integer totalSpent = entry.getValue();
+                    Double percentage = (double) totalSpent / totalSpentAmount * 100;
+
+                    return new CategoryTransactionCountDTO(categoryName, totalSpent, percentage);
+                })
+                .collect(Collectors.toList());
     }
 
     @Override

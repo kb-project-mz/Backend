@@ -10,6 +10,6 @@ public interface TransactionService {
     MonthlySummaryDTO getMonthlySummary(Integer memberIdx, String startDate, String endDate);
     String getMostAndMaximumUsed(Integer memberIdx, String startDate, String endDate);
     String getRecommendation(Integer memberIdx);
-    List<CategoryTransactionCountDTO> getCategoryData(PeriodDTO periodDTO);
+    List<CategoryTransactionCountDTO> getCategoryData(Integer memberIdx, String startDate, String endDate);
     List<String> getFixedExpense(Integer memberIdx);
 }
