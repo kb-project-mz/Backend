@@ -72,9 +72,11 @@ public class TransactionController {
     }
 
     @GetMapping("/recommendation")
-    public ResponseEntity<JsonResponse<String>> getRecommendation(@RequestParam Map<String, String> params) {
-        PeriodDTO period = makePeriodDTO(params);
-        String response = transactionService.getAiRecommendation(period);
+    public ResponseEntity<JsonResponse<String>> getRecommendation(@RequestHeader("Authorization") String token) {
+
+        String accessToken = jwtProcessor.extractToken(token);
+        Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);
+        String response = transactionService.getRecommendation(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 

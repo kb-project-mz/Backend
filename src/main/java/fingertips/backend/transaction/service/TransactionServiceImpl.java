@@ -151,10 +151,13 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public String getAiRecommendation(PeriodDTO period) {
+    public String getRecommendation(Integer memberIdx) {
 
-        List<CardTransactionDTO> cardTransactionListByPeriod = getCardTransactionListByPeriod(period);
-        String data = formatConsumptionListAsTable(cardTransactionListByPeriod);
+        String startDate = String.valueOf(LocalDate.now().withDayOfMonth(1));
+        String endDate = String.valueOf(LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth()));
+
+        List<TransactionDTO> transactions = getTransaction(memberIdx, startDate, endDate);
+        String data = formatTransactionAsTable(transactions);
 
         String prompt = data.concat("이 테이블의 cardTransactionDescription 컬럼은 한 달 동안 돈을 쓴 사용처야. " +
                 "이 소비 내역을 보고 이 사람이 다음 달에 어떤 식으로 소비를 하면 얼마나 소비를 줄일 수 있을 지 간단하게 " +
@@ -203,6 +206,25 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         return recurringExpense;
+    }
+
+    public String formatTransactionAsTable(List<TransactionDTO> transactions) {
+
+        StringBuilder table = new StringBuilder();
+        String lineSeparator = System.lineSeparator();
+
+        table.append("|----------|-------------------------------------|").append(lineSeparator);
+        table.append("|  amount  |             description             |").append(lineSeparator);
+        table.append("|----------|-------------------------------------|").append(lineSeparator);
+
+        for (TransactionDTO transaction : transactions) {
+            table.append(String.format("| %-8d | %-35s |",
+                    transaction.getAmount(), transaction.getTransactionDescription())).append(lineSeparator);
+        }
+
+        table.append("|----------|-------------------------------------|").append(lineSeparator);
+
+        return table.toString();
     }
 
     public String formatConsumptionListAsTable(List<CardTransactionDTO> cardConsumption) {
