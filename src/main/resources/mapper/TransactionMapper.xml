@@ -4,6 +4,16 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="fingertips.backend.transaction.mapper.TransactionMapper">
+    <select id="getTransaction" parameterType="Integer" resultType="TransactionDTO">
+        SELECT t.asset_idx, a.asset_type, a.bank_name, a.asset_name, a.asset_image, t.transaction_date, t.transaction_time,
+               t.transaction_type, cat.category_name, t.transaction_description, t.amount
+        FROM transaction t
+                 JOIN asset a ON t.asset_idx = a.asset_idx
+                 JOIN category cat ON t.category_idx = cat.category_idx
+        WHERE a.member_idx = #{memberIdx} AND a.connected_status = 1
+        ORDER BY t.transaction_date DESC, t.transaction_time DESC
+    </select>
+
     <select id="getCardTransactionList" parameterType="Integer" resultType="CardTransactionDTO">
         SELECT ct.card_idx, c.bank_name, c.card_name, c.card_image, ct.card_transaction_date, ct.card_transaction_time,
                cat.category_name, ct.card_transaction_description, ct.amount

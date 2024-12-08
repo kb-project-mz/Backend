@@ -7,6 +7,8 @@ import java.util.Map;
 
 public interface TransactionService {
 
+    void saveTransaction(Integer memberIdx);
+    MonthlySummaryDTO getMonthlySummary(Integer memberIdx, String startDate, String endDate);
     List<CardTransactionDTO> getCardTransactionList(Integer memberId);
     List<CardTransactionDTO> getCardTransactionListByPeriod(PeriodDTO period);
     String getMostAndMaximumUsed(PeriodDTO period);
@@ -15,5 +17,4 @@ public interface TransactionService {
     List<CategoryTransactionCountDTO> getCategoryData(PeriodDTO periodDTO);
     List<String> getFixedExpense(Integer memberIdx);
     List<CardTransactionDTO> getCardTransactionLastFourMonths(Integer memberIdx);
-    MonthlySummaryDTO getMonthlySummary();
 }

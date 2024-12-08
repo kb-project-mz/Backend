@@ -1,16 +1,17 @@
 package fingertips.backend.transaction.service;
 
-import fingertips.backend.exception.dto.JsonResponse;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import fingertips.backend.exception.error.ApplicationError;
+import fingertips.backend.exception.error.ApplicationException;
 import fingertips.backend.transaction.dto.*;
 import fingertips.backend.transaction.mapper.TransactionMapper;
 import fingertips.backend.openai.service.OpenAiService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -25,6 +26,66 @@ public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionMapper transactionMapper;
     private final OpenAiService openAiService;
+    private final RedisTemplate<String, Object> redisTemplate;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+    private List<TransactionDTO> fetchTransactionFromDB(Integer memberIdx) {
+        return transactionMapper.getTransaction(memberIdx);
+    }
+
+    @Override
+    public void saveTransaction(Integer memberIdx) {
+
+        try {
+            List<TransactionDTO> transactions = fetchTransactionFromDB(memberIdx);
+            String json = objectMapper.writeValueAsString(transactions);
+            redisTemplate.opsForValue().set(String.valueOf(memberIdx), json);
+        } catch (Exception e) {
+            throw new ApplicationException(ApplicationError.REDIS_ERROR);
+        }
+    }
+
+    private List<TransactionDTO> getTransaction(Integer memberIdx) {
+
+        Object data = redisTemplate.opsForValue().get(String.valueOf(memberIdx));
+
+        try {
+            return objectMapper.readValue((String) data, new TypeReference<List<TransactionDTO>>(){});
+        } catch (Exception e) {
+            throw new ApplicationException(ApplicationError.REDIS_ERROR);
+        }
+    }
+
+    @Override
+    public MonthlySummaryDTO getMonthlySummary(Integer memberIdx, String startDateString, String endDateString) {
+
+        Long expense = 0L;
+        Long income = 0L;
+
+        LocalDate startDate = LocalDate.parse(startDateString, formatter);
+        LocalDate endDate = LocalDate.parse(endDateString, formatter);
+        Long daysDifference = ChronoUnit.DAYS.between(startDate, endDate);
+
+        List<TransactionDTO> transactions = getTransaction(memberIdx);
+        for (TransactionDTO transactionDTO : transactions) {
+            LocalDate transactionDate = LocalDate.parse(transactionDTO.getTransactionDate(), formatter);
+
+            if (!transactionDate.isBefore(startDate) && !transactionDate.isAfter(endDate)) {
+                if (transactionDTO.getTransactionType().equals("출금")) {
+                    expense += transactionDTO.getAmount();
+                } else {
+                    income += transactionDTO.getAmount();
+                }
+            }
+        }
+
+        return MonthlySummaryDTO.builder()
+                .expense(expense)
+                .income(income)
+                .average(expense / daysDifference)
+                .build();
+    }
 
     @Override
     public List<CardTransactionDTO> getCardTransactionList(Integer memberId) {
@@ -136,19 +197,6 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public List<CardTransactionDTO> getCardTransactionLastFourMonths(Integer memberIdx) {
         return transactionMapper.getCardTransactionLastFourMonths(memberIdx);
-    }
-
-    @Override
-    public MonthlySummaryDTO getMonthlySummary() {
-
-        // 1. redis에 저장된 이번달 소비 내역 데이터 조회
-        // 2. 이번달 소비 내역 데이터에서 income, outcome 나누어서 계산
-
-        return MonthlySummaryDTO.builder()
-                .expense(10000L)
-                .income(10000L)
-                .average(10000L)
-                .build();
     }
 
     public String formatConsumptionListAsTable(List<CardTransactionDTO> cardConsumption) {

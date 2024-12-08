@@ -1,5 +1,6 @@
 package fingertips.backend.transaction.controller;
 
+import fingertips.backend.security.util.JwtProcessor;
 import fingertips.backend.transaction.dto.*;
 import fingertips.backend.transaction.service.TransactionService;
 import fingertips.backend.exception.dto.JsonResponse;
@@ -21,11 +22,24 @@ import java.util.Map;
 public class TransactionController {
 
     private final TransactionService transactionService;
+    private final JwtProcessor jwtProcessor;
+
+    @PostMapping
+    public ResponseEntity<JsonResponse<String>> saveTransaction(@RequestHeader("Authorization") String token) {
+
+        String accessToken = jwtProcessor.extractToken(token);
+        Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);
+        transactionService.saveTransaction(memberIdx);
+        return ResponseEntity.ok(JsonResponse.success("Save Transaction Success"));
+    }
 
     @GetMapping("/summary")
-    public ResponseEntity<JsonResponse<MonthlySummaryDTO>> getMonthlySummary() {
+    public ResponseEntity<JsonResponse<MonthlySummaryDTO>> getMonthlySummary(@RequestHeader("Authorization") String token,
+                                                                             @RequestParam String startDate, @RequestParam String endDate) {
 
-        MonthlySummaryDTO response = transactionService.getMonthlySummary();
+        String accessToken = jwtProcessor.extractToken(token);
+        Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);
+        MonthlySummaryDTO response = transactionService.getMonthlySummary(memberIdx, startDate, endDate);
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 
@@ -77,7 +91,7 @@ public class TransactionController {
         Integer endMonth = Integer.parseInt(params.get("endMonth"));
         Integer endDay = Integer.parseInt(params.get("endDay"));
 
-        PeriodDTO periodDTO = PeriodDTO.builder()
+        return PeriodDTO.builder()
                 .memberIdx(memberIdx)
                 .startYear(startYear)
                 .startMonth(startMonth)
@@ -86,7 +100,5 @@ public class TransactionController {
                 .endMonth(endMonth)
                 .endDay(endDay)
                 .build();
-
-        return periodDTO;
     }
 }

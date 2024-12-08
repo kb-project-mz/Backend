@@ -9,6 +9,7 @@ import java.util.Map;
 @Mapper
 public interface TransactionMapper {
 
+    List<TransactionDTO> getTransaction(Integer memberIdx);
     List<CardTransactionDTO> getCardTransactionList(Integer memberIdx);
     List<CardTransactionDTO> getCardTransactionListByPeriod(PeriodDTO period);
     List<AccountTransactionDTO> getAccountTransactionList(Integer memberIdx);
