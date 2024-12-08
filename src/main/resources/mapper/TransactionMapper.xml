@@ -13,17 +13,4 @@
         WHERE a.member_idx = #{memberIdx} AND a.connected_status = 1
         ORDER BY t.transaction_date DESC, t.transaction_time DESC
     </select>
-
-    <select id="getCategoryData" parameterType="PeriodDTO" resultType="CategoryTransactionCountDTO">
-        SELECT cat.category_name, SUM(ct.amount) AS totalSpent
-        FROM card_transaction ct
-          JOIN category cat ON ct.category_idx = cat.category_idx
-          JOIN card c ON ct.card_idx = c.card_idx
-        WHERE c.member_idx = #{memberIdx}
-          AND c.connected_status = 1
-          AND ct.card_transaction_date BETWEEN STR_TO_DATE(CONCAT(#{startYear}, '-', #{startMonth}, '-', #{startDay}), '%Y-%m-%d')
-          AND STR_TO_DATE(CONCAT(#{endYear}, '-', #{endMonth}, '-', #{endDay}), '%Y-%m-%d')
-        GROUP BY cat.category_name
-        ORDER BY totalSpent DESC
-    </select>
 </mapper>

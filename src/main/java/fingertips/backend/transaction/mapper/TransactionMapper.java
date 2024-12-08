@@ -9,5 +9,4 @@ import java.util.List;
 public interface TransactionMapper {
 
     List<TransactionDTO> getTransaction(Integer memberIdx);
-    List<CategoryTransactionCountDTO> getCategoryData(PeriodDTO periodDTO);
 }
