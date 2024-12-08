@@ -7,8 +7,6 @@ import fingertips.backend.exception.dto.JsonResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,18 +48,6 @@ public class TransactionController {
         Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);
         List<String> response = transactionService.getFixedExpense(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success(response));
-    }
-
-    @GetMapping("/card/{memberIdx}")
-    public ResponseEntity<JsonResponse<List<CardTransactionDTO>>> getCardTransactionListPerMonth(@PathVariable int memberIdx) {
-        List<CardTransactionDTO> cardTransactionList = transactionService.getCardTransactionList(memberIdx);
-        return ResponseEntity.ok().body(JsonResponse.success(cardTransactionList));
-    }
-
-    @GetMapping("/account/{memberIdx}")
-    public ResponseEntity<JsonResponse<List<AccountTransactionDTO>>> getAccountTransactionListPerMonth(@PathVariable int memberIdx) {
-        List<AccountTransactionDTO> accountTransactionList = transactionService.getAccountTransactionList(memberIdx);
-        return ResponseEntity.ok().body(JsonResponse.success(accountTransactionList));
     }
 
     @GetMapping("/top-usage")

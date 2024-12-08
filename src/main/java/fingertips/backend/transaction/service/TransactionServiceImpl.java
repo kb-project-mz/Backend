@@ -96,11 +96,6 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<CardTransactionDTO> getCardTransactionList(Integer memberId) {
-        return transactionMapper.getCardTransactionList(memberId);
-    }
-
-    @Override
     public List<CategoryTransactionCountDTO> getCategoryData(PeriodDTO periodDTO) {
         List<CategoryTransactionCountDTO> categoryTransactionCounts = transactionMapper.getCategoryData(periodDTO);
         int totalTransactions = categoryTransactionCounts.stream()
@@ -113,11 +108,6 @@ public class TransactionServiceImpl implements TransactionService {
         });
 
         return categoryTransactionCounts;
-    }
-
-    @Override
-    public List<AccountTransactionDTO> getAccountTransactionList(Integer memberId) {
-        return transactionMapper.getAccountTransactionList(memberId);
     }
 
     @Override
