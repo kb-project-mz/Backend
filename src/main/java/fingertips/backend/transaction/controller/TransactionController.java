@@ -65,9 +65,12 @@ public class TransactionController {
     }
 
     @GetMapping("/top-usage")
-    public ResponseEntity<JsonResponse<String>> mostAndMaximumUsed(@RequestParam Map<String, String> params) {
-        PeriodDTO period = makePeriodDTO(params);
-        String response = transactionService.getMostAndMaximumUsed(period);
+    public ResponseEntity<JsonResponse<String>> mostAndMaximumUsed(@RequestHeader("Authorization") String token,
+                                                                   @RequestParam String startDate, @RequestParam String endDate) {
+
+        String accessToken = jwtProcessor.extractToken(token);
+        Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);
+        String response = transactionService.getMostAndMaximumUsed(memberIdx, startDate, endDate);
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 

@@ -9,8 +9,7 @@ public interface TransactionService {
     void saveTransaction(Integer memberIdx);
     MonthlySummaryDTO getMonthlySummary(Integer memberIdx, String startDate, String endDate);
     List<CardTransactionDTO> getCardTransactionList(Integer memberId);
-    List<CardTransactionDTO> getCardTransactionListByPeriod(PeriodDTO period);
-    String getMostAndMaximumUsed(PeriodDTO period);
+    String getMostAndMaximumUsed(Integer memberIdx, String startDate, String endDate);
     List<AccountTransactionDTO> getAccountTransactionList(Integer memberId);
     String getRecommendation(Integer memberIdx);
     List<CategoryTransactionCountDTO> getCategoryData(PeriodDTO periodDTO);

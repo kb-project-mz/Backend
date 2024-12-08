@@ -25,17 +25,6 @@
         ORDER BY card_transaction_date DESC
     </select>
 
-    <select id="getCardTransactionListByPeriod" parameterType="PeriodDTO" resultType="CardTransactionDTO">
-        SELECT cat.category_name, ct.card_transaction_description, ct.amount
-        FROM card_transaction ct
-            JOIN card c ON ct.card_idx = c.card_idx
-            JOIN category cat ON ct.category_idx = cat.category_idx
-        WHERE c.member_idx = #{memberIdx}
-            AND c.connected_status = 1
-            AND ct.card_transaction_date BETWEEN CONCAT(#{startYear}, '-', #{startMonth}, '-', #{startDay})
-            AND CONCAT(#{endYear}, '-', #{endMonth}, '-', #{endDay});
-    </select>
-
     <select id="getAccountTransactionList" parameterType="Integer" resultType="AccountTransactionDTO">
         SELECT a.bank_name, a.account_name, a.account_image, `at`.account_transaction_date, `at`.account_transaction_time,
                `at`.account_transaction_type, cat.category_name, `at`.account_transaction_description, `at`.amount

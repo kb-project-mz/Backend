@@ -101,11 +101,6 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<CardTransactionDTO> getCardTransactionListByPeriod(PeriodDTO period) {
-        return transactionMapper.getCardTransactionListByPeriod(period);
-    }
-
-    @Override
     public List<CategoryTransactionCountDTO> getCategoryData(PeriodDTO periodDTO) {
         List<CategoryTransactionCountDTO> categoryTransactionCounts = transactionMapper.getCategoryData(periodDTO);
         int totalTransactions = categoryTransactionCounts.stream()
@@ -126,10 +121,10 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public String getMostAndMaximumUsed(PeriodDTO period) {
+    public String getMostAndMaximumUsed(Integer memberIdx, String startDateString, String endDateString) {
 
-        List<CardTransactionDTO> cardTransactionListByPeriod = getCardTransactionListByPeriod(period);
-        String data = formatConsumptionListAsTable(cardTransactionListByPeriod);
+        List<TransactionDTO> transactions = getTransaction(memberIdx, startDateString, endDateString);
+        String data = formatTransactionAsTable(transactions);
 
         String prompt = data.concat("이 테이블의 cardTransactionDescription 컬럼은 돈을 쓴 사용처야. " +
                 "동일한 브랜드에 속하는 상호명을 인식하여 하나의 브랜드로 통일해줘. " +
@@ -208,7 +203,7 @@ public class TransactionServiceImpl implements TransactionService {
         return recurringExpense;
     }
 
-    public String formatTransactionAsTable(List<TransactionDTO> transactions) {
+    private String formatTransactionAsTable(List<TransactionDTO> transactions) {
 
         StringBuilder table = new StringBuilder();
         String lineSeparator = System.lineSeparator();
@@ -220,25 +215,6 @@ public class TransactionServiceImpl implements TransactionService {
         for (TransactionDTO transaction : transactions) {
             table.append(String.format("| %-8d | %-35s |",
                     transaction.getAmount(), transaction.getTransactionDescription())).append(lineSeparator);
-        }
-
-        table.append("|----------|-------------------------------------|").append(lineSeparator);
-
-        return table.toString();
-    }
-
-    public String formatConsumptionListAsTable(List<CardTransactionDTO> cardConsumption) {
-
-        StringBuilder table = new StringBuilder();
-        String lineSeparator = System.lineSeparator();
-
-        table.append("|----------|-------------------------------------|").append(lineSeparator);
-        table.append("|  amount  |               content               |").append(lineSeparator);
-        table.append("|----------|-------------------------------------|").append(lineSeparator);
-
-        for (CardTransactionDTO transaction : cardConsumption) {
-            table.append(String.format("| %-8d | %-35s |",
-                    transaction.getAmount(), transaction.getCardTransactionDescription())).append(lineSeparator);
         }
 
         table.append("|----------|-------------------------------------|").append(lineSeparator);
