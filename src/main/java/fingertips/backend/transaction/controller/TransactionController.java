@@ -60,6 +60,7 @@ public class TransactionController {
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 
+
     @GetMapping("/recommendation")
     public ResponseEntity<JsonResponse<String>> getRecommendation(@RequestHeader("Authorization") String token) {
 
@@ -68,7 +69,6 @@ public class TransactionController {
         String response = transactionService.getRecommendation(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
-
     @GetMapping("/category")
     public ResponseEntity<JsonResponse<List<CategoryTransactionCountDTO>>> getCategoryData(@RequestHeader("Authorization") String token,
                                                                                            @RequestParam String startDate, @RequestParam String endDate) {
@@ -77,4 +77,17 @@ public class TransactionController {
         List<CategoryTransactionCountDTO> transactionCounts = transactionService.getCategoryData(memberIdx, startDate, endDate);
         return ResponseEntity.ok().body(JsonResponse.success(transactionCounts));
     }
+
+    @GetMapping("/yearly-expenses")
+    public ResponseEntity<JsonResponse<List<MonthlyExpenseDTO>>> getYearlyExpenseSummary(
+            @RequestHeader("Authorization") String token,
+            @RequestParam String baseDate) { // 기준 날짜를 쿼리 파라미터로 받음
+        String accessToken = jwtProcessor.extractToken(token); // 토큰에서 사용자 ID 추출
+        Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);
+
+        List<MonthlyExpenseDTO> yearlyExpenses = transactionService.getYearlyExpenseSummary(memberIdx, baseDate);
+
+        return ResponseEntity.ok().body(JsonResponse.success(yearlyExpenses));
+    }
+
 }

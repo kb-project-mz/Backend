@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -94,6 +95,41 @@ public class TransactionServiceImpl implements TransactionService {
                 .average(expense / daysDifference)
                 .build();
     }
+
+
+    @Override
+    public List<MonthlyExpenseDTO> getYearlyExpenseSummary(Integer memberIdx, String baseDateString) {
+        try {
+            LocalDate baseDate = LocalDate.parse(baseDateString, formatter); // 기준 날짜 변환
+            LocalDate startOfYear = baseDate.with(TemporalAdjusters.firstDayOfYear());
+            LocalDate endOfYear = baseDate.with(TemporalAdjusters.lastDayOfYear());
+
+            List<TransactionDTO> transactions = getTransaction(memberIdx,
+                    startOfYear.toString(), endOfYear.toString());
+
+            Map<Integer, Long> monthlyExpense = transactions.stream()
+                    .filter(transaction -> transaction.getTransactionType().equals("출금")) // 지출 데이터 필터링
+                    .collect(Collectors.groupingBy(
+                            transaction -> LocalDate.parse(transaction.getTransactionDate(), formatter).getMonthValue(), // 월별로 그룹화
+                            Collectors.summingLong(TransactionDTO::getAmount) // 지출 금액 합산
+                    ));
+
+
+            List<MonthlyExpenseDTO> monthlyExpenses = monthlyExpense.entrySet().stream()
+                    .map(entry -> MonthlyExpenseDTO.builder()
+                            .month(entry.getKey())
+                            .totalExpense(entry.getValue())
+                            .build())
+                    .sorted(Comparator.comparing(MonthlyExpenseDTO::getMonth))
+                    .collect(Collectors.toList());
+
+            return monthlyExpenses;
+
+        } catch (Exception e) {
+            throw new ApplicationException(ApplicationError.REDIS_ERROR);
+        }
+    }
+
 
     @Override
     public List<CategoryTransactionCountDTO> getCategoryData(Integer memberIdx, String startDate, String endDate) {
@@ -219,4 +255,6 @@ public class TransactionServiceImpl implements TransactionService {
 
         return table.toString();
     }
+
+
 }
