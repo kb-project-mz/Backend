@@ -19,7 +19,7 @@ public class DataController {
 
     @GetMapping("/generate")
     public ResponseEntity<JsonResponse<String>> generateData() {
-        int count = 5;  // 10개의 데이터 생성
+        int count = 990;  // 10개의 데이터 생성
         dataService.generateAndSaveTransactions(count);
         return ResponseEntity.ok().body(JsonResponse.success("5개의 데이터가 추가되었습니다."));
     }

@@ -6,10 +6,10 @@
 <mapper namespace="fingertips.backend.data.mapper.DataMapper">
 
     <insert id="insertData" parameterType="DataDTO">
-        INSERT INTO account_transaction (account_idx, account_transaction_date,
-                                         account_transaction_time, account_transaction_type,
-                                         category_idx, account_transaction_description, amount)
-        VALUES (#{accountIdx}, #{accountTransactionDate}, #{accountTransactionTime}, #{accountTransactionType}, #{categoryIdx}, #{accountTransactionDescription}, #{amount})
+        INSERT INTO member (member_id, password, member_name, birthday,
+                                         gender, email, is_active, join_date, role, is_login_locked, login_lock_time)
+        VALUES (#{memberId}, #{password}, #{memberName}, #{birthday}, #{gender}, #{email}, #{isActive},
+                    #{joinDate}, #{role}, #{isLoginLocked}, #{loginLockTime})
     </insert>
 
 </mapper>

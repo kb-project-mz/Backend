@@ -7,18 +7,22 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Date;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class DataDTO {
-    private int accountTransactionId;
-    private int accountIdx;
-    private LocalDate accountTransactionDate;
-    private LocalTime accountTransactionTime;
-    private String accountTransactionType;
-    private int categoryIdx;
-    private String accountTransactionDescription;
-    private int amount;
+    private String memberId;
+    private String password;
+    private String memberName;
+    private LocalDate birthday;
+    private String gender;
+    private String email;
+    private Integer isActive;
+    private LocalDate joinDate;
+    private String role;
+    private Integer isLoginLocked;
+    private Integer loginLockTime;
 }

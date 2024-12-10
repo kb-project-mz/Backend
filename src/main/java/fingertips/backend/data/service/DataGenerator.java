@@ -3,67 +3,88 @@ package fingertips.backend.data.service;
 import fingertips.backend.data.dto.DataDTO;
 import lombok.RequiredArgsConstructor;
 import net.datafaker.Faker;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 @Component
 @RequiredArgsConstructor
 public class DataGenerator {
 
     private final Faker faker;
+    private final PasswordEncoder passwordEncoder;
+    private final Random random = new Random();
 
     public List<DataDTO> generateTransactions(int count) {
-        List<DataDTO> transactions = new ArrayList<>();
+        List<DataDTO> members = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            DataDTO transaction = new DataDTO();
-            transaction.setAccountIdx(faker.number().numberBetween(1, 3));
-//            transaction.setAccountTransactionDate(faker.date().past(30, java.util.concurrent.TimeUnit.DAYS).toInstant()
-//                    .atZone(java.time.ZoneId.systemDefault()).toLocalDate());
+            DataDTO member = new DataDTO();
+            // 이름
+            String koreanName = faker.name().fullName().replace(" ", "");
+            member.setMemberName(koreanName);
 
-            // 날짜 오늘만임
-            transaction.setAccountTransactionDate(LocalDate.now());
+            //password
+            String encodedPassword = passwordEncoder.encode("Test123!");
+            member.setPassword(encodedPassword);
 
-            // 시간은 랜덤으로
-            transaction.setAccountTransactionTime(faker.date().past(1, java.util.concurrent.TimeUnit.HOURS).toInstant()
-                    .atZone(java.time.ZoneId.systemDefault()).toLocalTime());
+            // memberId: 영어 단어 + 숫자 조합 (랜덤)
+            member.setMemberId(generateMemberId());
 
-//            transaction.setAccountTransactionType(faker.bool().bool() ? "입금" : "출금");
+            // birthday
+            Date rawBirthday = faker.date().birthday(15, 45); // 18세에서 60세 사이의 생일
+            LocalDate formattedBirthday = rawBirthday.toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate();
+            member.setBirthday(formattedBirthday);
 
-            // 입금, 출금 랜덤으로 되게
-            String transactionType = faker.bool().bool() ? "입금" : "출금";
-            transaction.setAccountTransactionType(transactionType);
+            // 성별
+            String memberGender = faker.bool().bool() ? "F" : "M";
+            member.setGender(memberGender);
 
-            // 입금, 출금에 따라
-            int amount;
-            if ("입금".equals(transactionType)) {
-                amount = faker.number().numberBetween(1, 5000)*10;
-            } else {
-                amount = -faker.number().numberBetween(1, 5000)*10;
-            }
-            transaction.setAmount(amount);
+            //이메일
+//            member.setEmail(faker.internet().emailAddress());
+            String emailPrefix = faker.letterify("??????") + faker.numerify("##");
+            String domain = faker.options().option("naver.com", "daum.net", "gmail.com", "yahoo.com");
+            String email = emailPrefix + "@" + domain;
+            member.setEmail(email);
 
+            // is_active
+            member.setIsActive(1);
 
-            transaction.setCategoryIdx(14);
-//            transaction.setCategoryIdx(faker.number().numberBetween(12, 14));
-//            transaction.setAccountTransactionDescription(faker.name().fullName());
-//            transaction.setAmount(faker.number().numberBetween(-50000, 50000));
+            // join_date
+            member.setJoinDate(LocalDate.now());
 
-            //account_transaction
-//            String koreanName = faker.name().fullName().replace(" ", "");
-//            transaction.setAccountTransactionDescription(koreanName);
+            // role
+            member.setRole("ROLE_USER");
 
-            //card_transaction
-            String companyName = faker.company().name();
-            String productName = faker.commerce().productName();
-            String paymentDescription = companyName + " - " + productName;
-            transaction.setAccountTransactionDescription(paymentDescription);
+            // is_login_locked
+            member.setIsLoginLocked(0);
 
-            transactions.add(transaction);
+            // login_lock_time
+            member.setLoginLockTime(0);
+
+            members.add(member);
 
         }
-        return transactions;
+        return members;
+    }
+
+    private String generateMemberId() {
+        // 랜덤 단어 생성
+        String word = faker.letterify("??????"); // 랜덤한 6글자 영어 단어
+        String number = faker.numerify("###");  // 3자리 숫자
+
+        // 랜덤으로 단어 뒤에 숫자를 붙이거나 조합
+        if (random.nextBoolean()) {
+            return word + number; // 단어 + 숫자
+        } else {
+            return word + faker.letterify("????"); // 단어 + 랜덤 알파벳 4글자
+        }
     }
 }
