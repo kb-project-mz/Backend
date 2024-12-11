@@ -54,7 +54,7 @@ public class TransactionServiceImpl implements TransactionService {
         try {
             List<TransactionDTO> transactions = objectMapper.readValue(
                     (String) data, new TypeReference<List<TransactionDTO>>() {});
-
+            System.out.println("Transactions size: " + transactions.size());
             LocalDate startDate = LocalDate.parse(startDateString, formatter);
             LocalDate endDate = LocalDate.parse(endDateString, formatter);
 
@@ -96,38 +96,39 @@ public class TransactionServiceImpl implements TransactionService {
                 .build();
     }
 
-
     @Override
-    public List<MonthlyExpenseDTO> getYearlyExpenseSummary(Integer memberIdx, String baseDateString) {
-        try {
-            LocalDate baseDate = LocalDate.parse(baseDateString, formatter); // 기준 날짜 변환
-            LocalDate startOfYear = baseDate.with(TemporalAdjusters.firstDayOfYear());
-            LocalDate endOfYear = baseDate.with(TemporalAdjusters.lastDayOfYear());
+    public List<MonthlyExpenseDTO> getYearlyExpenseSummary(Integer memberIdx, String startDateString, String endDateString) {
+        int currentYear = LocalDate.now().getYear();
+        LocalDate startDate = LocalDate.of(currentYear, 1, 1);
+        LocalDate endDate = LocalDate.of(currentYear, 12, 31);
 
-            List<TransactionDTO> transactions = getTransaction(memberIdx,
-                    startOfYear.toString(), endOfYear.toString());
+        List<TransactionDTO> transactions = getTransaction(memberIdx, startDate.toString(), endDate.toString());
 
-            Map<Integer, Long> monthlyExpense = transactions.stream()
-                    .filter(transaction -> transaction.getTransactionType().equals("출금")) // 지출 데이터 필터링
-                    .collect(Collectors.groupingBy(
-                            transaction -> LocalDate.parse(transaction.getTransactionDate(), formatter).getMonthValue(), // 월별로 그룹화
-                            Collectors.summingLong(TransactionDTO::getAmount) // 지출 금액 합산
-                    ));
+        Map<Integer, Long> monthlyExpense = new HashMap<>();
 
-
-            List<MonthlyExpenseDTO> monthlyExpenses = monthlyExpense.entrySet().stream()
-                    .map(entry -> MonthlyExpenseDTO.builder()
-                            .month(entry.getKey())
-                            .totalExpense(entry.getValue())
-                            .build())
-                    .sorted(Comparator.comparing(MonthlyExpenseDTO::getMonth))
-                    .collect(Collectors.toList());
-
-            return monthlyExpenses;
-
-        } catch (Exception e) {
-            throw new ApplicationException(ApplicationError.REDIS_ERROR);
+        for (int month = 1; month <= 12; month++) {
+            monthlyExpense.put(month, 0L);
         }
+
+        for (TransactionDTO transaction : transactions) {
+            if (transaction.getTransactionType().equals("출금")) {
+                int month = LocalDate.parse(transaction.getTransactionDate(), formatter).getMonthValue();
+                long currentAmount = monthlyExpense.get(month);
+                monthlyExpense.put(month, currentAmount + transaction.getAmount());
+            }
+        }
+
+        List<MonthlyExpenseDTO> monthlyExpenseList = new ArrayList<>();
+        for (int month = 1; month <= 12; month++) {
+            monthlyExpenseList.add(MonthlyExpenseDTO.builder()
+                    .month(month)
+                    .totalExpense(monthlyExpense.get(month))
+                    .build());
+        }
+
+        monthlyExpenseList.sort(Comparator.comparing(MonthlyExpenseDTO::getMonth));
+
+        return monthlyExpenseList;
     }
 
 

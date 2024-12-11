@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
+
 
 @Slf4j
 @RestController
@@ -78,16 +78,21 @@ public class TransactionController {
         return ResponseEntity.ok().body(JsonResponse.success(transactionCounts));
     }
 
+
     @GetMapping("/yearly-expenses")
     public ResponseEntity<JsonResponse<List<MonthlyExpenseDTO>>> getYearlyExpenseSummary(
             @RequestHeader("Authorization") String token,
-            @RequestParam String baseDate) { // 기준 날짜를 쿼리 파라미터로 받음
-        String accessToken = jwtProcessor.extractToken(token); // 토큰에서 사용자 ID 추출
+            @RequestParam String startDate,
+            @RequestParam String endDate
+    ) {
+
+        String accessToken = jwtProcessor.extractToken(token);
         Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);
 
-        List<MonthlyExpenseDTO> yearlyExpenses = transactionService.getYearlyExpenseSummary(memberIdx, baseDate);
+        List<MonthlyExpenseDTO> yearlyExpenses = transactionService.getYearlyExpenseSummary(memberIdx, startDate, endDate);
 
-        return ResponseEntity.ok().body(JsonResponse.success(yearlyExpenses));
+        return ResponseEntity.ok(JsonResponse.success(yearlyExpenses));
     }
+
 
 }
