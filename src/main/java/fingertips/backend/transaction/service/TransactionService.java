@@ -12,4 +12,5 @@ public interface TransactionService {
     String getRecommendation(Integer memberIdx);
     List<CategoryTransactionCountDTO> getCategoryData(Integer memberIdx, String startDate, String endDate);
     List<String> getFixedExpense(Integer memberIdx);
+    MonthlyDailyExpenseDTO getMonthlyDailyExpense(Integer memberIdx);
 }

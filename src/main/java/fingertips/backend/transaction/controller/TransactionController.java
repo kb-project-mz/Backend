@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
@@ -76,5 +75,14 @@ public class TransactionController {
         Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);
         List<CategoryTransactionCountDTO> transactionCounts = transactionService.getCategoryData(memberIdx, startDate, endDate);
         return ResponseEntity.ok().body(JsonResponse.success(transactionCounts));
+    }
+
+    @GetMapping("/daily")
+    public ResponseEntity<JsonResponse<MonthlyDailyExpenseDTO>> get(@RequestHeader("Authorization") String token) {
+
+        String accessToken = jwtProcessor.extractToken(token);
+        Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);
+        MonthlyDailyExpenseDTO response = transactionService.getMonthlyDailyExpense(memberIdx);
+        return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 }
