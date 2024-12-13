@@ -14,11 +14,14 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.mysql.cj.util.TimeUtil.DATE_FORMATTER;
 
 @Slf4j
 @Service
@@ -29,7 +32,10 @@ public class TransactionServiceImpl implements TransactionService {
     private final OpenAiService openAiService;
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm");
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+
 
     private List<TransactionDTO> fetchTransactionFromDB(Integer memberIdx) {
         return transactionMapper.getTransaction(memberIdx);
@@ -129,6 +135,53 @@ public class TransactionServiceImpl implements TransactionService {
         monthlyExpenseList.sort(Comparator.comparing(MonthlyExpenseDTO::getMonth));
 
         return monthlyExpenseList;
+    }
+
+    @Override
+    public List<DailyTransactionDTO> getDailyTransactions(Integer memberIdx, int page, int size) {
+        String redisKey = String.valueOf(memberIdx);
+        Object data = redisTemplate.opsForValue().get(redisKey);
+
+        if (data == null) {
+            log.warn("Redis에 데이터가 없습니다. 사용자 ID: {}", memberIdx);
+            return Collections.emptyList(); // 데이터가 없으면 빈 리스트 반환
+        }
+
+        try {
+            List<TransactionDTO> transactions = objectMapper.readValue(
+                    (String) data, new TypeReference<List<TransactionDTO>>() {}
+            );
+
+            // TransactionDTO를 DailyTransactionDTO로 변환
+            List<DailyTransactionDTO> dailyTransactions = transactions.stream()
+                    .map(transaction -> {
+                        DailyTransactionDTO dto = new DailyTransactionDTO();
+                        String transactionDateTime = LocalDate.parse(transaction.getTransactionDate(), formatter)
+                                .atTime(LocalTime.parse(transaction.getTransactionTime()))
+                                .format(DATETIME_FORMATTER);
+
+                        dto.setTransactionDateTime(transactionDateTime);
+                        dto.setTransactionDescription(transaction.getTransactionDescription());
+                        dto.setAssetName(transaction.getAssetName());
+                        dto.setFormattedAmount(String.format("%,d원", transaction.getAmount()));
+                        return dto;
+                    })
+                    .collect(Collectors.toList());
+
+            // 페이지네이션 처리
+            int fromIndex = (page - 1) * size;
+            int toIndex = Math.min(fromIndex + size, dailyTransactions.size());
+
+            if (fromIndex > dailyTransactions.size()) {
+                return Collections.emptyList(); // 요청된 페이지가 데이터 범위를 벗어난 경우 빈 리스트 반환
+            }
+
+            return dailyTransactions.subList(fromIndex, toIndex);
+
+        } catch (Exception e) {
+            log.error("getDailyTransactions 처리 중 오류 발생: 사용자 ID: {}", memberIdx, e);
+            throw new ApplicationException(ApplicationError.REDIS_ERROR);
+        }
     }
 
 

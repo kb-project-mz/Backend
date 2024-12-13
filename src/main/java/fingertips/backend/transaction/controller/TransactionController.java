@@ -94,5 +94,19 @@ public class TransactionController {
         return ResponseEntity.ok(JsonResponse.success(yearlyExpenses));
     }
 
+    @GetMapping("/daily-transactions")
+    public ResponseEntity<JsonResponse<List<DailyTransactionDTO>>> getDailyTransactions(
+            @RequestHeader("Authorization") String token,
+            @RequestParam int page,
+            @RequestParam int size
+    ) {
+        String accessToken = jwtProcessor.extractToken(token);
+        Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);
+
+        List<DailyTransactionDTO> dailyTransactions = transactionService.getDailyTransactions(memberIdx, page, size);
+        return ResponseEntity.ok(JsonResponse.success(dailyTransactions));
+    }
+
+
 
 }
