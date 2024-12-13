@@ -35,12 +35,13 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public void saveTransaction(Integer memberIdx) {
+    public Integer saveTransaction(Integer memberIdx) {
 
         try {
             List<TransactionDTO> transactions = fetchTransactionFromDB(memberIdx);
             String json = objectMapper.writeValueAsString(transactions);
             redisTemplate.opsForValue().set(String.valueOf(memberIdx), json);
+            return transactions.size();
         } catch (Exception e) {
             throw new ApplicationException(ApplicationError.REDIS_ERROR);
         }
@@ -108,6 +109,7 @@ public class TransactionServiceImpl implements TransactionService {
                         Collectors.summingInt(TransactionDTO::getAmount)));
 
         return categoryTotalSpent.entrySet().stream()
+                .sorted((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()))
                 .map(entry -> {
                     String categoryName = entry.getKey();
                     Integer totalSpent = entry.getValue();
@@ -119,7 +121,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public String getMostAndMaximumUsed(Integer memberIdx, String startDateString, String endDateString) {
+    public TopUsageDTO getTopUsageExpense(Integer memberIdx, String startDateString, String endDateString) {
 
         List<TransactionDTO> transactions = getTransaction(memberIdx, startDateString, endDateString);
         String data = formatTransactionAsTable(transactions);
@@ -140,7 +142,41 @@ public class TransactionServiceImpl implements TransactionService {
                 "지점명과 방문 횟수를 딱 숫자만 넣어. " +
                 "1. [지점명 ~] 한 줄띄고 2. [지점명~] 이딴 식으로 대답하지 말고 한 줄로 처리해");
 
-        return openAiService.askOpenAi(prompt);
+        String answer = openAiService.askOpenAi(prompt);
+        return formatTopUsageResult(answer);
+    }
+
+    private TopUsageDTO formatTopUsageResult(String usageData) {
+
+        String[] parts = usageData.split("], \\[");
+        String mostUsageData = parts[0].replace("[", "").replace("]", "");
+        String maximumUsageData = parts[1].replace("[", "").replace("]", "");
+
+        Map<String, Integer> mostUsageMap = parseToMap(mostUsageData);
+        Map<String, Integer> maximumUsageMap = parseToMap(maximumUsageData);
+
+        return TopUsageDTO.builder()
+                .mostUsage(mostUsageMap)
+                .maximumUsage(maximumUsageMap)
+                .build();
+    }
+
+    private Map<String, Integer> parseToMap(String data) {
+
+        Map<String, Integer> resultMap = new HashMap<>();
+
+        if (data.trim().isEmpty()) {
+            return resultMap;
+        }
+
+        String[] entries = data.split(", ");
+        for (String entry : entries) {
+            String[] parts = entry.split(":");
+            String key = parts[0];
+            int value = Integer.parseInt(parts[1]);
+            resultMap.put(key, value);
+        }
+        return resultMap;
     }
 
     @Override
