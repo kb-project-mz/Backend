@@ -6,10 +6,14 @@
 <mapper namespace="fingertips.backend.home.mapper.HomeMapper">
 
     <select id="getBalanceByMemberIdx" resultType="BalanceDTO">
-        SELECT account_idx, member_idx, bank_name, account_name, balance
-        FROM account
-        WHERE member_idx = #{memberIdx}
-          AND connected_status = 1
+        SELECT asset.asset_idx AS accountIdx, asset.member_idx AS memberIdx, asset.bank_name AS bankName,
+               asset.asset_name AS accountName, ab.balance AS balance
+        FROM asset
+                 JOIN account_balance ab
+                      ON asset.asset_idx = ab.asset_idx
+                          AND asset.member_idx = #{memberIdx}
+                          AND asset.connected_status = 1;
+
     </select>
 
     <select id="getChallengeByMemberIdx" resultType="HomeChallengeDTO">
@@ -17,8 +21,8 @@
                c.challenge_limit,
                c.challenge_name,
                CASE
-                   WHEN c.challenge_type = "횟수" THEN COALESCE(COUNT(ct.card_transaction_idx), 0)
-                   WHEN c.challenge_type = "금액" THEN COALESCE(SUM(ct.amount), 0)
+                   WHEN c.challenge_type = "횟수" THEN COALESCE(COUNT(t.transaction_idx), 0)
+                   WHEN c.challenge_type = "금액" THEN COALESCE(SUM(t.amount), 0)
                    END AS cardHistoryCount,
                c.challenge_status,
                CASE
@@ -26,10 +30,13 @@
                    WHEN c.challenge_status = '예정' THEN c.challenge_start_date
                    END AS relevant_date
         FROM challenge c
-                 LEFT JOIN card_transaction ct
-                           ON ct.card_transaction_date BETWEEN c.challenge_start_date AND c.challenge_end_date
-                               AND ct.card_transaction_description LIKE CONCAT('%', c.detailed_category, '%')
-                               AND ct.category_idx = c.category_idx
+                 LEFT JOIN asset a
+                           ON a.member_idx = #{memberIdx}
+                 LEFT JOIN transaction t
+                           ON t.asset_idx = a.asset_idx
+                               AND t.transaction_date BETWEEN c.challenge_start_date AND c.challenge_end_date
+                               AND t.transaction_description LIKE CONCAT('%', c.detailed_category, '%')
+                               AND t.category_idx = c.category_idx
         WHERE c.member_idx = #{memberIdx}
           AND c.is_delete = 0
           AND c.is_public = 1
