@@ -27,7 +27,7 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      # 3. Build with Gradle
+      # 3. Gradle 권한 설정 및 Build with Gradle
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
@@ -37,6 +37,7 @@ jobs:
       # 4. SSH Key 설정
       - name: Add SSH Key
         run: |
+          mkdir -p ~/.ssh
           echo "${{ secrets.AWS_SSH_KEY }}" > ~/.ssh/fingertips.pem
           chmod 600 ~/.ssh/fingertips.pem
 
