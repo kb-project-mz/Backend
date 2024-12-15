@@ -36,8 +36,6 @@ public class TransactionServiceImpl implements TransactionService {
     private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm");
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-
-
     private List<TransactionDTO> fetchTransactionFromDB(Integer memberIdx) {
         return transactionMapper.getTransaction(memberIdx);
     }
