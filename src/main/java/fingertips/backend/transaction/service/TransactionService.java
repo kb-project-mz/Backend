@@ -12,7 +12,7 @@ public interface TransactionService {
     String getRecommendation(Integer memberIdx);
     List<CategoryTransactionCountDTO> getCategoryData(Integer memberIdx, String startDate, String endDate);
     List<String> getFixedExpense(Integer memberIdx);
-    List<MonthlyExpenseDTO> getYearlyExpenseSummary(Integer memberIdx, String startDate, String endDate);
+    List<MonthlyExpenseDTO> getMonthlyExpenseSummary(Integer memberIdx, String startDate, String endDate);
     List<DailyTransactionDTO> getDailyTransactions(Integer memberIdx, int page, int size);
     long getTotalTransactions(Integer memberIdx);
 

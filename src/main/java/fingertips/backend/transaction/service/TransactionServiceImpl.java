@@ -104,7 +104,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<MonthlyExpenseDTO> getYearlyExpenseSummary(Integer memberIdx, String startDateString, String endDateString) {
+    public List<MonthlyExpenseDTO> getMonthlyExpenseSummary(Integer memberIdx, String startDateString, String endDateString) {
         int currentYear = LocalDate.now().getYear();
         LocalDate startDate = LocalDate.of(currentYear, 1, 1);
         LocalDate endDate = LocalDate.of(currentYear, 12, 31);
@@ -163,6 +163,7 @@ public class TransactionServiceImpl implements TransactionService {
                                 .format(DATETIME_FORMATTER);
 
                         dto.setTransactionDateTime(transactionDateTime);
+                        dto.setTransactionType(transaction.getTransactionType());
                         dto.setTransactionDescription(transaction.getTransactionDescription());
                         dto.setAssetName(transaction.getAssetName());
                         dto.setFormattedAmount(String.format("%,d원", transaction.getAmount()));

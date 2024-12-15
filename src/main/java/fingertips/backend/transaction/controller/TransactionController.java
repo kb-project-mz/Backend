@@ -78,7 +78,7 @@ public class TransactionController {
     }
 
 
-    @GetMapping("/yearly-expenses")
+    @GetMapping("/monthly-expenses")
     public ResponseEntity<JsonResponse<List<MonthlyExpenseDTO>>> getYearlyExpenseSummary(
             @RequestHeader("Authorization") String token,
             @RequestParam String startDate,
@@ -88,7 +88,7 @@ public class TransactionController {
         String accessToken = jwtProcessor.extractToken(token);
         Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);
 
-        List<MonthlyExpenseDTO> yearlyExpenses = transactionService.getYearlyExpenseSummary(memberIdx, startDate, endDate);
+        List<MonthlyExpenseDTO> yearlyExpenses = transactionService.getMonthlyExpenseSummary(memberIdx, startDate, endDate);
 
         return ResponseEntity.ok(JsonResponse.success(yearlyExpenses));
     }
@@ -99,6 +99,9 @@ public class TransactionController {
             @RequestParam int page,
             @RequestParam int size
     ) {
+        if (page < 1 || size < 1) {
+            throw new IllegalArgumentException("Invalid page or size parameter.");
+        }
         String accessToken = jwtProcessor.extractToken(token);
         Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);
 
@@ -109,7 +112,7 @@ public class TransactionController {
         long totalElements = transactionService.getTotalTransactions(memberIdx); // 전체 데이터 개수 가져오기
         int totalPages = (int) Math.ceil((double) totalElements / size);
 
-        // 응답 데이터 구성
+
         Map<String, Object> response = new HashMap<>();
         response.put("data", transactions);
         response.put("totalElements", totalElements);

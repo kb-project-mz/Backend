@@ -13,5 +13,6 @@ public class DailyTransactionDTO {
     private String transactionDateTime;
     private String transactionDescription;
     private String assetName;
+    private String transactionType;
     private String formattedAmount;
 }
