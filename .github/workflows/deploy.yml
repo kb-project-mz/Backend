@@ -45,10 +45,12 @@ jobs:
       - name: Upload env.properties
         run: |
           echo "${{ secrets.ENV_PROPERTIES_CONTENT }}" > src/main/resources/env.properties
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/fingertips.pem ubuntu@${{ secrets.SERVER_IP }} "sudo mkdir -p ${{ secrets.TOMCAT_PATH }}/webapps/ROOT/WEB-INF/classes/"
           scp -o StrictHostKeyChecking=no -i ~/.ssh/fingertips.pem src/main/resources/env.properties ubuntu@${{ secrets.SERVER_IP }}:${{ secrets.TOMCAT_PATH }}/webapps/ROOT/WEB-INF/classes/
 
       # 6. Deploy ROOT.war to Tomcat server
       - name: Deploy ROOT.war
         run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/fingertips.pem ubuntu@${{ secrets.SERVER_IP }} "sudo mkdir -p ${{ secrets.TOMCAT_PATH }}/webapps/ROOT"
           scp -o StrictHostKeyChecking=no -i ~/.ssh/fingertips.pem build/libs/ROOT.war ubuntu@${{ secrets.SERVER_IP }}:${{ secrets.TOMCAT_PATH }}/webapps/
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/fingertips.pem ubuntu@${{ secrets.SERVER_IP }} "sudo ${{ secrets.TOMCAT_PATH }}/bin/shutdown.sh && sudo ${{ secrets.TOMCAT_PATH }}/bin/startup.sh"
