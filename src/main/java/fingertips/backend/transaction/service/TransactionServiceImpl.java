@@ -113,16 +113,16 @@ public class TransactionServiceImpl implements TransactionService {
         String startDate = String.valueOf(LocalDate.of(elevenMonthsAgo.getYear(), elevenMonthsAgo.getMonth(), 1));
         String endDate = String.valueOf(today);
 
-        List<TransactionDTO> transactions = getTransaction(memberIdx, startDate, endDate);
+        List<TransactionDTO> transactions = getTransaction(memberIdx, startDate, endDate).stream()
+                .filter(transaction -> "출금".equals(transaction.getTransactionType()))
+                .toList();
 
         Map<YearMonth, Integer> monthlyExpense = new HashMap<>();
 
         for (TransactionDTO transaction : transactions) {
-            if ("출금".equals(transaction.getTransactionType())) {
-                LocalDate transactionDate = LocalDate.parse(transaction.getTransactionDate());
-                YearMonth yearMonth = YearMonth.from(transactionDate);
-                monthlyExpense.merge(yearMonth, transaction.getAmount(), Integer::sum);
-            }
+            LocalDate transactionDate = LocalDate.parse(transaction.getTransactionDate());
+            YearMonth yearMonth = YearMonth.from(transactionDate);
+            monthlyExpense.merge(yearMonth, transaction.getAmount(), Integer::sum);
         }
 
         return monthlyExpense.entrySet().stream()
@@ -210,7 +210,12 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public List<CategoryTransactionCountDTO> getCategoryData(Integer memberIdx, String startDate, String endDate) {
 
-        List<TransactionDTO> transactions = getTransaction(memberIdx, startDate, endDate);
+        List<TransactionDTO> allTransactions = getTransaction(memberIdx, startDate, endDate);
+
+        List<TransactionDTO> transactions = allTransactions.stream()
+                .filter(transaction -> "출금".equals(transaction.getTransactionType()))
+                .toList();
+
         int totalSpentAmount = transactions.stream()
                 .mapToInt(TransactionDTO::getAmount)
                 .sum();
@@ -234,7 +239,9 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public TopUsageDTO getTopUsageExpense(Integer memberIdx, String startDateString, String endDateString) {
 
-        List<TransactionDTO> transactions = getTransaction(memberIdx, startDateString, endDateString);
+        List<TransactionDTO> transactions = getTransaction(memberIdx, startDateString, endDateString).stream()
+                .filter(transaction -> "출금".equals(transaction.getTransactionType()))
+                .toList();
         String data = formatTransactionAsTable(transactions);
 
         String prompt = data.concat("이 테이블의 cardTransactionDescription 컬럼은 돈을 쓴 사용처야. " +
@@ -296,7 +303,9 @@ public class TransactionServiceImpl implements TransactionService {
         String startDate = String.valueOf(LocalDate.now().withDayOfMonth(1));
         String endDate = String.valueOf(LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth()));
 
-        List<TransactionDTO> transactions = getTransaction(memberIdx, startDate, endDate);
+        List<TransactionDTO> transactions = getTransaction(memberIdx, startDate, endDate).stream()
+                .filter(transaction -> "출금".equals(transaction.getTransactionType()))
+                .toList();
         String data = formatTransactionAsTable(transactions);
 
         String prompt = data.concat("이 테이블의 cardTransactionDescription 컬럼은 한 달 동안 돈을 쓴 사용처야. " +
@@ -315,7 +324,10 @@ public class TransactionServiceImpl implements TransactionService {
 
         String startDate = String.valueOf(LocalDate.now().minusMonths(3));
         String endDate = String.valueOf(LocalDate.now());
-        List<TransactionDTO> transactionLastThreeMonths = getTransaction(memberIdx, startDate, endDate);
+
+        List<TransactionDTO> transactionLastThreeMonths = getTransaction(memberIdx, startDate, endDate).stream()
+                .filter(transaction -> "출금".equals(transaction.getTransactionType()))
+                .toList();
 
         Map<String, Set<String>> transactionGroupedByDescription = transactionLastThreeMonths.stream()
                 .collect(Collectors.groupingBy(
@@ -359,8 +371,21 @@ public class TransactionServiceImpl implements TransactionService {
         String thisMonthEndDate = String.valueOf(LocalDate.now());
         List<TransactionDTO> transactionThisMonth = getTransaction(memberIdx, thisMonthStartDate, thisMonthEndDate);
 
-        Map<String, Integer> lastMonthExpenses = calculateCumulativeDailyExpense(transactionLastMonth, lastMonthStartDate, lastMonthEndDate);
-        Map<String, Integer> thisMonthExpenses = calculateCumulativeDailyExpense(transactionThisMonth, thisMonthStartDate, thisMonthEndDate);
+        Map<String, Integer> lastMonthExpenses = calculateCumulativeDailyExpense(
+                transactionLastMonth.stream()
+                        .filter(transaction -> "출금".equals(transaction.getTransactionType()))
+                        .collect(Collectors.toList()),
+                lastMonthStartDate,
+                lastMonthEndDate
+        );
+
+        Map<String, Integer> thisMonthExpenses = calculateCumulativeDailyExpense(
+                transactionThisMonth.stream()
+                        .filter(transaction -> "출금".equals(transaction.getTransactionType()))
+                        .collect(Collectors.toList()),
+                thisMonthStartDate,
+                thisMonthEndDate
+        );
 
         return MonthlyDailyExpenseDTO.builder()
                 .lastMonth(lastMonthExpenses)
