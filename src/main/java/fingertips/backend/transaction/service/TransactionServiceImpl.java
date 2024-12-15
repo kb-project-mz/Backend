@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
@@ -104,38 +105,34 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<MonthlyExpenseDTO> getMonthlyExpenseSummary(Integer memberIdx, String startDateString, String endDateString) {
-        int currentYear = LocalDate.now().getYear();
-        LocalDate startDate = LocalDate.of(currentYear, 1, 1);
-        LocalDate endDate = LocalDate.of(currentYear, 12, 31);
+    public List<MonthlyExpenseDTO> getMonthlyExpenseSummary(Integer memberIdx) {
 
-        List<TransactionDTO> transactions = getTransaction(memberIdx, startDate.toString(), endDate.toString());
+        LocalDate today = LocalDate.now();
+        LocalDate elevenMonthsAgo = today.minusMonths(11);
 
-        Map<Integer, Long> monthlyExpense = new HashMap<>();
+        String startDate = String.valueOf(LocalDate.of(elevenMonthsAgo.getYear(), elevenMonthsAgo.getMonth(), 1));
+        String endDate = String.valueOf(today);
 
-        for (int month = 1; month <= 12; month++) {
-            monthlyExpense.put(month, 0L);
-        }
+        List<TransactionDTO> transactions = getTransaction(memberIdx, startDate, endDate);
+
+        Map<YearMonth, Integer> monthlyExpense = new HashMap<>();
 
         for (TransactionDTO transaction : transactions) {
-            if (transaction.getTransactionType().equals("출금")) {
-                int month = LocalDate.parse(transaction.getTransactionDate(), formatter).getMonthValue();
-                long currentAmount = monthlyExpense.get(month);
-                monthlyExpense.put(month, currentAmount + transaction.getAmount());
+            if ("출금".equals(transaction.getTransactionType())) {
+                LocalDate transactionDate = LocalDate.parse(transaction.getTransactionDate());
+                YearMonth yearMonth = YearMonth.from(transactionDate);
+                monthlyExpense.merge(yearMonth, transaction.getAmount(), Integer::sum);
             }
         }
 
-        List<MonthlyExpenseDTO> monthlyExpenseList = new ArrayList<>();
-        for (int month = 1; month <= 12; month++) {
-            monthlyExpenseList.add(MonthlyExpenseDTO.builder()
-                    .month(month)
-                    .totalExpense(monthlyExpense.get(month))
-                    .build());
-        }
-
-        monthlyExpenseList.sort(Comparator.comparing(MonthlyExpenseDTO::getMonth));
-
-        return monthlyExpenseList;
+        return monthlyExpense.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(entry -> MonthlyExpenseDTO.builder()
+                        .year(entry.getKey().getYear())
+                        .month(entry.getKey().getMonthValue())
+                        .totalExpense(entry.getValue())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -413,7 +410,6 @@ public class TransactionServiceImpl implements TransactionService {
 
         return filledExpenses;
     }
-
 
     private String formatTransactionAsTable(List<TransactionDTO> transactions) {
 
