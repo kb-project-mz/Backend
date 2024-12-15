@@ -168,7 +168,7 @@ public class MemberController {
         String memberId = authentication.getName();
 
         s3uploaderService.deleteFile(fileUrl);
-        String imageUrl = "basic.jpg";
+        String imageUrl = "basic-image/basic.jpg";
         UploadFileDTO uploadImage = memberService.uploadImage(memberId, imageUrl);
         return ResponseEntity.ok(JsonResponse.success(uploadImage));
     }
