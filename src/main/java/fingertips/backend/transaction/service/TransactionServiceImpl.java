@@ -145,15 +145,16 @@ public class TransactionServiceImpl implements TransactionService {
 
         if (data == null) {
             log.warn("Redis에 데이터가 없습니다. 사용자 ID: {}", memberIdx);
-            return Collections.emptyList(); // 데이터가 없으면 빈 리스트 반환
+            return Collections.emptyList(); // Redis에 데이터가 없으면 빈 리스트 반환
         }
 
         try {
+            // Redis에서 데이터를 읽어옴
             List<TransactionDTO> transactions = objectMapper.readValue(
                     (String) data, new TypeReference<List<TransactionDTO>>() {}
             );
 
-            // TransactionDTO를 DailyTransactionDTO로 변환
+            // DailyTransactionDTO로 변환
             List<DailyTransactionDTO> dailyTransactions = transactions.stream()
                     .map(transaction -> {
                         DailyTransactionDTO dto = new DailyTransactionDTO();
@@ -184,6 +185,30 @@ public class TransactionServiceImpl implements TransactionService {
             throw new ApplicationException(ApplicationError.REDIS_ERROR);
         }
     }
+
+    @Override
+    public long getTotalTransactions(Integer memberIdx) {
+        String redisKey = String.valueOf(memberIdx);
+        Object data = redisTemplate.opsForValue().get(redisKey);
+
+        if (data == null) {
+            log.warn("Redis에 데이터가 없습니다. 사용자 ID: {}", memberIdx);
+            return 0L; // 데이터가 없으면 0 반환
+        }
+
+        try {
+            // Redis에서 전체 데이터 크기를 계산
+            List<TransactionDTO> transactions = objectMapper.readValue(
+                    (String) data, new TypeReference<List<TransactionDTO>>() {}
+            );
+            return transactions.size();
+
+        } catch (Exception e) {
+            log.error("getTotalTransactions 처리 중 오류 발생: 사용자 ID: {}", memberIdx, e);
+            throw new ApplicationException(ApplicationError.REDIS_ERROR);
+        }
+    }
+
 
 
     @Override
@@ -327,7 +352,7 @@ public class TransactionServiceImpl implements TransactionService {
         return recurringExpense;
     }
 
-    @Override
+
     public MonthlyDailyExpenseDTO getMonthlyDailyExpense(Integer memberIdx) {
 
         String lastMonthStartDate = String.valueOf(LocalDate.now().minusMonths(1).withDayOfMonth(1));

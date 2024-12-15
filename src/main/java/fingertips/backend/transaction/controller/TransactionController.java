@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @RestController
@@ -94,7 +94,7 @@ public class TransactionController {
     }
 
     @GetMapping("/daily-transactions")
-    public ResponseEntity<JsonResponse<List<DailyTransactionDTO>>> getDailyTransactions(
+    public ResponseEntity<JsonResponse<Map<String, Object>>> getDailyTransactions(
             @RequestHeader("Authorization") String token,
             @RequestParam int page,
             @RequestParam int size
@@ -102,10 +102,21 @@ public class TransactionController {
         String accessToken = jwtProcessor.extractToken(token);
         Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);
 
-        List<DailyTransactionDTO> dailyTransactions = transactionService.getDailyTransactions(memberIdx, page, size);
-        return ResponseEntity.ok(JsonResponse.success(dailyTransactions));
-    }
+        // Service 호출
+        List<DailyTransactionDTO> transactions = transactionService.getDailyTransactions(memberIdx, page, size);
 
+        // 총 데이터 수 및 페이지 수 계산
+        long totalElements = transactionService.getTotalTransactions(memberIdx); // 전체 데이터 개수 가져오기
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+
+        // 응답 데이터 구성
+        Map<String, Object> response = new HashMap<>();
+        response.put("data", transactions);
+        response.put("totalElements", totalElements);
+        response.put("totalPages", totalPages);
+
+        return ResponseEntity.ok(JsonResponse.success(response));
+    }
 
 
 }
