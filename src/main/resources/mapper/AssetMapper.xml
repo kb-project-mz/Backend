@@ -6,14 +6,19 @@
 <mapper namespace="fingertips.backend.asset.mapper.AssetMapper">
     <select id="getAllAssets" resultType="AssetDTO">
         SELECT
-            asset_idx AS assetIdx,
-            asset_type AS assetType,
-            bank_name AS bankName,
-            asset_name AS assetName,
-            asset_image AS assetImage,
-            connected_status AS connectedStatus
-        FROM asset
-        WHERE member_idx = #{memberIdx}
+            a.asset_idx AS assetIdx,
+            a.asset_type AS assetType,
+            a.bank_name AS bankName,
+            a.asset_name AS assetName,
+            a.asset_image AS assetImage,
+            a.connected_status AS connectedStatus,
+            CASE
+                WHEN a.asset_type = 'account' THEN COALESCE(ab.balance, 0)
+                ELSE NULL
+                END AS balance
+        FROM asset a
+                 LEFT JOIN account_balance ab ON a.asset_idx = ab.asset_idx
+        WHERE a.member_idx = #{memberIdx}
     </select>
 
     <update id="connectCard" parameterType="Integer">
