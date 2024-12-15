@@ -21,22 +21,22 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public void connectCard(Integer cardIdx) {
-        assetMapper.connectCard(cardIdx);
+    public void connectCard(Integer assetIdx) {
+        assetMapper.connectCard(assetIdx);
     }
 
     @Override
-    public void connectAccount(Integer accountIdx) {
-        assetMapper.connectAccount(accountIdx);
+    public void connectAccount(Integer assetIdx) {
+        assetMapper.connectAccount(assetIdx);
     }
 
     @Override
-    public void disconnectCard(Integer cardIdx) {
-        assetMapper.disconnectCard(cardIdx);
+    public void disconnectCard(Integer assetIdx) {
+        assetMapper.disconnectCard(assetIdx);
     }
 
     @Override
-    public void disconnectAccount(Integer accountIdx) {
-        assetMapper.disconnectAccount(accountIdx);
+    public void disconnectAccount(Integer assetIdx) {
+        assetMapper.disconnectAccount(assetIdx);
     }
 }
