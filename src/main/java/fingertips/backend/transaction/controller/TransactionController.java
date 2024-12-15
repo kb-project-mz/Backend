@@ -124,4 +124,14 @@ public class TransactionController {
 
         return ResponseEntity.ok(JsonResponse.success(response));
     }
+
+    @GetMapping("/monthly/summary")
+    public ResponseEntity<JsonResponse<List<DailyTransactionSummaryDTO>>> getMonthlyTransactionSummary(@RequestHeader("Authorization") String token,
+                                                                                                   @RequestParam String startDate, @RequestParam String endDate) {
+
+        String accessToken = jwtProcessor.extractToken(token);
+        Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);
+        List<DailyTransactionSummaryDTO> response = transactionService.getMonthlyTransactionSummary(memberIdx, startDate, endDate);
+        return ResponseEntity.ok().body(JsonResponse.success(response));
+    }
 }

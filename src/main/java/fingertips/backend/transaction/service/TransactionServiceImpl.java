@@ -449,4 +449,40 @@ public class TransactionServiceImpl implements TransactionService {
 
         return table.toString();
     }
+
+    @Override
+    public List<DailyTransactionSummaryDTO> getMonthlyTransactionSummary(Integer memberIdx, String startDate, String endDate) {
+
+        List<TransactionDTO> transactions = getTransaction(memberIdx, startDate, endDate);
+
+        Map<String, Map<String, Integer>> dailyDataMap = transactions.stream()
+                .collect(Collectors.groupingBy(
+                        TransactionDTO::getTransactionDate,
+                        Collectors.groupingBy(
+                                TransactionDTO::getTransactionType,
+                                Collectors.summingInt(TransactionDTO::getAmount)
+                        )
+                ));
+
+        List<DailyTransactionSummaryDTO> dailyData = new ArrayList<>();
+        for (LocalDate date = LocalDate.parse(startDate);
+             !date.isAfter(LocalDate.parse(endDate));
+             date = date.plusDays(1)) {
+
+            String dateKey = date.toString();
+
+            Map<String, Integer> transactionTypeMap = dailyDataMap.getOrDefault(dateKey, new HashMap<>());
+            int spent = transactionTypeMap.getOrDefault("출금", 0);
+            int earned = transactionTypeMap.getOrDefault("입금", 0);
+
+            dailyData.add(DailyTransactionSummaryDTO.builder()
+                    .date(dateKey)
+                    .expense(spent)
+                    .income(earned)
+                    .build());
+        }
+
+        LocalDate start = LocalDate.parse(startDate);
+        return dailyData;
+    }
 }

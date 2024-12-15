@@ -16,4 +16,5 @@ public interface TransactionService {
     List<MonthlyExpenseDTO> getMonthlyExpenseSummary(Integer memberIdx);
     List<DailyTransactionDTO> getDailyTransactions(Integer memberIdx, int page, int size);
     long getTotalTransactions(Integer memberIdx);
+    List<DailyTransactionSummaryDTO> getMonthlyTransactionSummary(Integer memberIdx, String startDate, String endDate);
 }
