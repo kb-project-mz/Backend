@@ -42,12 +42,13 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public void saveTransaction(Integer memberIdx) {
+    public Integer saveTransaction(Integer memberIdx) {
 
         try {
             List<TransactionDTO> transactions = fetchTransactionFromDB(memberIdx);
             String json = objectMapper.writeValueAsString(transactions);
             redisTemplate.opsForValue().set(String.valueOf(memberIdx), json);
+            return transactions.size();
         } catch (Exception e) {
             throw new ApplicationException(ApplicationError.REDIS_ERROR);
         }
@@ -198,6 +199,7 @@ public class TransactionServiceImpl implements TransactionService {
                         Collectors.summingInt(TransactionDTO::getAmount)));
 
         return categoryTotalSpent.entrySet().stream()
+                .sorted((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()))
                 .map(entry -> {
                     String categoryName = entry.getKey();
                     Integer totalSpent = entry.getValue();
@@ -209,7 +211,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public String getMostAndMaximumUsed(Integer memberIdx, String startDateString, String endDateString) {
+    public TopUsageDTO getTopUsageExpense(Integer memberIdx, String startDateString, String endDateString) {
 
         List<TransactionDTO> transactions = getTransaction(memberIdx, startDateString, endDateString);
         String data = formatTransactionAsTable(transactions);
@@ -230,7 +232,41 @@ public class TransactionServiceImpl implements TransactionService {
                 "지점명과 방문 횟수를 딱 숫자만 넣어. " +
                 "1. [지점명 ~] 한 줄띄고 2. [지점명~] 이딴 식으로 대답하지 말고 한 줄로 처리해");
 
-        return openAiService.askOpenAi(prompt);
+        String answer = openAiService.askOpenAi(prompt);
+        return formatTopUsageResult(answer);
+    }
+
+    private TopUsageDTO formatTopUsageResult(String usageData) {
+
+        String[] parts = usageData.split("], \\[");
+        String mostUsageData = parts[0].replace("[", "").replace("]", "");
+        String maximumUsageData = parts[1].replace("[", "").replace("]", "");
+
+        Map<String, Integer> mostUsageMap = parseToMap(mostUsageData);
+        Map<String, Integer> maximumUsageMap = parseToMap(maximumUsageData);
+
+        return TopUsageDTO.builder()
+                .mostUsage(mostUsageMap)
+                .maximumUsage(maximumUsageMap)
+                .build();
+    }
+
+    private Map<String, Integer> parseToMap(String data) {
+
+        Map<String, Integer> resultMap = new HashMap<>();
+
+        if (data.trim().isEmpty()) {
+            return resultMap;
+        }
+
+        String[] entries = data.split(", ");
+        for (String entry : entries) {
+            String[] parts = entry.split(":");
+            String key = parts[0];
+            int value = Integer.parseInt(parts[1]);
+            resultMap.put(key, value);
+        }
+        return resultMap;
     }
 
     @Override
@@ -290,6 +326,70 @@ public class TransactionServiceImpl implements TransactionService {
 
         return recurringExpense;
     }
+
+    @Override
+    public MonthlyDailyExpenseDTO getMonthlyDailyExpense(Integer memberIdx) {
+
+        String lastMonthStartDate = String.valueOf(LocalDate.now().minusMonths(1).withDayOfMonth(1));
+        String lastMonthEndDate = String.valueOf(LocalDate.now().minusMonths(1).withDayOfMonth(LocalDate.now().minusMonths(1).lengthOfMonth()));
+        List<TransactionDTO> transactionLastMonth = getTransaction(memberIdx, lastMonthStartDate, lastMonthEndDate);
+
+        String thisMonthStartDate = String.valueOf(LocalDate.now().withDayOfMonth(1));
+        String thisMonthEndDate = String.valueOf(LocalDate.now());
+        List<TransactionDTO> transactionThisMonth = getTransaction(memberIdx, thisMonthStartDate, thisMonthEndDate);
+
+        Map<String, Integer> lastMonthExpenses = calculateCumulativeDailyExpense(transactionLastMonth, lastMonthStartDate, lastMonthEndDate);
+        Map<String, Integer> thisMonthExpenses = calculateCumulativeDailyExpense(transactionThisMonth, thisMonthStartDate, thisMonthEndDate);
+
+        return MonthlyDailyExpenseDTO.builder()
+                .lastMonth(lastMonthExpenses)
+                .thisMonth(thisMonthExpenses)
+                .build();
+    }
+
+    private Map<String, Integer> calculateCumulativeDailyExpense(List<TransactionDTO> transactions, String startDate, String endDate) {
+
+        Map<String, Integer> dailyExpenses = transactions.stream()
+                .collect(Collectors.groupingBy(
+                        TransactionDTO::getTransactionDate,
+                        Collectors.summingInt(TransactionDTO::getAmount)
+                ));
+
+        Map<String, Integer> filledExpenses = fillMissingDates(dailyExpenses, startDate, endDate);
+
+        Map<String, Integer> cumulativeExpenses = new LinkedHashMap<>();
+        int cumulativeSum = 0;
+
+        for (String date : filledExpenses.keySet()) {
+            cumulativeSum += filledExpenses.get(date);
+            cumulativeExpenses.put(date, cumulativeSum);
+        }
+
+        return cumulativeExpenses;
+    }
+
+    private Map<String, Integer> fillMissingDates(Map<String, Integer> dailyExpenses, String startDate, String endDate) {
+
+        Map<String, Integer> filledExpenses = new LinkedHashMap<>();
+        LocalDate currentDate = LocalDate.parse(startDate);
+        LocalDate lastDate = LocalDate.parse(endDate);
+
+        int lastAmount = 0;
+
+        while (!currentDate.isAfter(lastDate)) {
+            String currentDateStr = currentDate.toString();
+
+            if (dailyExpenses.containsKey(currentDateStr)) {
+                lastAmount = dailyExpenses.get(currentDateStr);
+            }
+
+            filledExpenses.put(currentDateStr, lastAmount);
+            currentDate = currentDate.plusDays(1);
+        }
+
+        return filledExpenses;
+    }
+
 
     private String formatTransactionAsTable(List<TransactionDTO> transactions) {
 

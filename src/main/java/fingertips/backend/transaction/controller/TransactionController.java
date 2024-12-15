@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -23,12 +22,12 @@ public class TransactionController {
     private final JwtProcessor jwtProcessor;
 
     @PostMapping
-    public ResponseEntity<JsonResponse<String>> saveTransaction(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<JsonResponse<Integer>> saveTransaction(@RequestHeader("Authorization") String token) {
 
         String accessToken = jwtProcessor.extractToken(token);
         Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);
-        transactionService.saveTransaction(memberIdx);
-        return ResponseEntity.ok(JsonResponse.success("Save Transaction Success"));
+        Integer response = transactionService.saveTransaction(memberIdx);
+        return ResponseEntity.ok(JsonResponse.success(response));
     }
 
     @GetMapping("/summary")
@@ -51,12 +50,12 @@ public class TransactionController {
     }
 
     @GetMapping("/top-usage")
-    public ResponseEntity<JsonResponse<String>> mostAndMaximumUsed(@RequestHeader("Authorization") String token,
+    public ResponseEntity<JsonResponse<TopUsageDTO>> getTopUsageExpense(@RequestHeader("Authorization") String token,
                                                                    @RequestParam String startDate, @RequestParam String endDate) {
 
         String accessToken = jwtProcessor.extractToken(token);
         Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);
-        String response = transactionService.getMostAndMaximumUsed(memberIdx, startDate, endDate);
+        TopUsageDTO response = transactionService.getTopUsageExpense(memberIdx, startDate, endDate);
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 
