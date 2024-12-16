@@ -59,6 +59,7 @@ public class TransactionController {
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 
+
     @GetMapping("/recommendation")
     public ResponseEntity<JsonResponse<String>> getRecommendation(@RequestHeader("Authorization") String token) {
 
@@ -67,7 +68,6 @@ public class TransactionController {
         String response = transactionService.getRecommendation(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
-
     @GetMapping("/category")
     public ResponseEntity<JsonResponse<List<CategoryTransactionCountDTO>>> getCategoryData(@RequestHeader("Authorization") String token,
                                                                                            @RequestParam String startDate, @RequestParam String endDate) {
@@ -77,13 +77,20 @@ public class TransactionController {
         return ResponseEntity.ok().body(JsonResponse.success(transactionCounts));
     }
 
-    @GetMapping("/daily")
-    public ResponseEntity<JsonResponse<MonthlyDailyExpenseDTO>> get(@RequestHeader("Authorization") String token) {
+
+    @GetMapping("/monthly-expenses")
+    public ResponseEntity<JsonResponse<List<MonthlyExpenseDTO>>> getYearlyExpenseSummary(
+            @RequestHeader("Authorization") String token,
+            @RequestParam String startDate,
+            @RequestParam String endDate
+    ) {
 
         String accessToken = jwtProcessor.extractToken(token);
         Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);
-        MonthlyDailyExpenseDTO response = transactionService.getMonthlyDailyExpense(memberIdx);
-        return ResponseEntity.ok().body(JsonResponse.success(response));
+
+        List<MonthlyExpenseDTO> yearlyExpenses = transactionService.getMonthlyExpenseSummary(memberIdx, startDate, endDate);
+
+        return ResponseEntity.ok(JsonResponse.success(yearlyExpenses));
     }
 
     @GetMapping("/monthly")

@@ -18,8 +18,11 @@ import java.time.LocalTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.mysql.cj.util.TimeUtil.DATE_FORMATTER;
 
 @Slf4j
 @Service
@@ -355,7 +358,7 @@ public class TransactionServiceImpl implements TransactionService {
         return recurringExpense;
     }
 
-    @Override
+
     public MonthlyDailyExpenseDTO getMonthlyDailyExpense(Integer memberIdx) {
 
         String lastMonthStartDate = String.valueOf(LocalDate.now().minusMonths(1).withDayOfMonth(1));
