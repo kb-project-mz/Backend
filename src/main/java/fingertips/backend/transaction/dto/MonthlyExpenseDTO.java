@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MonthlyExpenseDTO {
-    private Integer month; // 월 (1~12)
-    private Long totalExpense; // 해당 월의 총 지출액
+
+    private Integer year;
+    private Integer month;
+    private Integer totalExpense;
 }

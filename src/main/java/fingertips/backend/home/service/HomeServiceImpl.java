@@ -44,8 +44,9 @@ public class HomeServiceImpl implements HomeService {
 
     public CompareAuthDTO getAuth(Integer memberIdx) { return homeMapper.getAuth(memberIdx); }
 
-   //@Scheduled(fixedRate = 1000)
-   public void checkForBalanceUpdates() {
+
+//    @Scheduled(fixedRate = 1000)
+    public void checkForBalanceUpdates() {
        List<BalanceDTO> currentBalances = homeMapper.getBalanceByMemberIdx(memberIdx);
        CompareAuthDTO auth = homeMapper.getAuth(memberIdx);
 
@@ -76,7 +77,7 @@ public class HomeServiceImpl implements HomeService {
        } catch (Exception e) {
            System.out.println("Failed to send auth data to Node.js: " + e.getMessage());
        }
-   }
+    }
 
     @Override
     public List<HomeChallengeDTO> getChallengeByMemberIdx(Integer memberIdx) {
@@ -88,14 +89,13 @@ public class HomeServiceImpl implements HomeService {
         return homeMapper.getPeerChallenge(memberIdx);
     }
 
-   //@Scheduled(fixedRate = 1000)
-   public void updateChallengeStatus() {
+//    @Scheduled(fixedRate = 1000)
+    public void updateChallengeStatus() {
        homeMapper.updateChallengeStatus();
-   }
+    }
 
-   @Override
-   public TestDTO getTest(Integer memberIdx) {
+    @Override
+    public TestDTO getTest(Integer memberIdx) {
        return homeMapper.getTest(memberIdx);
-   }
-
+    }
 }
