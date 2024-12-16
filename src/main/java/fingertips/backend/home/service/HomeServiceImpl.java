@@ -44,39 +44,39 @@ public class HomeServiceImpl implements HomeService {
 
     public CompareAuthDTO getAuth(Integer memberIdx) { return homeMapper.getAuth(memberIdx); }
 
-//   @Scheduled(fixedRate = 1000)
-//   public void checkForBalanceUpdates() {
-//       List<BalanceDTO> currentBalances = homeMapper.getBalanceByMemberIdx(memberIdx);
-//       CompareAuthDTO auth = homeMapper.getAuth(memberIdx);
-//
-//       if (!currentBalances.equals(lastBalances)) {
-//           String balanceUrl = "http://localhost:3000/updateBalance";
-//           try {
-//               HttpHeaders headers = new HttpHeaders();
-//               headers.setContentType(MediaType.APPLICATION_JSON);
-//               headers.set(HttpHeaders.ACCEPT_CHARSET, "UTF-8");
-//
-//               HttpEntity<List<BalanceDTO>> entity = new HttpEntity<>(currentBalances, headers);
-//               restTemplate.postForEntity(balanceUrl, entity, String.class);
-//
-//           } catch (Exception e) {
-//               System.out.println("Failed to send balance data to Node.js: " + e.getMessage());
-//           }
-//           lastBalances = currentBalances;
-//       } else {
-//           System.out.println("No balance changes detected.");
-//       }
-//       String authUrl = "http://localhost:3000/updateAuth";
-//       try {
-//           HttpHeaders headers = new HttpHeaders();
-//           headers.setContentType(MediaType.APPLICATION_JSON);
-//           headers.set(HttpHeaders.ACCEPT_CHARSET, "UTF-8");
-//           HttpEntity<CompareAuthDTO> authEntity = new HttpEntity<>(auth, headers);
-//           restTemplate.postForEntity(authUrl, authEntity, String.class);
-//       } catch (Exception e) {
-//           System.out.println("Failed to send auth data to Node.js: " + e.getMessage());
-//       }
-//   }
+//    @Scheduled(fixedRate = 1000)
+    public void checkForBalanceUpdates() {
+       List<BalanceDTO> currentBalances = homeMapper.getBalanceByMemberIdx(memberIdx);
+       CompareAuthDTO auth = homeMapper.getAuth(memberIdx);
+
+       if (!currentBalances.equals(lastBalances)) {
+           String balanceUrl = "http://localhost:3000/updateBalance";
+           try {
+               HttpHeaders headers = new HttpHeaders();
+               headers.setContentType(MediaType.APPLICATION_JSON);
+               headers.set(HttpHeaders.ACCEPT_CHARSET, "UTF-8");
+
+               HttpEntity<List<BalanceDTO>> entity = new HttpEntity<>(currentBalances, headers);
+               restTemplate.postForEntity(balanceUrl, entity, String.class);
+
+           } catch (Exception e) {
+               System.out.println("Failed to send balance data to Node.js: " + e.getMessage());
+           }
+           lastBalances = currentBalances;
+       } else {
+           System.out.println("No balance changes detected.");
+       }
+       String authUrl = "http://localhost:3000/updateAuth";
+       try {
+           HttpHeaders headers = new HttpHeaders();
+           headers.setContentType(MediaType.APPLICATION_JSON);
+           headers.set(HttpHeaders.ACCEPT_CHARSET, "UTF-8");
+           HttpEntity<CompareAuthDTO> authEntity = new HttpEntity<>(auth, headers);
+           restTemplate.postForEntity(authUrl, authEntity, String.class);
+       } catch (Exception e) {
+           System.out.println("Failed to send auth data to Node.js: " + e.getMessage());
+       }
+    }
 
     @Override
     public List<HomeChallengeDTO> getChallengeByMemberIdx(Integer memberIdx) {
@@ -88,14 +88,13 @@ public class HomeServiceImpl implements HomeService {
         return homeMapper.getPeerChallenge(memberIdx);
     }
 
-//   @Scheduled(fixedRate = 1000)
-//   public void updateChallengeStatus() {
-//       homeMapper.updateChallengeStatus();
-//   }
+//    @Scheduled(fixedRate = 1000)
+    public void updateChallengeStatus() {
+       homeMapper.updateChallengeStatus();
+    }
 
-   @Override
-   public TestDTO getTest(Integer memberIdx) {
+    @Override
+    public TestDTO getTest(Integer memberIdx) {
        return homeMapper.getTest(memberIdx);
-   }
-
+    }
 }
