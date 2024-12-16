@@ -71,8 +71,10 @@ public class MemberController {
         return ResponseEntity.ok(JsonResponse.success(memberId));
     }
 
-    @GetMapping("/memberInfo/{memberId}")
-    public ResponseEntity<JsonResponse<MemberDTO>> getMember(@PathVariable String memberId) {
+    @GetMapping("/memberInfo")
+    public ResponseEntity<JsonResponse<MemberDTO>> getMember(@RequestHeader("Authorization") String token) {
+        String accessToken = jwtProcessor.extractToken(token);
+        String memberId = jwtProcessor.getMemberId(accessToken);
         MemberDTO member = memberService.getMemberByMemberId(memberId);
         return ResponseEntity.ok(JsonResponse.success(member));
     }
@@ -97,24 +99,6 @@ public class MemberController {
         return ResponseEntity.ok(JsonResponse.success(exists));
     }
 
-//    @PostMapping("/refreshToken")
-//    public ResponseEntity<?> refreshAccessToken(@RequestBody Map<String, String> requestBody) {
-//        String refreshToken = requestBody.get("refreshToken");
-//        if (jwtProcessor.validateToken(refreshToken)) {
-//            String memberId = jwtProcessor.getMemberId(refreshToken);
-//            String newAccessToken = jwtProcessor.generateAccessToken(memberId, "ROLE_USER");
-//            String newRefreshToken = jwtProcessor.generateRefreshToken(memberId);
-//            memberService.setRefreshToken(MemberDTO.builder().memberId(memberId).refreshToken(newRefreshToken).build());
-//
-//            return ResponseEntity.ok(AuthDTO.builder()
-//                    .accessToken(newAccessToken)
-//                    .refreshToken(newRefreshToken)
-//                    .build());
-//        } else {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token expired. Please login again.");
-//        }
-//    }
-
     @PostMapping("/logout")
     public ResponseEntity<JsonResponse<String>> logout(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
@@ -127,35 +111,37 @@ public class MemberController {
     }
 
     @GetMapping("/info")
-    public ResponseEntity<JsonResponse<ProfileDTO>> getMemberInfo() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println(authentication.getAuthorities());
-        String memberId = authentication.getName();
+    public ResponseEntity<JsonResponse<ProfileDTO>> getMemberInfo(@RequestHeader("Authorization") String token) {
+        String accessToken = jwtProcessor.extractToken(token);
+        String memberId = jwtProcessor.getMemberId(accessToken);
         ProfileDTO profile = memberService.getProfile(memberId);
         return ResponseEntity.ok(JsonResponse.success(profile));
     }
 
     @PostMapping("/verification/password")
-    public ResponseEntity<JsonResponse<String>> verifyPassword(@RequestBody VerifyPasswordDTO verifyPassword) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String memberId = authentication.getName();
+    public ResponseEntity<JsonResponse<String>> verifyPassword(@RequestHeader("Authorization") String token,
+                                                               @RequestBody VerifyPasswordDTO verifyPassword) {
+        String accessToken = jwtProcessor.extractToken(token);
+        String memberId = jwtProcessor.getMemberId(accessToken);
         memberService.verifyPassword(memberId, verifyPassword);
         return ResponseEntity.ok(JsonResponse.success("password verify success"));
     }
 
     @PostMapping("/verification/newPassword")
-    public ResponseEntity<JsonResponse<String>> changePassword(@RequestBody NewPasswordDTO newPassword) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String memberId = authentication.getName();
+    public ResponseEntity<JsonResponse<String>> changePassword(@RequestHeader("Authorization") String token,
+                                                               @RequestBody NewPasswordDTO newPassword) {
+        String accessToken = jwtProcessor.extractToken(token);
+        String memberId = jwtProcessor.getMemberId(accessToken);
         memberService.changePassword(memberId, newPassword);
         return ResponseEntity.ok(JsonResponse.success("password change success"));
     }
 
     @PostMapping("/image")
     public ResponseEntity<JsonResponse<UploadFileDTO>> uploadFile(
+            @RequestHeader("Authorization") String token,
             @RequestPart MultipartFile file) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String memberId = authentication.getName();
+        String accessToken = jwtProcessor.extractToken(token);
+        String memberId = jwtProcessor.getMemberId(accessToken);
         UploadFile uploadFile = s3uploaderService.uploadFile(file);
         String imageUrl = uploadFile.getStoreFileName();
         UploadFileDTO uploadImage = memberService.uploadImage(memberId, imageUrl);
@@ -163,9 +149,11 @@ public class MemberController {
     }
 
     @DeleteMapping("/image")
-    public ResponseEntity<JsonResponse<UploadFileDTO>> deleteFile(@RequestParam("fileUrl") String fileUrl) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String memberId = authentication.getName();
+    public ResponseEntity<JsonResponse<UploadFileDTO>> deleteFile(
+            @RequestHeader("Authorization") String token,
+            @RequestParam("fileUrl") String fileUrl) {
+        String accessToken = jwtProcessor.extractToken(token);
+        String memberId = jwtProcessor.getMemberId(accessToken);
 
         s3uploaderService.deleteFile(fileUrl);
         String imageUrl = "basic-image/basic.jpg";
@@ -174,15 +162,18 @@ public class MemberController {
     }
 
     @PostMapping("/email")
-    public ResponseEntity<JsonResponse<String>> updateEmail(@RequestBody NewEmailDTO newEmail) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String memberId = authentication.getName();
+    public ResponseEntity<JsonResponse<String>> updateEmail(@RequestHeader("Authorization") String token,
+                                                            @RequestBody NewEmailDTO newEmail) {
+        String accessToken = jwtProcessor.extractToken(token);
+        String memberId = jwtProcessor.getMemberId(accessToken);
         memberService.changeEmail(memberId, newEmail);
         return ResponseEntity.ok(JsonResponse.success("Email changed successfully"));
     }
 
     @PostMapping("/withdraw")
-    public ResponseEntity<JsonResponse<String>> withdrawMember(@RequestBody Integer memberIdx) {
+    public ResponseEntity<JsonResponse<String>> withdrawMember(@RequestHeader("Authorization") String token) {
+        String accessToken = jwtProcessor.extractToken(token);
+        Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);
         memberService.withdrawMember(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success("Withdraw successfully"));
     }

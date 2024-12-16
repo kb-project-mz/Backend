@@ -48,7 +48,7 @@ public class HomeController {
         return ResponseEntity.ok().body(JsonResponse.success(peerChallengeList));
     }
 
-    @GetMapping("/test}")
+    @GetMapping("/test")
     public ResponseEntity<JsonResponse<TestDTO>> getTest(@RequestHeader("Authorization") String token) {
         String accessToken = jwtProcessor.extractToken(token);
         Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);

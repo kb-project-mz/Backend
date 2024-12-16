@@ -47,9 +47,7 @@ public class EmailController {
 
     @PostMapping("/newpassword")
     public ResponseEntity<JsonResponse<PasswordFindDTO>> findPassword(@RequestBody PasswordFindDTO passwordFindDTO) {
-
         PasswordFindDTO responseDTO = emailService.processFindPasswordAndUpdate(passwordFindDTO);
-
         return ResponseEntity.ok(JsonResponse.success(responseDTO));
     }
 }

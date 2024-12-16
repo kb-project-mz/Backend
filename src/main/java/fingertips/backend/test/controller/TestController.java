@@ -48,8 +48,10 @@ public class TestController {
         return ResponseEntity.ok(JsonResponse.success("Result"));
     }
 
-    @GetMapping("/survey/{memberId}")
-    public ResponseEntity<JsonResponse<ForSurveyDTO>> getSurveyInfo(@PathVariable String memberId) {
+    @GetMapping("/survey")
+    public ResponseEntity<JsonResponse<ForSurveyDTO>> getSurveyInfo(@RequestHeader("Authorization") String token) {
+        String accessToken = jwtProcessor.extractToken(token);
+        String memberId = jwtProcessor.getMemberId(accessToken);
         ForSurveyDTO results = testService.getSurveyInfo(memberId);
         return ResponseEntity.ok(JsonResponse.success(results));
     }
