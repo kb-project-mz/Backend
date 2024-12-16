@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @RestController
@@ -59,6 +59,7 @@ public class TransactionController {
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 
+
     @GetMapping("/recommendation")
     public ResponseEntity<JsonResponse<String>> getRecommendation(@RequestHeader("Authorization") String token) {
 
@@ -67,7 +68,6 @@ public class TransactionController {
         String response = transactionService.getRecommendation(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
-
     @GetMapping("/category")
     public ResponseEntity<JsonResponse<List<CategoryTransactionCountDTO>>> getCategoryData(@RequestHeader("Authorization") String token,
                                                                                            @RequestParam String startDate, @RequestParam String endDate) {
@@ -77,12 +77,49 @@ public class TransactionController {
         return ResponseEntity.ok().body(JsonResponse.success(transactionCounts));
     }
 
-    @GetMapping("/daily")
-    public ResponseEntity<JsonResponse<MonthlyDailyExpenseDTO>> get(@RequestHeader("Authorization") String token) {
+
+    @GetMapping("/monthly-expenses")
+    public ResponseEntity<JsonResponse<List<MonthlyExpenseDTO>>> getYearlyExpenseSummary(
+            @RequestHeader("Authorization") String token,
+            @RequestParam String startDate,
+            @RequestParam String endDate
+    ) {
 
         String accessToken = jwtProcessor.extractToken(token);
         Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);
-        MonthlyDailyExpenseDTO response = transactionService.getMonthlyDailyExpense(memberIdx);
-        return ResponseEntity.ok().body(JsonResponse.success(response));
+
+        List<MonthlyExpenseDTO> yearlyExpenses = transactionService.getMonthlyExpenseSummary(memberIdx, startDate, endDate);
+
+        return ResponseEntity.ok(JsonResponse.success(yearlyExpenses));
     }
+
+    @GetMapping("/daily-transactions")
+    public ResponseEntity<JsonResponse<Map<String, Object>>> getDailyTransactions(
+            @RequestHeader("Authorization") String token,
+            @RequestParam int page,
+            @RequestParam int size
+    ) {
+        if (page < 1 || size < 1) {
+            throw new IllegalArgumentException("Invalid page or size parameter.");
+        }
+        String accessToken = jwtProcessor.extractToken(token);
+        Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);
+
+        // Service 호출
+        List<DailyTransactionDTO> transactions = transactionService.getDailyTransactions(memberIdx, page, size);
+
+        // 총 데이터 수 및 페이지 수 계산
+        long totalElements = transactionService.getTotalTransactions(memberIdx); // 전체 데이터 개수 가져오기
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("data", transactions);
+        response.put("totalElements", totalElements);
+        response.put("totalPages", totalPages);
+
+        return ResponseEntity.ok(JsonResponse.success(response));
+    }
+
+
 }
