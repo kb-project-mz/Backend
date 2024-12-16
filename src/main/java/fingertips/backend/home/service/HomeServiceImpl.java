@@ -44,7 +44,7 @@ public class HomeServiceImpl implements HomeService {
 
     public CompareAuthDTO getAuth(Integer memberIdx) { return homeMapper.getAuth(memberIdx); }
 
-    @Scheduled(fixedRate = 1000)
+//    @Scheduled(fixedRate = 1000)
     public void checkForBalanceUpdates() {
        List<BalanceDTO> currentBalances = homeMapper.getBalanceByMemberIdx(memberIdx);
        CompareAuthDTO auth = homeMapper.getAuth(memberIdx);
@@ -88,7 +88,7 @@ public class HomeServiceImpl implements HomeService {
         return homeMapper.getPeerChallenge(memberIdx);
     }
 
-    @Scheduled(fixedRate = 1000)
+//    @Scheduled(fixedRate = 1000)
     public void updateChallengeStatus() {
        homeMapper.updateChallengeStatus();
     }
