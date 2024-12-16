@@ -39,11 +39,11 @@
     </select>
 
     <select id="getAdditionalSurveyInfo" parameterType="Integer" resultType="ForAdditionalSurveyDTO">
-        SELECT region, occupation
+        SELECT participants_region, participants_occupation
         FROM test_result
         WHERE member_idx = #{memberIdx}
-        AND region IS NOT NULL
-        AND occupation IS NOT NULL
+        AND participants_region IS NOT NULL
+        AND participants_occupation IS NOT NULL
         GROUP BY member_idx
     </select>
 </mapper>
