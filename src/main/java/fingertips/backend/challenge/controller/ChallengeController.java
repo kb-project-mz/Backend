@@ -28,7 +28,7 @@ public class ChallengeController {
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 
-    @PostMapping("")
+    @PostMapping
     public ResponseEntity<JsonResponse<String>> insertChallenge(@RequestBody ChallengeDTO dto) {
         challengeService.insertChallenge(dto);
         return ResponseEntity.ok().body(JsonResponse.success("Create Challenge Success"));
@@ -54,7 +54,7 @@ public class ChallengeController {
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 
-    @GetMapping("/status/{memberIdx}")
+    @GetMapping("/status")
     public ResponseEntity<JsonResponse<List<ProgressDTO>>> getChallengeStatus(@RequestHeader("Authorization") String token) {
         String accessToken = jwtProcessor.extractToken(token);
         Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);
@@ -62,7 +62,7 @@ public class ChallengeController {
         return ResponseEntity.ok().body(JsonResponse.success(response));
     }
 
-    @GetMapping("/peer/{memberIdx}")
+    @GetMapping("/peer")
     public ResponseEntity<JsonResponse<List<ChallengeDTO>>> getPeerChallengeList(@RequestHeader("Authorization") String token) {
         String accessToken = jwtProcessor.extractToken(token);
         Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);
