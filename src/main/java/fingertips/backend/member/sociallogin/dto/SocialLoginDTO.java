@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class SocialLoginDTO {
-    private String memberIdx;
+    private Integer memberIdx;
     private String memberId;
     private String password;
     private String email;

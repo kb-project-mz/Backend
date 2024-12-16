@@ -3,16 +3,17 @@ package fingertips.backend.transaction.service;
 import fingertips.backend.transaction.dto.*;
 
 import java.util.List;
-import java.util.Map;
 
 public interface TransactionService {
 
-    List<CardTransactionDTO> getCardTransactionList(Integer memberId);
-    List<CardTransactionDTO> getCardTransactionListByPeriod(PeriodDTO period);
-    String getMostAndMaximumUsed(PeriodDTO period);
-    List<AccountTransactionDTO> getAccountTransactionList(Integer memberId);
-    String getAiRecommendation(PeriodDTO periodDTO);
-    List<CategoryTransactionCountDTO> getCategoryData(PeriodDTO periodDTO);
+    Integer saveTransaction(Integer memberIdx);
+    MonthlySummaryDTO getMonthlySummary(Integer memberIdx, String startDate, String endDate);
+    TopUsageDTO getTopUsageExpense(Integer memberIdx, String startDate, String endDate);
+    String getRecommendation(Integer memberIdx);
+    List<CategoryTransactionCountDTO> getCategoryData(Integer memberIdx, String startDate, String endDate);
     List<String> getFixedExpense(Integer memberIdx);
-    List<CardTransactionDTO> getCardTransactionLastFourMonths(Integer memberIdx);
+    List<MonthlyExpenseDTO> getMonthlyExpenseSummary(Integer memberIdx, String startDate, String endDate);
+    List<DailyTransactionDTO> getDailyTransactions(Integer memberIdx, int page, int size);
+    long getTotalTransactions(Integer memberIdx);
+
 }

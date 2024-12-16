@@ -66,7 +66,9 @@ public enum ApplicationError {
     USER_METRICS_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "METRICS_003", "사용자 메트릭 업데이트에 실패하였습니다."),
     USER_METRICS_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "METRICS_004", "사용자 메트릭 삭제에 실패하였습니다."),
     USER_METRICS_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "METRICS_005", "메트릭 데이터를 저장하는 데 실패했습니다."),
-    SCHEDULER_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "SCHEDULER_001", "스케줄러 실행에 실패했습니다.");
+    SCHEDULER_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "SCHEDULER_001", "스케줄러 실행에 실패했습니다."),
+
+    REDIS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "REDIS_001", "레디스 통신 중 에러가 발생했습니다.");
 
     private final HttpStatus status;
     private final String code;

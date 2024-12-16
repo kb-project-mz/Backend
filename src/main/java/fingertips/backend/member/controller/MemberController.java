@@ -97,23 +97,23 @@ public class MemberController {
         return ResponseEntity.ok(JsonResponse.success(exists));
     }
 
-    @PostMapping("/refreshToken")
-    public ResponseEntity<?> refreshAccessToken(@RequestBody Map<String, String> requestBody) {
-        String refreshToken = requestBody.get("refreshToken");
-        if (jwtProcessor.validateToken(refreshToken)) {
-            String memberId = jwtProcessor.getMemberId(refreshToken);
-            String newAccessToken = jwtProcessor.generateAccessToken(memberId, "ROLE_USER");
-            String newRefreshToken = jwtProcessor.generateRefreshToken(memberId);
-            memberService.setRefreshToken(MemberDTO.builder().memberId(memberId).refreshToken(newRefreshToken).build());
-
-            return ResponseEntity.ok(AuthDTO.builder()
-                    .accessToken(newAccessToken)
-                    .refreshToken(newRefreshToken)
-                    .build());
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token expired. Please login again.");
-        }
-    }
+//    @PostMapping("/refreshToken")
+//    public ResponseEntity<?> refreshAccessToken(@RequestBody Map<String, String> requestBody) {
+//        String refreshToken = requestBody.get("refreshToken");
+//        if (jwtProcessor.validateToken(refreshToken)) {
+//            String memberId = jwtProcessor.getMemberId(refreshToken);
+//            String newAccessToken = jwtProcessor.generateAccessToken(memberId, "ROLE_USER");
+//            String newRefreshToken = jwtProcessor.generateRefreshToken(memberId);
+//            memberService.setRefreshToken(MemberDTO.builder().memberId(memberId).refreshToken(newRefreshToken).build());
+//
+//            return ResponseEntity.ok(AuthDTO.builder()
+//                    .accessToken(newAccessToken)
+//                    .refreshToken(newRefreshToken)
+//                    .build());
+//        } else {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token expired. Please login again.");
+//        }
+//    }
 
     @PostMapping("/logout")
     public ResponseEntity<JsonResponse<String>> logout(HttpServletRequest request) {
