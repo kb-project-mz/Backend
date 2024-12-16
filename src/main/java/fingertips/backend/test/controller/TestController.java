@@ -2,6 +2,7 @@ package fingertips.backend.test.controller;
 
 
 import fingertips.backend.exception.dto.JsonResponse;
+import fingertips.backend.security.util.JwtProcessor;
 import fingertips.backend.test.dto.*;
 import fingertips.backend.test.service.TestService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import java.util.*;
 public class TestController {
 
     private final TestService testService;
+    private final JwtProcessor jwtProcessor;
 
     @GetMapping("/questions")
     public ResponseEntity<JsonResponse<List<TestQuestionDTO>>> getAllQuestions() {
@@ -46,14 +48,18 @@ public class TestController {
         return ResponseEntity.ok(JsonResponse.success("Result"));
     }
 
-    @GetMapping("/survey/{memberId}")
-    public ResponseEntity<JsonResponse<ForSurveyDTO>> getSurveyInfo(@PathVariable String memberId) {
+    @GetMapping("/survey")
+    public ResponseEntity<JsonResponse<ForSurveyDTO>> getSurveyInfo(@RequestHeader("Authorization") String token) {
+        String accessToken = jwtProcessor.extractToken(token);
+        String memberId = jwtProcessor.getMemberId(accessToken);
         ForSurveyDTO results = testService.getSurveyInfo(memberId);
         return ResponseEntity.ok(JsonResponse.success(results));
     }
 
-    @GetMapping("/survey/{memberIdx}/additional-info")
-    public ResponseEntity<JsonResponse<ForAdditionalSurveyDTO>> getAdditionalSurveyInfo(@PathVariable int memberIdx) {
+    @GetMapping("/survey/additional-info")
+    public ResponseEntity<JsonResponse<ForAdditionalSurveyDTO>> getAdditionalSurveyInfo(@RequestHeader("Authorization") String token) {
+        String accessToken = jwtProcessor.extractToken(token);
+        Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);
         ForAdditionalSurveyDTO results = testService.getAdditionalSurveyInfo(memberIdx);
         return ResponseEntity.ok(JsonResponse.success(results));
     }
