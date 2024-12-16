@@ -36,11 +36,12 @@ public class JwtProcessor {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateAccessToken(String subject, String role, Integer memberIdx) {
+    public String generateAccessToken(String subject, String role, Integer memberIdx, String memberName) {
         return Jwts.builder()
                 .setSubject(subject)
                 .claim("role", role)
                 .claim("memberIdx", memberIdx)
+                .claim("memberName", memberName)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(new Date().getTime() + ACCESS_TOKEN_VALID_MILLISECONDS))
                 .signWith(key)
