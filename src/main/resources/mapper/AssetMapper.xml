@@ -15,10 +15,16 @@
             CASE
                 WHEN a.asset_type = 'account' THEN COALESCE(ab.balance, 0)
                 ELSE NULL
-                END AS balance
+                END AS accountBalance,
+            CASE
+                WHEN a.asset_type = 'card' THEN COALESCE(SUM(t.amount), 0)
+                ELSE 0
+                END AS totalCardExpense
         FROM asset a
                  LEFT JOIN account_balance ab ON a.asset_idx = ab.asset_idx
+                 LEFT JOIN transaction t ON a.asset_idx = t.asset_idx AND t.transaction_type = '출금'
         WHERE a.member_idx = #{memberIdx}
+        GROUP BY a.asset_idx, a.asset_type, a.bank_name, a.asset_name, a.asset_image, a.connected_status
     </select>
 
     <update id="connectCard" parameterType="Integer">

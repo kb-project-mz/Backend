@@ -14,5 +14,6 @@ public class AssetDTO {
     private String assetName;
     private String assetImage;
     private Integer connectedStatus;
-    private Integer balance;
+    private Integer accountBalance;
+    private Integer totalCardExpense;
 }
