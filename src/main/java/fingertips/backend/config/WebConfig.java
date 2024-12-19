@@ -5,17 +5,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
-import javax.servlet.Filter;
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletRegistration;
 import fingertips.backend.security.config.SecurityConfig;
 
+import java.io.File;
+
 @Slf4j
 @Configuration
 public class WebConfig extends AbstractAnnotationConfigDispatcherServletInitializer {
-    final String LOCATION = "c:/upload";
+    final String LOCATION = "/tmp/upload";
     final long MAX_FILE_SIZE = 1024 * 1024 * 10L;
     final long MAX_REQUEST_SIZE = 1024 * 1024 * 20L;
     final int FILE_SIZE_THRESHOLD = 1024 * 1024 * 5;
@@ -38,6 +38,16 @@ public class WebConfig extends AbstractAnnotationConfigDispatcherServletInitiali
     @Override
     protected void customizeRegistration(ServletRegistration.Dynamic registration) {
         registration.setInitParameter("throwExceptionIfNoHandlerFound", "true");
+
+        File uploadDir = new File(LOCATION);
+        if (!uploadDir.exists()) {
+            boolean isCreated = uploadDir.mkdirs();
+            if (isCreated) {
+                log.info("Upload directory created at: " + LOCATION);
+            } else {
+                log.error("Failed to create upload directory at: " + LOCATION);
+            }
+        }
 
         MultipartConfigElement multipartConfig = new MultipartConfigElement(
                 LOCATION,
