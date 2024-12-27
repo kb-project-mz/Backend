@@ -13,4 +13,62 @@
         WHERE a.member_idx = #{memberIdx} AND a.connected_status = 1
         ORDER BY t.transaction_date DESC, t.transaction_time DESC
     </select>
+
+    <select id="getMonthlySummary" parameterType="map" resultType="MonthlySummaryDTO">
+        SELECT SUM(CASE
+                WHEN t.transaction_type = '출금' AND t.transaction_date BETWEEN #{startDate} AND #{endDate} THEN t.amount
+                ELSE 0 END) AS expense,
+            SUM(CASE
+                WHEN t.transaction_type = '입금' AND t.transaction_date BETWEEN #{startDate} AND #{endDate} THEN t.amount
+                ELSE 0 END) AS income,
+            (SUM(CASE WHEN t.transaction_type = '출금' THEN t.amount ELSE 0 END)
+                / IF(DATEDIFF(#{endDate}, #{startDate}) = 0, 1, DATEDIFF(#{endDate}, #{startDate}))) AS average
+        FROM transaction t
+            JOIN asset a ON t.asset_idx = a.asset_idx
+        WHERE a.member_idx = #{memberIdx}
+            AND a.connected_status = 1
+            AND t.transaction_date BETWEEN #{startDate} AND #{endDate};
+    </select>
+
+    <select id="getMonthlyExpenseSummary" parameterType="Integer" resultType="MonthlyExpenseDTO">
+        SELECT YEAR(t.transaction_date) AS year, MONTH(t.transaction_date) AS month, SUM(t.amount) AS totalExpense
+        FROM transaction t
+            JOIN asset a ON t.asset_idx = a.asset_idx
+        WHERE a.member_idx = #{memberIdx}
+            AND a.connected_status = 1
+            AND t.transaction_date BETWEEN DATE_FORMAT(DATE_ADD(CURDATE(), INTERVAL -11 MONTH), '%Y-%m-01') AND CURDATE()
+            AND t.transaction_type = '출금'
+        GROUP BY YEAR(t.transaction_date), MONTH(t.transaction_date)
+        ORDER BY YEAR(t.transaction_date), MONTH(t.transaction_date);
+    </select>
+
+    <select id="getThreeMonthsExpense" parameterType="Integer" resultType="TransactionDTO">
+        SELECT t.asset_idx, a.asset_type, a.bank_name, a.asset_name, a.asset_image, t.transaction_date, t.transaction_time,
+               t.transaction_type, cat.category_name, t.transaction_description, t.amount
+        FROM transaction t
+                 JOIN asset a ON t.asset_idx = a.asset_idx
+                 JOIN category cat ON t.category_idx = cat.category_idx
+        WHERE a.member_idx = #{memberIdx} AND a.connected_status = 1 AND t.transaction_type = '출금' AND transaction_date BETWEEN DATE_FORMAT(DATE_ADD(CURDATE(), INTERVAL -3 MONTH), '%Y-%m-01') AND CURDATE()
+        ORDER BY t.transaction_date DESC, t.transaction_time DESC
+    </select>
+
+    <select id="getThisMonthExpense" parameterType="map" resultType="TransactionDTO">
+        SELECT t.asset_idx, a.asset_type, a.bank_name, a.asset_name, a.asset_image, t.transaction_date, t.transaction_time,
+               t.transaction_type, cat.category_name, t.transaction_description, t.amount
+        FROM transaction t
+                 JOIN asset a ON t.asset_idx = a.asset_idx
+                 JOIN category cat ON t.category_idx = cat.category_idx
+        WHERE a.member_idx = #{memberIdx} AND a.connected_status = 1 AND t.transaction_type = '출금' AND transaction_date BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-01') AND CURDATE()
+        ORDER BY t.transaction_date DESC, t.transaction_time DESC
+    </select>
+
+    <select id="getSelectedTransaction" parameterType="map" resultType="TransactionDTO">
+        SELECT t.asset_idx, a.asset_type, a.bank_name, a.asset_name, a.asset_image, t.transaction_date, t.transaction_time,
+               t.transaction_type, cat.category_name, t.transaction_description, t.amount
+        FROM transaction t
+                 JOIN asset a ON t.asset_idx = a.asset_idx
+                 JOIN category cat ON t.category_idx = cat.category_idx
+        WHERE a.member_idx = #{memberIdx} AND a.connected_status = 1 AND transaction_date BETWEEN #{startDate} AND #{endDate}
+        ORDER BY t.transaction_date DESC, t.transaction_time DESC
+    </select>
 </mapper>

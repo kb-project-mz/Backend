@@ -15,14 +15,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.mysql.cj.util.TimeUtil.DATE_FORMATTER;
 
 @Slf4j
 @Service
@@ -53,101 +49,28 @@ public class TransactionServiceImpl implements TransactionService {
         }
     }
 
-    private List<TransactionDTO> getTransaction(Integer memberIdx, String startDateString, String endDateString) {
-
-        Object data = redisTemplate.opsForValue().get(String.valueOf(memberIdx));
-
-        try {
-            List<TransactionDTO> transactions = objectMapper.readValue(
-                    (String) data, new TypeReference<List<TransactionDTO>>() {});
-            System.out.println("Transactions size: " + transactions.size());
-            LocalDate startDate = LocalDate.parse(startDateString, formatter);
-            LocalDate endDate = LocalDate.parse(endDateString, formatter);
-
-            return transactions.stream()
-                    .filter(transaction -> {
-                        LocalDate transactionDate = LocalDate.parse(transaction.getTransactionDate(), formatter);
-                        return (transactionDate.isEqual(startDate) || transactionDate.isAfter(startDate)) &&
-                                (transactionDate.isEqual(endDate) || transactionDate.isBefore(endDate));
-                    })
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            throw new ApplicationException(ApplicationError.REDIS_ERROR);
-        }
-    }
-
     @Override
     public MonthlySummaryDTO getMonthlySummary(Integer memberIdx, String startDateString, String endDateString) {
 
-        Long expense = 0L;
-        Long income = 0L;
+        Map<String, Object> params = new HashMap<>();
+        params.put("memberIdx", memberIdx);
+        params.put("startDate", startDateString);
+        params.put("endDate", endDateString);
 
-        LocalDate startDate = LocalDate.parse(startDateString, formatter);
-        LocalDate endDate = LocalDate.parse(endDateString, formatter);
-        Long daysDifference = ChronoUnit.DAYS.between(startDate, endDate);
-
-        List<TransactionDTO> transactions = getTransaction(memberIdx, startDateString, endDateString);
-        for (TransactionDTO transactionDTO : transactions) {
-            if (transactionDTO.getTransactionType().equals("출금")) {
-                expense += transactionDTO.getAmount();
-            } else {
-                income += transactionDTO.getAmount();
-            }
-        }
-
-        return MonthlySummaryDTO.builder()
-                .expense(expense)
-                .income(income)
-                .average(expense / daysDifference)
-                .build();
+        return transactionMapper.getMonthlySummary(params);
     }
 
     @Override
     public List<MonthlyExpenseDTO> getMonthlyExpenseSummary(Integer memberIdx) {
 
-        LocalDate today = LocalDate.now();
-        LocalDate elevenMonthsAgo = today.minusMonths(11);
-
-        String startDate = String.valueOf(LocalDate.of(elevenMonthsAgo.getYear(), elevenMonthsAgo.getMonth(), 1));
-        String endDate = String.valueOf(today);
-
-        List<TransactionDTO> transactions = getTransaction(memberIdx, startDate, endDate).stream()
-                .filter(transaction -> "출금".equals(transaction.getTransactionType()))
-                .toList();
-
-        Map<YearMonth, Integer> monthlyExpense = new HashMap<>();
-
-        for (TransactionDTO transaction : transactions) {
-            LocalDate transactionDate = LocalDate.parse(transaction.getTransactionDate());
-            YearMonth yearMonth = YearMonth.from(transactionDate);
-            monthlyExpense.merge(yearMonth, transaction.getAmount(), Integer::sum);
-        }
-
-        return monthlyExpense.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey())
-                .map(entry -> MonthlyExpenseDTO.builder()
-                        .year(entry.getKey().getYear())
-                        .month(entry.getKey().getMonthValue())
-                        .totalExpense(entry.getValue())
-                        .build())
-                .collect(Collectors.toList());
+        return transactionMapper.getMonthlyExpenseSummary(memberIdx);
     }
 
     @Override
     public List<DailyTransactionDTO> getDailyTransactions(Integer memberIdx, int page, int size) {
-        String redisKey = String.valueOf(memberIdx);
-        Object data = redisTemplate.opsForValue().get(redisKey);
-
-        if (data == null) {
-            log.warn("Redis에 데이터가 없습니다. 사용자 ID: {}", memberIdx);
-            return Collections.emptyList(); // Redis에 데이터가 없으면 빈 리스트 반환
-        }
 
         try {
-            // Redis에서 데이터를 읽어옴
-            List<TransactionDTO> transactions = objectMapper.readValue(
-                    (String) data, new TypeReference<List<TransactionDTO>>() {}
-            );
+            List<TransactionDTO> transactions = transactionMapper.getTransaction(memberIdx);
 
             // DailyTransactionDTO로 변환
             List<DailyTransactionDTO> dailyTransactions = transactions.stream()
@@ -184,19 +107,9 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public long getTotalTransactions(Integer memberIdx) {
-        String redisKey = String.valueOf(memberIdx);
-        Object data = redisTemplate.opsForValue().get(redisKey);
-
-        if (data == null) {
-            log.warn("Redis에 데이터가 없습니다. 사용자 ID: {}", memberIdx);
-            return 0L; // 데이터가 없으면 0 반환
-        }
 
         try {
-            // Redis에서 전체 데이터 크기를 계산
-            List<TransactionDTO> transactions = objectMapper.readValue(
-                    (String) data, new TypeReference<List<TransactionDTO>>() {}
-            );
+            List<TransactionDTO> transactions = transactionMapper.getTransaction(memberIdx);
             return transactions.size();
 
         } catch (Exception e) {
@@ -208,7 +121,12 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public List<CategoryTransactionCountDTO> getCategoryData(Integer memberIdx, String startDate, String endDate) {
 
-        List<TransactionDTO> allTransactions = getTransaction(memberIdx, startDate, endDate);
+        Map<String, Object> params = new HashMap<>();
+        params.put("memberIdx", memberIdx);
+        params.put("startDate", startDate);
+        params.put("endDate", endDate);
+
+        List<TransactionDTO> allTransactions = transactionMapper.getSelectedTransaction(params);
 
         List<TransactionDTO> transactions = allTransactions.stream()
                 .filter(transaction -> "출금".equals(transaction.getTransactionType()))
@@ -237,9 +155,12 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public TopUsageDTO getTopUsageExpense(Integer memberIdx, String startDateString, String endDateString) {
 
-        List<TransactionDTO> transactions = getTransaction(memberIdx, startDateString, endDateString).stream()
-                .filter(transaction -> "출금".equals(transaction.getTransactionType()))
-                .toList();
+        Map<String, Object> params = new HashMap<>();
+        params.put("memberIdx", memberIdx);
+        params.put("startDate", startDateString);
+        params.put("endDate", endDateString);
+
+        List<TransactionDTO> transactions = transactionMapper.getSelectedTransaction(params);
         String data = formatTransactionAsTable(transactions);
 
         String prompt = data.concat("이 테이블의 cardTransactionDescription 컬럼은 돈을 쓴 사용처야. " +
@@ -298,12 +219,8 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public String getRecommendation(Integer memberIdx) {
 
-        String startDate = String.valueOf(LocalDate.now().withDayOfMonth(1));
-        String endDate = String.valueOf(LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth()));
+        List<TransactionDTO> transactions = transactionMapper.getThisMonthExpense(memberIdx);
 
-        List<TransactionDTO> transactions = getTransaction(memberIdx, startDate, endDate).stream()
-                .filter(transaction -> "출금".equals(transaction.getTransactionType()))
-                .toList();
         String data = formatTransactionAsTable(transactions);
 
         String prompt = data.concat("이 테이블의 cardTransactionDescription 컬럼은 한 달 동안 돈을 쓴 사용처야. " +
@@ -320,19 +237,13 @@ public class TransactionServiceImpl implements TransactionService {
 
         List<String> recurringExpense = new ArrayList<>();
 
-        String startDate = String.valueOf(LocalDate.now().minusMonths(3));
-        String endDate = String.valueOf(LocalDate.now());
-
-        List<TransactionDTO> transactionLastThreeMonths = getTransaction(memberIdx, startDate, endDate).stream()
-                .filter(transaction -> "출금".equals(transaction.getTransactionType()))
-                .toList();
+        List<TransactionDTO> transactionLastThreeMonths = transactionMapper.getThreeMonthsExpense(memberIdx);
 
         Map<String, Set<String>> transactionGroupedByDescription = transactionLastThreeMonths.stream()
                 .collect(Collectors.groupingBy(
                         transaction -> transaction.getTransactionDescription().toUpperCase(),
                         Collectors.mapping(TransactionDTO::getTransactionDate, Collectors.toSet())
                 ));
-
 
         for (Map.Entry<String, Set<String>> transaction : transactionGroupedByDescription.entrySet()) {
             if (transaction.getValue().size() >= 3) {
@@ -358,16 +269,27 @@ public class TransactionServiceImpl implements TransactionService {
         return recurringExpense;
     }
 
-
     public MonthlyDailyExpenseDTO getMonthlyDailyExpense(Integer memberIdx) {
 
         String lastMonthStartDate = String.valueOf(LocalDate.now().minusMonths(1).withDayOfMonth(1));
         String lastMonthEndDate = String.valueOf(LocalDate.now().minusMonths(1).withDayOfMonth(LocalDate.now().minusMonths(1).lengthOfMonth()));
-        List<TransactionDTO> transactionLastMonth = getTransaction(memberIdx, lastMonthStartDate, lastMonthEndDate);
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("memberIdx", memberIdx);
+        params.put("startDate", lastMonthStartDate);
+        params.put("endDate", lastMonthEndDate);
+
+        List<TransactionDTO> transactionLastMonth = transactionMapper.getSelectedTransaction(params);
 
         String thisMonthStartDate = String.valueOf(LocalDate.now().withDayOfMonth(1));
         String thisMonthEndDate = String.valueOf(LocalDate.now());
-        List<TransactionDTO> transactionThisMonth = getTransaction(memberIdx, thisMonthStartDate, thisMonthEndDate);
+
+        Map<String, Object> params2 = new HashMap<>();
+        params2.put("memberIdx", memberIdx);
+        params2.put("startDate", thisMonthStartDate);
+        params2.put("endDate", thisMonthEndDate);
+
+        List<TransactionDTO> transactionThisMonth = transactionMapper.getSelectedTransaction(params2);
 
         Map<String, Integer> lastMonthExpenses = calculateCumulativeDailyExpense(
                 transactionLastMonth.stream()
@@ -456,7 +378,12 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public List<DailyTransactionSummaryDTO> getMonthlyTransactionSummary(Integer memberIdx, String startDate, String endDate) {
 
-        List<TransactionDTO> transactions = getTransaction(memberIdx, startDate, endDate);
+        Map<String, Object> params = new HashMap<>();
+        params.put("memberIdx", memberIdx);
+        params.put("startDate", startDate);
+        params.put("endDate", endDate);
+
+        List<TransactionDTO> transactions = transactionMapper.getSelectedTransaction(params);
 
         Map<String, Map<String, Integer>> dailyDataMap = transactions.stream()
                 .collect(Collectors.groupingBy(
@@ -485,7 +412,6 @@ public class TransactionServiceImpl implements TransactionService {
                     .build());
         }
 
-        LocalDate start = LocalDate.parse(startDate);
         return dailyData;
     }
 }
