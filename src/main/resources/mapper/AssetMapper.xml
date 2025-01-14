@@ -6,51 +6,42 @@
 <mapper namespace="fingertips.backend.asset.mapper.AssetMapper">
     <select id="getAllAssets" resultType="AssetDTO">
         SELECT
-            "1" financeKind,
-            c.card_idx AS prdtId,
-            c.bank_name AS financeName,
-            c.card_name AS prdtName,
-            c.card_image AS image,
-            c.connected_status,
-            "0" as balance
-        FROM card c
-        WHERE c.member_idx = #{memberIdx}
-        GROUP BY c.card_idx, financeName, c.card_name, c.card_image
-        UNION ALL
-        SELECT
-            "2" as financeKind,
-            a.account_idx AS prdtId,
-            a.bank_name AS financeName,
-            a.account_name AS prdtName,
-            a.account_image AS image,
-            a.connected_status,
-            a.balance
-        FROM account a
+            a.asset_idx AS assetIdx,
+            a.asset_type AS assetType,
+            a.bank_name AS bankName,
+            a.asset_name AS assetName,
+            a.asset_image AS assetImage,
+            a.connected_status AS connectedStatus,
+            CASE
+                WHEN a.asset_type = 'account' THEN COALESCE(ab.balance, 0)
+                ELSE NULL
+                END AS balance
+        FROM asset a
+                 LEFT JOIN account_balance ab ON a.asset_idx = ab.asset_idx
         WHERE a.member_idx = #{memberIdx}
-        GROUP BY a.account_idx, financeName, a.account_name, a.account_image;
     </select>
 
     <update id="connectCard" parameterType="Integer">
-        UPDATE card
+        UPDATE asset
         SET connected_status = 1
-        WHERE card_idx = #{cardIdx}
+        WHERE asset_idx = #{assetIdx}
     </update>
 
     <update id="connectAccount" parameterType="Integer">
-        UPDATE account
+        UPDATE asset
         SET connected_status = 1
-        WHERE account_idx = #{accountIdx}
+        WHERE asset_idx = #{assetIdx}
     </update>
 
     <update id="disconnectCard" parameterType="Integer">
-        UPDATE card
+        UPDATE asset
         SET connected_status = 0
-        WHERE card_idx = #{cardIdx}
+        WHERE asset_idx = #{assetIdx}
     </update>
 
     <update id="disconnectAccount" parameterType="Integer">
-        UPDATE account
+        UPDATE asset
         SET connected_status = 0
-        WHERE account_idx = #{accountIdx}
+        WHERE asset_idx = #{assetIdx}
     </update>
 </mapper>

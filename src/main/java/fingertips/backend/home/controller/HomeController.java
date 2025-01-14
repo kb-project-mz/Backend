@@ -6,6 +6,7 @@ import fingertips.backend.home.dto.HomeChallengeDTO;
 import fingertips.backend.home.dto.PeerChallengeDTO;
 import fingertips.backend.home.dto.TestDTO;
 import fingertips.backend.home.service.HomeService;
+import fingertips.backend.security.util.JwtProcessor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -20,28 +21,37 @@ import java.util.List;
 public class HomeController {
 
     private final HomeService homeService;
+    private final JwtProcessor jwtProcessor;
 
-    @PostMapping("/balance/{memberIdx}")
-    public ResponseEntity<JsonResponse<List<BalanceDTO>>> getBalanceByMemberIdx(@PathVariable int memberIdx) {
+    @PostMapping("/balance")
+    public ResponseEntity<JsonResponse<List<BalanceDTO>>> getBalanceByMemberIdx(@RequestHeader("Authorization") String token) {
+        String accessToken = jwtProcessor.extractToken(token);
+        Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);
         homeService.setMemberIdx(memberIdx);
         List<BalanceDTO> balanceByMemberIdx = homeService.getBalanceByMemberIdx(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success(balanceByMemberIdx));
     }
 
-    @GetMapping("/challenge/{memberIdx}")
-    public ResponseEntity<JsonResponse<List<HomeChallengeDTO>>> getChallengeByMemberIdx(@PathVariable Integer memberIdx) {
+    @GetMapping("/challenge")
+    public ResponseEntity<JsonResponse<List<HomeChallengeDTO>>> getChallengeByMemberIdx(@RequestHeader("Authorization") String token) {
+        String accessToken = jwtProcessor.extractToken(token);
+        Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);
         List<HomeChallengeDTO> challengeByMemberIdx = homeService.getChallengeByMemberIdx(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success(challengeByMemberIdx));
     }
 
-    @GetMapping("/peerChallenge/{memberIdx}")
-    public ResponseEntity<JsonResponse<List<PeerChallengeDTO>>> getPeerChallenge(@PathVariable Integer memberIdx) {
+    @GetMapping("/peerChallenge")
+    public ResponseEntity<JsonResponse<List<PeerChallengeDTO>>> getPeerChallenge(@RequestHeader("Authorization") String token) {
+        String accessToken = jwtProcessor.extractToken(token);
+        Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);
         List<PeerChallengeDTO> peerChallengeList = homeService.getPeerChallenge(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success(peerChallengeList));
     }
 
-    @GetMapping("/test/{memberIdx}")
-    public ResponseEntity<JsonResponse<TestDTO>> getTest(@PathVariable Integer memberIdx) {
+    @GetMapping("/test")
+    public ResponseEntity<JsonResponse<TestDTO>> getTest(@RequestHeader("Authorization") String token) {
+        String accessToken = jwtProcessor.extractToken(token);
+        Integer memberIdx = jwtProcessor.getMemberIdx(accessToken);
         TestDTO testResult = homeService.getTest(memberIdx);
         return ResponseEntity.ok().body(JsonResponse.success(testResult));
     }

@@ -28,17 +28,15 @@ import java.util.*;
 public class S3UploadServiceImpl implements S3uploaderService {
 
     private final AmazonS3 amazonS3;
-
-    private String bucket = "fingertips-bucket-local";
+    private final String bucket = "fingertips-bucket-local";
 
     public UploadFile uploadFile(MultipartFile file) {
         try {
-            String randomFilename = generateRandomFilename(file);
+            String randomFilename = "upload-image/" + generateRandomFilename(file);
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(file.getSize());
             metadata.setContentType(file.getContentType());
             amazonS3.putObject(new PutObjectRequest(bucket, randomFilename, file.getInputStream(), metadata));
-
             return UploadFile.builder()
                     .uploadFileName(file.getOriginalFilename())
                     .storeFileName(randomFilename)

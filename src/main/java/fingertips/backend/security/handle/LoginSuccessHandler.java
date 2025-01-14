@@ -36,7 +36,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         String imageUrl = user.getImageUrl();
         String role = user.getRole();
 
-        String accessToken = jwtProcessor.generateAccessToken(memberId, role);
+        String accessToken = jwtProcessor.generateAccessToken(memberId, role, memberIdx, memberName);
         String refreshToken = jwtProcessor.generateRefreshToken(memberId);
 
         return AuthDTO.builder()

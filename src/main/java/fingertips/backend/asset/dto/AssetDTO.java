@@ -8,12 +8,11 @@ import lombok.*;
 @AllArgsConstructor
 public class AssetDTO {
 
-    private Integer financeKind;
-    private Integer prdtId;
-    private String financeName;
-    private String prdtName;
-    private String image;
-    private Integer totalAmount;
+    private Integer assetIdx;
+    private String assetType;
+    private String bankName;
+    private String assetName;
+    private String assetImage;
     private Integer connectedStatus;
     private Integer balance;
 }
